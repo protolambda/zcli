@@ -47,9 +47,9 @@ func init() {
 	TransitionCmd.AddCommand(BlocksCmd)
 }
 
-func check(err error, msg string, args ...string) {
+func check(err error, msg string, args ...interface{}) {
 	if err != nil {
-		fmt.Printf(msg, args)
+		fmt.Printf(msg, args...)
 		fmt.Printf("%v", err)
 		os.Exit(1)
 	}
@@ -64,7 +64,7 @@ func loadBlock(blockPath string) *phase0.BeaconBlock {
 	check(err, "cannot read block into buffer: %s", blockPath)
 
 	var block phase0.BeaconBlock
-	err = zssz.Decode(r, uint64(buf.Len()), &block, phase0.BeaconBlockSSZ)
+	err = zssz.Decode(&buf, uint64(buf.Len()), &block, phase0.BeaconBlockSSZ)
 	check(err, "cannot decode block SSZ: %s", blockPath)
 
 	return &block
@@ -87,7 +87,7 @@ func loadPreFull(cmd *cobra.Command) *phase0.FullFeaturedState {
 	check(err, "cannot read pre-state into buffer")
 
 	var pre phase0.BeaconState
-	err = zssz.Decode(r, uint64(buf.Len()), &pre, phase0.BeaconStateSSZ)
+	err = zssz.Decode(&buf, uint64(buf.Len()), &pre, phase0.BeaconStateSSZ)
 	check(err, "cannot decode pre-state")
 
 	preFull := phase0.NewFullFeaturedState(&pre)
