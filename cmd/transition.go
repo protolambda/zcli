@@ -1,4 +1,4 @@
-package transition
+package cmd
 
 import (
 	"bytes"
@@ -510,20 +510,6 @@ func init() {
 		DepositsCmd, TransfersCmd, VoluntaryExitsCmd)
 }
 
-func report(out io.Writer, msg string, args ...interface{}) {
-	_, _ = fmt.Fprintf(out, msg, args...)
-}
-
-func check(err error, out io.Writer, msg string, args ...interface{}) bool {
-	if err != nil {
-		report(out, msg, args...)
-		report(out, "%v", err)
-		return true
-	} else {
-		return false
-	}
-}
-
 func loadSSZ(path string, dst interface{}, ssz types.SSZ) error {
 	r, err := os.Open(path)
 	if err != nil {
@@ -577,7 +563,11 @@ func loadPreFull(cmd *cobra.Command) (*phase0.FullFeaturedState, error) {
 }
 
 func writePost(cmd *cobra.Command, state *phase0.BeaconState) error {
-	outPath, err := cmd.Flags().GetString("post")
+	return writeState(cmd, "post", state)
+}
+
+func writeState(cmd *cobra.Command, outKey string, state *phase0.BeaconState) error {
+	outPath, err := cmd.Flags().GetString(outKey)
 	if err != nil {
 		return fmt.Errorf("post path could not be parsed: %v", err)
 	}
