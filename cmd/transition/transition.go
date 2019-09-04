@@ -6,6 +6,7 @@ import (
 	"github.com/protolambda/zrnt/eth2/beacon/attestations"
 	"github.com/protolambda/zrnt/eth2/beacon/deposits"
 	"github.com/protolambda/zrnt/eth2/beacon/exits"
+	"github.com/protolambda/zrnt/eth2/beacon/header"
 	"github.com/protolambda/zrnt/eth2/beacon/slashings/attslash"
 	"github.com/protolambda/zrnt/eth2/beacon/slashings/propslash"
 	"github.com/protolambda/zrnt/eth2/beacon/transfers"
@@ -39,19 +40,19 @@ var (
 	OpCmd               *cobra.Command
 	AttestationCmd      *cobra.Command
 	AttesterSlashingCmd *cobra.Command
-	DepositCmd          *cobra.Command
 	ProposerSlashingCmd *cobra.Command
+	DepositCmd          *cobra.Command
 	TransferCmd         *cobra.Command
 	VoluntaryExitCmd    *cobra.Command
 )
 
 var (
 	BlockCmd             *cobra.Command
-	Block_headerCmd      *cobra.Command
+	BlockHeaderCmd       *cobra.Command
 	AttestationsCmd      *cobra.Command
 	AttesterSlashingsCmd *cobra.Command
-	DepositsCmd          *cobra.Command
 	ProposerSlashingsCmd *cobra.Command
+	DepositsCmd          *cobra.Command
 	TransfersCmd         *cobra.Command
 	VoluntaryExitsCmd    *cobra.Command
 )
@@ -61,8 +62,8 @@ func init() {
 		Use:   "transition",
 		Short: "Run a state-transition",
 	}
-	TransitionCmd.PersistentFlags().String("pre", "", "Pre (Input) path. If none is specified, input is read from STDOUT")
-	TransitionCmd.PersistentFlags().String("post", "", "Post (Output) path. If none is specified, output is written to STDOUT")
+	TransitionCmd.PersistentFlags().StringP("pre", "i", "", "Pre (Input) path. If none is specified, input is read from STDIN")
+	TransitionCmd.PersistentFlags().StringP("post", "o", "", "Post (Output) path. If none is specified, output is written to STDOUT")
 
 	SlotsCmd = &cobra.Command{
 		Use:   "slots <number>",
@@ -167,9 +168,9 @@ func init() {
 		Use:   "block",
 		Short: "Run a block sub state-transition",
 	}
-	SubCmd.AddCommand(EpochCmd, OpCmd, BlocksCmd)
+	SubCmd.AddCommand(EpochCmd, OpCmd, BlockCmd)
 
-	epochSub := func(cmd *cobra.Command, change func(state *phase0.FullFeaturedState)) {
+	transition := func(cmd *cobra.Command, change func(state *phase0.FullFeaturedState)) {
 		state, err := loadPreFull(cmd)
 		if check(err, cmd.ErrOrStderr(), "pre state could not be loaded") {
 			return
@@ -185,7 +186,7 @@ func init() {
 		Short: "process_crosslinks sub state-transition",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			epochSub(cmd, func(state *phase0.FullFeaturedState) {
+			transition(cmd, func(state *phase0.FullFeaturedState) {
 				state.ProcessEpochCrosslinks()
 			})
 		},
@@ -195,7 +196,7 @@ func init() {
 		Short: "process_final_updates sub state-transition",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			epochSub(cmd, func(state *phase0.FullFeaturedState) {
+			transition(cmd, func(state *phase0.FullFeaturedState) {
 				state.ProcessEpochFinalUpdates()
 			})
 		},
@@ -205,7 +206,7 @@ func init() {
 		Short: "process_justification_and_finalization sub state-transition",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			epochSub(cmd, func(state *phase0.FullFeaturedState) {
+			transition(cmd, func(state *phase0.FullFeaturedState) {
 				state.ProcessEpochJustification()
 			})
 		},
@@ -215,7 +216,7 @@ func init() {
 		Short: "process_registry_updates sub state-transition",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			epochSub(cmd, func(state *phase0.FullFeaturedState) {
+			transition(cmd, func(state *phase0.FullFeaturedState) {
 				state.ProcessEpochRegistryUpdates()
 			})
 		},
@@ -225,35 +226,28 @@ func init() {
 		Short: "process_slashings sub state-transition",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			epochSub(cmd, func(state *phase0.FullFeaturedState) {
+			transition(cmd, func(state *phase0.FullFeaturedState) {
 				state.ProcessEpochSlashings()
 			})
 		},
 	}
 	EpochCmd.AddCommand(CrosslinksCmd, FinalUpdatesCmd, JustificationAndFinalizationCmd, RegistryUpdatesCmd, SlashingsCmd)
 
-	opSub := func(cmd *cobra.Command, change func(state *phase0.FullFeaturedState)) {
-		state, err := loadPreFull(cmd)
-		if check(err, cmd.ErrOrStderr(), "pre state could not be loaded") {
-			return
-		}
-		change(state)
-		err = writePost(cmd, state.BeaconState)
-		if check(err, cmd.ErrOrStderr(), "could not write post-state") {
-			return
-		}
-	}
 	AttestationCmd = &cobra.Command{
 		Use:   "attestation",
 		Short: "process_attestation sub state-transition",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			opSub(cmd, func(state *phase0.FullFeaturedState) {
+			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var op attestations.Attestation
 				err := loadSSZ(args[0], &op, attestations.AttestationSSZ)
-				check(err, cmd.ErrOrStderr(), "could not load attestation")
+				if check(err, cmd.ErrOrStderr(), "could not load attestation") {
+					return
+				}
 				err = state.ProcessAttestation(&op)
-				check(err, cmd.ErrOrStderr(), "failed to process attestation")
+				if check(err, cmd.ErrOrStderr(), "failed to process attestation") {
+					return
+				}
 			})
 		},
 	}
@@ -262,12 +256,16 @@ func init() {
 		Short: "process_attester_slashing sub state-transition",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			opSub(cmd, func(state *phase0.FullFeaturedState) {
+			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var op attslash.AttesterSlashing
 				err := loadSSZ(args[0], &op, attslash.AttesterSlashingSSZ)
-				check(err, cmd.ErrOrStderr(), "could not load attester slashing")
+				if check(err, cmd.ErrOrStderr(), "could not load attester slashing") {
+					return
+				}
 				err = state.ProcessAttesterSlashing(&op)
-				check(err, cmd.ErrOrStderr(), "failed to process attester slashing")
+				if check(err, cmd.ErrOrStderr(), "failed to process attester slashing") {
+					return
+				}
 			})
 		},
 	}
@@ -276,12 +274,16 @@ func init() {
 		Short: "process_proposer_slashing sub state-transition",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			opSub(cmd, func(state *phase0.FullFeaturedState) {
+			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var op propslash.ProposerSlashing
 				err := loadSSZ(args[0], &op, propslash.ProposerSlashingSSZ)
-				check(err, cmd.ErrOrStderr(), "could not load proposer slashing")
+				if check(err, cmd.ErrOrStderr(), "could not load proposer slashing") {
+					return
+				}
 				err = state.ProcessProposerSlashing(&op)
-				check(err, cmd.ErrOrStderr(), "failed to process proposer slashing")
+				if check(err, cmd.ErrOrStderr(), "failed to process proposer slashing") {
+					return
+				}
 			})
 		},
 	}
@@ -290,12 +292,16 @@ func init() {
 		Short: "process_deposit sub state-transition",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			opSub(cmd, func(state *phase0.FullFeaturedState) {
+			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var op deposits.Deposit
 				err := loadSSZ(args[0], &op, deposits.DepositSSZ)
-				check(err, cmd.ErrOrStderr(), "could not load deposit")
+				if check(err, cmd.ErrOrStderr(), "could not load deposit") {
+					return
+				}
 				err = state.ProcessDeposit(&op)
-				check(err, cmd.ErrOrStderr(), "failed to process deposit")
+				if check(err, cmd.ErrOrStderr(), "failed to process deposit") {
+					return
+				}
 			})
 		},
 	}
@@ -304,12 +310,16 @@ func init() {
 		Short: "process_transfer sub state-transition",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			opSub(cmd, func(state *phase0.FullFeaturedState) {
+			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var op transfers.Transfer
 				err := loadSSZ(args[0], &op, transfers.TransferSSZ)
-				check(err, cmd.ErrOrStderr(), "could not load transfer")
+				if check(err, cmd.ErrOrStderr(), "could not load transfer") {
+					return
+				}
 				err = state.ProcessTransfer(&op)
-				check(err, cmd.ErrOrStderr(), "failed to process transfer")
+				if check(err, cmd.ErrOrStderr(), "failed to process transfer") {
+					return
+				}
 			})
 		},
 	}
@@ -318,16 +328,186 @@ func init() {
 		Short: "process_voluntary_exit sub state-transition",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			opSub(cmd, func(state *phase0.FullFeaturedState) {
+			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var op exits.VoluntaryExit
 				err := loadSSZ(args[0], &op, exits.VoluntaryExitSSZ)
-				check(err, cmd.ErrOrStderr(), "could not load voluntary exit")
+				if check(err, cmd.ErrOrStderr(), "could not load voluntary exit") {
+					return
+				}
 				err = state.ProcessVoluntaryExit(&op)
-				check(err, cmd.ErrOrStderr(), "failed to process voluntary exit")
+				if check(err, cmd.ErrOrStderr(), "failed to process voluntary exit") {
+					return
+				}
 			})
 		},
 	}
 	OpCmd.AddCommand(AttestationCmd, AttesterSlashingCmd, ProposerSlashingCmd, DepositCmd, TransferCmd, VoluntaryExitCmd)
+
+	BlockHeaderCmd = &cobra.Command{
+		Use:   "block_header",
+		Short: "process_block_header sub state-transition",
+		Args:  cobra.NoArgs,
+		Run: func(cmd *cobra.Command, args []string) {
+			transition(cmd, func(state *phase0.FullFeaturedState) {
+				var bh header.BeaconBlockHeader
+				err := loadSSZ(args[0], &bh, header.BeaconBlockHeaderSSZ)
+				if check(err, cmd.ErrOrStderr(), "could not load block header") {
+					return
+				}
+				err = state.ProcessHeader(&bh)
+				if check(err, cmd.ErrOrStderr(), "failed to process block header") {
+					return
+				}
+			})
+		},
+	}
+	AttestationsCmd = &cobra.Command{
+		Use:   "attestations",
+		Short: "process_attestations sub state-transition",
+		Args:  cobra.NoArgs,
+		Run: func(cmd *cobra.Command, args []string) {
+			transition(cmd, func(state *phase0.FullFeaturedState) {
+				if uint64(len(args)) > ((*phase0.Attestations)(nil)).Limit() {
+					report(cmd.ErrOrStderr(), "too many attestations")
+					return
+				}
+				ops := make(phase0.Attestations, len(args), len(args))
+				for i, arg := range args {
+					err := loadSSZ(args[0], &ops[i], attestations.AttestationSSZ)
+					if check(err, cmd.ErrOrStderr(), "could not load attestation %d %s", i, arg) {
+						return
+					}
+				}
+				err := state.ProcessAttestations(ops)
+				if check(err, cmd.ErrOrStderr(), "failed to process attestations") {
+					return
+				}
+			})
+		},
+	}
+	AttesterSlashingsCmd = &cobra.Command{
+		Use:   "attester_slashings",
+		Short: "process_attester_slashings sub state-transition",
+		Args:  cobra.NoArgs,
+		Run: func(cmd *cobra.Command, args []string) {
+			transition(cmd, func(state *phase0.FullFeaturedState) {
+				if uint64(len(args)) > ((*phase0.AttesterSlashings)(nil)).Limit() {
+					report(cmd.ErrOrStderr(), "too many attester slashings")
+					return
+				}
+				ops := make(phase0.AttesterSlashings, len(args), len(args))
+				for i, arg := range args {
+					err := loadSSZ(args[0], &ops[i], attslash.AttesterSlashingSSZ)
+					if check(err, cmd.ErrOrStderr(), "could not load attester slashing %d %s", i, arg) {
+						return
+					}
+				}
+				err := state.ProcessAttesterSlashings(ops)
+				if check(err, cmd.ErrOrStderr(), "failed to process attester slashings") {
+					return
+				}
+			})
+		},
+	}
+	ProposerSlashingsCmd = &cobra.Command{
+		Use:   "proposer_slashings",
+		Short: "process_proposer_slashings sub state-transition",
+		Args:  cobra.NoArgs,
+		Run: func(cmd *cobra.Command, args []string) {
+			transition(cmd, func(state *phase0.FullFeaturedState) {
+				if uint64(len(args)) > ((*phase0.ProposerSlashings)(nil)).Limit() {
+					report(cmd.ErrOrStderr(), "too many proposer slashings")
+					return
+				}
+				ops := make(phase0.ProposerSlashings, len(args), len(args))
+				for i, arg := range args {
+					err := loadSSZ(args[0], &ops[i], propslash.ProposerSlashingSSZ)
+					if check(err, cmd.ErrOrStderr(), "could not load proposer slashing %d %s", i, arg) {
+						return
+					}
+				}
+				err := state.ProcessProposerSlashings(ops)
+				if check(err, cmd.ErrOrStderr(), "failed to process proposer slashings") {
+					return
+				}
+			})
+		},
+	}
+	DepositsCmd = &cobra.Command{
+		Use:   "deposits",
+		Short: "process_deposits sub state-transition",
+		Args:  cobra.NoArgs,
+		Run: func(cmd *cobra.Command, args []string) {
+			transition(cmd, func(state *phase0.FullFeaturedState) {
+				if uint64(len(args)) > ((*phase0.Deposits)(nil)).Limit() {
+					report(cmd.ErrOrStderr(), "too many deposits")
+					return
+				}
+				ops := make(phase0.Deposits, len(args), len(args))
+				for i, arg := range args {
+					err := loadSSZ(args[0], &ops[i], deposits.DepositSSZ)
+					if check(err, cmd.ErrOrStderr(), "could not load deposit %d %s", i, arg) {
+						return
+					}
+				}
+				err := state.ProcessDeposits(ops)
+				if check(err, cmd.ErrOrStderr(), "failed to process deposits") {
+					return
+				}
+			})
+		},
+	}
+	TransfersCmd = &cobra.Command{
+		Use:   "transfers",
+		Short: "process_transfers sub state-transition",
+		Args:  cobra.NoArgs,
+		Run: func(cmd *cobra.Command, args []string) {
+			transition(cmd, func(state *phase0.FullFeaturedState) {
+				if uint64(len(args)) > ((*phase0.Transfers)(nil)).Limit() {
+					report(cmd.ErrOrStderr(), "too many transfers")
+					return
+				}
+				ops := make(phase0.Transfers, len(args), len(args))
+				for i, arg := range args {
+					err := loadSSZ(args[0], &ops[i], transfers.TransferSSZ)
+					if check(err, cmd.ErrOrStderr(), "could not load transfer %d %s", i, arg) {
+						return
+					}
+				}
+				err := state.ProcessTransfers(ops)
+				if check(err, cmd.ErrOrStderr(), "failed to process transfers") {
+					return
+				}
+			})
+		},
+	}
+	VoluntaryExitsCmd = &cobra.Command{
+		Use:   "voluntary_exits",
+		Short: "process_voluntary_exits sub state-transition",
+		Args:  cobra.NoArgs,
+		Run: func(cmd *cobra.Command, args []string) {
+			transition(cmd, func(state *phase0.FullFeaturedState) {
+				if uint64(len(args)) > ((*phase0.VoluntaryExits)(nil)).Limit() {
+					report(cmd.ErrOrStderr(), "too many voluntary exits")
+					return
+				}
+				ops := make(phase0.VoluntaryExits, len(args), len(args))
+				for i, arg := range args {
+					err := loadSSZ(args[0], &ops[i], exits.VoluntaryExitSSZ)
+					if check(err, cmd.ErrOrStderr(), "could not load voluntary exit %d %s", i, arg) {
+						return
+					}
+				}
+				err := state.ProcessVoluntaryExits(ops)
+				if check(err, cmd.ErrOrStderr(), "failed to process voluntary exits") {
+					return
+				}
+			})
+		},
+	}
+	BlockCmd.AddCommand(BlockHeaderCmd, AttestationsCmd,
+		AttesterSlashingsCmd, ProposerSlashingsCmd,
+		DepositsCmd, TransfersCmd, VoluntaryExitsCmd)
 }
 
 func report(out io.Writer, msg string, args ...interface{}) {
