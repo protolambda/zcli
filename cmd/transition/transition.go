@@ -3,14 +3,16 @@ package transition
 import (
 	"bytes"
 	"fmt"
+	"github.com/protolambda/zrnt/eth2/core"
 	"github.com/protolambda/zrnt/eth2/phase0"
 	"github.com/protolambda/zssz"
 	"github.com/spf13/cobra"
 	"io"
 	"os"
+	"strconv"
 )
 
-var TransitionCmd, BlocksCmd *cobra.Command
+var TransitionCmd, BlocksCmd, SlotsCmd *cobra.Command
 
 func init() {
 	TransitionCmd = &cobra.Command{
@@ -20,9 +22,48 @@ func init() {
 	TransitionCmd.PersistentFlags().String("pre", "", "Pre (Input) path. If none is specified, input is read from STDOUT")
 	TransitionCmd.PersistentFlags().String("post", "", "Post (Output) path. If none is specified, output is written to STDOUT")
 
+	SlotsCmd = &cobra.Command{
+		Use: "slots <number>",
+		Short: "Process empty slots on the pre-state to get a post-state",
+		Args: func(cmd *cobra.Command, args []string) error {
+			if len(args) != 1 {
+				return fmt.Errorf("expected one argument: <number>")
+			}
+			_, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return fmt.Errorf("argument %v is a not a valid number", args[0])
+			}
+			return nil
+		},
+		Run: func(cmd *cobra.Command, args []string) {
+			isDelta, err := cmd.Flags().GetBool("delta")
+			check(err, "delta flag could not be parsed")
+
+			slots, _ := strconv.ParseUint(args[0], 10, 64)
+
+			state := loadPreFull(cmd)
+
+			to := core.Slot(slots)
+			if isDelta {
+				to += state.Slot
+			} else if to < state.Slot {
+				_, _ = fmt.Fprintln(os.Stderr, "to slot is lower than pre-state slot")
+				return
+			}
+
+			state.ProcessSlots(to)
+
+			writePost(cmd, state.BeaconState)
+		},
+	}
+	SlotsCmd.Flags().Bool("delta", false, "to interpret the slot number as a delta from the pre-state")
+	TransitionCmd.AddCommand(SlotsCmd)
+
+
 	BlocksCmd = &cobra.Command{
 		Use:   "blocks",
-		Short: "Process blocks on top of the state transition",
+		Short: "Process blocks on the pre-state to get a post-state",
+		Args: cobra.ArbitraryArgs,
 		Run: func(cmd *cobra.Command, args []string) {
 			verifyStateRoot, err := cmd.Flags().GetBool("verify-state-root")
 			check(err, "verify-state-root could not be parsed")
