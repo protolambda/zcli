@@ -507,7 +507,7 @@ func init() {
 }
 
 func loadPreFull(cmd *cobra.Command) (*phase0.FullFeaturedState, error) {
-	pre, err := LoadStateInputFlag(cmd, "pre")
+	pre, err := LoadStateInputFlag(cmd, "pre", true)
 	if err != nil {
 		return nil, err
 	}

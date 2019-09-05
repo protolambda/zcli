@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/protolambda/zcli/cmd/diff"
 	"github.com/protolambda/zcli/cmd/genesis"
 	"github.com/protolambda/zcli/cmd/pretty"
 	"github.com/protolambda/zcli/cmd/transition"
@@ -24,6 +25,7 @@ func init() {
 	RootCmd.AddCommand(genesis.GenesisCmd)
 	RootCmd.AddCommand(transition.TransitionCmd)
 	RootCmd.AddCommand(pretty.PrettyCmd)
+	RootCmd.AddCommand(diff.DiffCmd)
 }
 
 func Execute() {

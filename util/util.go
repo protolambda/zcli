@@ -43,36 +43,39 @@ func LoadSSZ(path string, dst interface{}, ssz types.SSZ) error {
 	return nil
 }
 
-func LoadStateInputFlag(cmd *cobra.Command, inputKey string) (*phase0.BeaconState, error) {
+func LoadStateInputFlag(cmd *cobra.Command, inputKey string, stdInFallback bool) (*phase0.BeaconState, error) {
 	inPath, err := cmd.Flags().GetString(inputKey)
 	if err != nil {
-		return nil, fmt.Errorf("pre path could not be parsed")
+		return nil, fmt.Errorf("state path could not be parsed")
 	}
-	return LoadStateInput(cmd, inPath)
+	return LoadStateInputPath(cmd, inPath, stdInFallback)
 }
 
-func LoadStateInput(cmd *cobra.Command, inPath string) (*phase0.BeaconState, error) {
+func LoadStateInputPath(cmd *cobra.Command, inPath string, stdInFallback bool) (*phase0.BeaconState, error) {
 	var r io.Reader
-	if inPath == "" {
+	if stdInFallback && inPath == "" {
 		r = cmd.InOrStdin()
 	} else {
 		var err error
 		r, err = os.Open(inPath)
 		if err != nil {
-			return nil, fmt.Errorf("cannot read pre from input path: %v", err)
+			return nil, fmt.Errorf("cannot read state from input path: %v", err)
 		}
 	}
+	return LoadStateInput(r)
+}
 
+func LoadStateInput(r io.Reader) (*phase0.BeaconState, error) {
 	var buf bytes.Buffer
 	_, err := buf.ReadFrom(r)
 	if err != nil {
-		return nil, fmt.Errorf("cannot read pre-state into buffer: %v", err)
+		return nil, fmt.Errorf("cannot read state into buffer: %v", err)
 	}
 
 	var pre phase0.BeaconState
 	err = zssz.Decode(&buf, uint64(buf.Len()), &pre, phase0.BeaconStateSSZ)
 	if err != nil {
-		return nil, fmt.Errorf("cannot decode pre-state: %v", err)
+		return nil, fmt.Errorf("cannot decode state: %v", err)
 	}
 
 	return &pre, nil

@@ -19,7 +19,7 @@ func init() {
 		Short: "Pretty print a BeaconState",
 		Args: cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			state, err := LoadStateInput(cmd, args[0])
+			state, err := LoadStateInputPath(cmd, args[0], true)
 			if Check(err, cmd.ErrOrStderr(), "cannot load state input") {
 				return
 			}
