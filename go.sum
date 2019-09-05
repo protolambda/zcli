@@ -22,7 +22,7 @@ github.com/pelletier/go-toml v1.2.0/go.mod h1:5z9KED0ma1S8pY6P1sdut58dfprrGBbd/9
 github.com/phoreproject/bls v0.0.0-20190821133044-da95d4798b09/go.mod h1:7pK0Ldy91shCmI47LLTn3i3rfTQcHiJJvPqGqzvN5nE=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/protolambda/messagediff v1.3.0/go.mod h1:LboJp0EwIbJsePYpzh5Op/9G1/4mIztMRYzzwR0dR2M=
-github.com/protolambda/zrnt v0.8.3 h1:hzQuEMXnIHMJVNueX8g40NtkqDWhwQzjmE9OlbZTXqg=
+github.com/protolambda/zrnt v0.8.3 h1:/ABbgz7qn0DfxFG2WM6/3RE2+Z+r7iNM09dX3Z1yWMo=
 github.com/protolambda/zrnt v0.8.3/go.mod h1:pJHB20sFGSE7EPx5aCPD7uqXown/sB4yv7Z5QR29Wcg=
 github.com/protolambda/zssz v0.1.2/go.mod h1:a4iwOX5FE7/JkKA+J/PH0Mjo9oXftN6P8NZyL28gpag=
 github.com/russross/blackfriday v1.5.2/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR/rfWxYHBV53g=
