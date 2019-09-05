@@ -36,7 +36,7 @@ func LoadSSZ(path string, dst interface{}, ssz types.SSZ) error {
 	if err != nil {
 		return fmt.Errorf("cannot read SSZ into buffer: %s\n%v", path, err)
 	}
-	err = zssz.Decode(&buf, uint64(buf.Len()), dst, ssz)
+	err = zssz.Decode(bytes.NewReader(buf.Bytes()), uint64(buf.Len()), dst, ssz)
 	if err != nil {
 		return fmt.Errorf("cannot decode SSZ: %s\n%v", path, err)
 	}
@@ -60,7 +60,7 @@ func LoadSSZInputPath(cmd *cobra.Command, inPath string, stdInFallback bool, dst
 		return fmt.Errorf("cannot read ssz into buffer: %v", err)
 	}
 
-	err = zssz.Decode(&buf, uint64(buf.Len()), dst, ssz)
+	err = zssz.Decode(bytes.NewReader(buf.Bytes()), uint64(buf.Len()), dst, ssz)
 	if err != nil {
 		return fmt.Errorf("cannot decode ssz: %v", err)
 	}
@@ -97,7 +97,7 @@ func LoadStateInput(r io.Reader) (*phase0.BeaconState, error) {
 	}
 
 	var pre phase0.BeaconState
-	err = zssz.Decode(&buf, uint64(buf.Len()), &pre, phase0.BeaconStateSSZ)
+	err = zssz.Decode(bytes.NewReader(buf.Bytes()), uint64(buf.Len()), &pre, phase0.BeaconStateSSZ)
 	if err != nil {
 		return nil, fmt.Errorf("cannot decode state: %v", err)
 	}
