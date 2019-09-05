@@ -92,7 +92,7 @@ func init() {
 				return
 			}
 
-			if Check(WriteState(cmd, "out", state.BeaconState), cmd.ErrOrStderr(), "cannot output state") {
+			if Check(WriteStateOutput(cmd, "out", state.BeaconState), cmd.ErrOrStderr(), "cannot output state") {
 				return
 			}
 		},

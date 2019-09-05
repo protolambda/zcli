@@ -1,7 +1,6 @@
 package transition
 
 import (
-	"bytes"
 	"fmt"
 	. "github.com/protolambda/zcli/util"
 	"github.com/protolambda/zrnt/eth2/beacon/attestations"
@@ -13,11 +12,7 @@ import (
 	"github.com/protolambda/zrnt/eth2/beacon/transfers"
 	"github.com/protolambda/zrnt/eth2/core"
 	"github.com/protolambda/zrnt/eth2/phase0"
-	"github.com/protolambda/zssz"
-	"github.com/protolambda/zssz/types"
 	"github.com/spf13/cobra"
-	"io"
-	"os"
 	"strconv"
 )
 
@@ -127,7 +122,7 @@ func init() {
 
 			for i := 0; i < len(args); i++ {
 				var b phase0.BeaconBlock
-				err := loadSSZ(args[i], &b, phase0.BeaconBlockSSZ)
+				err := LoadSSZ(args[i], &b, phase0.BeaconBlockSSZ)
 				if Check(err, cmd.ErrOrStderr(), "could not load block: %s", args[i]) {
 					return
 				}
@@ -241,7 +236,7 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var op attestations.Attestation
-				err := loadSSZ(args[0], &op, attestations.AttestationSSZ)
+				err := LoadSSZ(args[0], &op, attestations.AttestationSSZ)
 				if Check(err, cmd.ErrOrStderr(), "could not load attestation") {
 					return
 				}
@@ -259,7 +254,7 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var op attslash.AttesterSlashing
-				err := loadSSZ(args[0], &op, attslash.AttesterSlashingSSZ)
+				err := LoadSSZ(args[0], &op, attslash.AttesterSlashingSSZ)
 				if Check(err, cmd.ErrOrStderr(), "could not load attester slashing") {
 					return
 				}
@@ -277,7 +272,7 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var op propslash.ProposerSlashing
-				err := loadSSZ(args[0], &op, propslash.ProposerSlashingSSZ)
+				err := LoadSSZ(args[0], &op, propslash.ProposerSlashingSSZ)
 				if Check(err, cmd.ErrOrStderr(), "could not load proposer slashing") {
 					return
 				}
@@ -295,7 +290,7 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var op deposits.Deposit
-				err := loadSSZ(args[0], &op, deposits.DepositSSZ)
+				err := LoadSSZ(args[0], &op, deposits.DepositSSZ)
 				if Check(err, cmd.ErrOrStderr(), "could not load deposit") {
 					return
 				}
@@ -313,7 +308,7 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var op transfers.Transfer
-				err := loadSSZ(args[0], &op, transfers.TransferSSZ)
+				err := LoadSSZ(args[0], &op, transfers.TransferSSZ)
 				if Check(err, cmd.ErrOrStderr(), "could not load transfer") {
 					return
 				}
@@ -331,7 +326,7 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var op exits.VoluntaryExit
-				err := loadSSZ(args[0], &op, exits.VoluntaryExitSSZ)
+				err := LoadSSZ(args[0], &op, exits.VoluntaryExitSSZ)
 				if Check(err, cmd.ErrOrStderr(), "could not load voluntary exit") {
 					return
 				}
@@ -351,7 +346,7 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var bh header.BeaconBlockHeader
-				err := loadSSZ(args[0], &bh, header.BeaconBlockHeaderSSZ)
+				err := LoadSSZ(args[0], &bh, header.BeaconBlockHeaderSSZ)
 				if Check(err, cmd.ErrOrStderr(), "could not load block header") {
 					return
 				}
@@ -374,7 +369,7 @@ func init() {
 				}
 				ops := make(phase0.Attestations, len(args), len(args))
 				for i, arg := range args {
-					err := loadSSZ(args[0], &ops[i], attestations.AttestationSSZ)
+					err := LoadSSZ(args[0], &ops[i], attestations.AttestationSSZ)
 					if Check(err, cmd.ErrOrStderr(), "could not load attestation %d %s", i, arg) {
 						return
 					}
@@ -398,7 +393,7 @@ func init() {
 				}
 				ops := make(phase0.AttesterSlashings, len(args), len(args))
 				for i, arg := range args {
-					err := loadSSZ(args[0], &ops[i], attslash.AttesterSlashingSSZ)
+					err := LoadSSZ(args[0], &ops[i], attslash.AttesterSlashingSSZ)
 					if Check(err, cmd.ErrOrStderr(), "could not load attester slashing %d %s", i, arg) {
 						return
 					}
@@ -422,7 +417,7 @@ func init() {
 				}
 				ops := make(phase0.ProposerSlashings, len(args), len(args))
 				for i, arg := range args {
-					err := loadSSZ(args[0], &ops[i], propslash.ProposerSlashingSSZ)
+					err := LoadSSZ(args[0], &ops[i], propslash.ProposerSlashingSSZ)
 					if Check(err, cmd.ErrOrStderr(), "could not load proposer slashing %d %s", i, arg) {
 						return
 					}
@@ -446,7 +441,7 @@ func init() {
 				}
 				ops := make(phase0.Deposits, len(args), len(args))
 				for i, arg := range args {
-					err := loadSSZ(args[0], &ops[i], deposits.DepositSSZ)
+					err := LoadSSZ(args[0], &ops[i], deposits.DepositSSZ)
 					if Check(err, cmd.ErrOrStderr(), "could not load deposit %d %s", i, arg) {
 						return
 					}
@@ -470,7 +465,7 @@ func init() {
 				}
 				ops := make(phase0.Transfers, len(args), len(args))
 				for i, arg := range args {
-					err := loadSSZ(args[0], &ops[i], transfers.TransferSSZ)
+					err := LoadSSZ(args[0], &ops[i], transfers.TransferSSZ)
 					if Check(err, cmd.ErrOrStderr(), "could not load transfer %d %s", i, arg) {
 						return
 					}
@@ -494,7 +489,7 @@ func init() {
 				}
 				ops := make(phase0.VoluntaryExits, len(args), len(args))
 				for i, arg := range args {
-					err := loadSSZ(args[0], &ops[i], exits.VoluntaryExitSSZ)
+					err := LoadSSZ(args[0], &ops[i], exits.VoluntaryExitSSZ)
 					if Check(err, cmd.ErrOrStderr(), "could not load voluntary exit %d %s", i, arg) {
 						return
 					}
@@ -511,58 +506,17 @@ func init() {
 		DepositsCmd, TransfersCmd, VoluntaryExitsCmd)
 }
 
-func loadSSZ(path string, dst interface{}, ssz types.SSZ) error {
-	r, err := os.Open(path)
-	if err != nil {
-		return fmt.Errorf("cannot read SSZ from input path: %s\n%v", path, err)
-	}
-
-	var buf bytes.Buffer
-	_, err = buf.ReadFrom(r)
-	if err != nil {
-		return fmt.Errorf("cannot read SSZ into buffer: %s\n%v", path, err)
-	}
-	err = zssz.Decode(&buf, uint64(buf.Len()), dst, ssz)
-	if err != nil {
-		return fmt.Errorf("cannot decode SSZ: %s\n%v", path, err)
-	}
-	return nil
-}
-
 func loadPreFull(cmd *cobra.Command) (*phase0.FullFeaturedState, error) {
-	inPath, err := cmd.Flags().GetString("pre")
+	pre, err := LoadStateInputFlag(cmd, "pre")
 	if err != nil {
-		return nil, fmt.Errorf("pre path could not be parsed")
+		return nil, err
 	}
-
-	var r io.Reader
-	if inPath == "" {
-		r = os.Stdin
-	} else {
-		r, err = os.Open(inPath)
-		if err != nil {
-			return nil, fmt.Errorf("cannot read pre from input path: %v", err)
-		}
-	}
-
-	var buf bytes.Buffer
-	_, err = buf.ReadFrom(r)
-	if err != nil {
-		return nil, fmt.Errorf("cannot read pre-state into buffer: %v", err)
-	}
-
-	var pre phase0.BeaconState
-	err = zssz.Decode(&buf, uint64(buf.Len()), &pre, phase0.BeaconStateSSZ)
-	if err != nil {
-		return nil, fmt.Errorf("cannot decode pre-state: %v", err)
-	}
-
-	preFull := phase0.NewFullFeaturedState(&pre)
+	preFull := phase0.NewFullFeaturedState(pre)
 	preFull.LoadPrecomputedData()
 
 	return preFull, nil
 }
 
 func writePost(cmd *cobra.Command, state *phase0.BeaconState) error {
-	return WriteState(cmd, "post", state)
+	return WriteStateOutput(cmd, "post", state)
 }

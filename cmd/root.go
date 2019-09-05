@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/protolambda/zcli/cmd/genesis"
+	"github.com/protolambda/zcli/cmd/pretty"
 	"github.com/protolambda/zcli/cmd/transition"
 	"github.com/spf13/cobra"
 	"os"
@@ -22,6 +23,7 @@ func init() {
 
 	RootCmd.AddCommand(genesis.GenesisCmd)
 	RootCmd.AddCommand(transition.TransitionCmd)
+	RootCmd.AddCommand(pretty.PrettyCmd)
 }
 
 func Execute() {
