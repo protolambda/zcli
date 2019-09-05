@@ -43,6 +43,30 @@ func LoadSSZ(path string, dst interface{}, ssz types.SSZ) error {
 	return nil
 }
 
+func LoadSSZInputPath(cmd *cobra.Command, inPath string, stdInFallback bool, dst interface{}, ssz types.SSZ) error {
+	var r io.Reader
+	if stdInFallback && inPath == "" {
+		r = cmd.InOrStdin()
+	} else {
+		var err error
+		r, err = os.Open(inPath)
+		if err != nil {
+			return fmt.Errorf("cannot read ssz from input path: %v", err)
+		}
+	}
+	var buf bytes.Buffer
+	_, err := buf.ReadFrom(r)
+	if err != nil {
+		return fmt.Errorf("cannot read ssz into buffer: %v", err)
+	}
+
+	err = zssz.Decode(&buf, uint64(buf.Len()), dst, ssz)
+	if err != nil {
+		return fmt.Errorf("cannot decode ssz: %v", err)
+	}
+	return nil
+}
+
 func LoadStateInputFlag(cmd *cobra.Command, inputKey string, stdInFallback bool) (*phase0.BeaconState, error) {
 	inPath, err := cmd.Flags().GetString(inputKey)
 	if err != nil {
