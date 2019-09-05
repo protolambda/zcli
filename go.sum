@@ -145,6 +145,8 @@ github.com/prometheus/procfs v0.0.4/go.mod h1:4A/X28fw3Fc593LaREMrKMqOKvUAntwMDa
 github.com/prometheus/tsdb v0.7.1/go.mod h1:qhTCs0VvXwvX/y3TZrWD7rabWM+ijKTux40TwIPHuXU=
 github.com/prometheus/tsdb v0.10.0/go.mod h1:oi49uRhEe9dPUTlS3JRZOwJuVi6tmh10QSgwXEyGCt4=
 github.com/protolambda/messagediff v1.3.0/go.mod h1:LboJp0EwIbJsePYpzh5Op/9G1/4mIztMRYzzwR0dR2M=
+github.com/protolambda/zrnt v0.8.3 h1:4JNPItp2cJUTbS3X6k/w9yAs4EZONsuRUTQ8EbA6TSE=
+github.com/protolambda/zrnt v0.8.3/go.mod h1:w2Xam5Q0l+mdnihUA5C92Mgh8wiR7PqpD82T7nLtSvo=
 github.com/protolambda/zssz v0.1.1 h1:+8218akU8R1E4PFK6NtQUQz1lCO1Lt2cAD6nnXZ3SV8=
 github.com/protolambda/zssz v0.1.1/go.mod h1:a4iwOX5FE7/JkKA+J/PH0Mjo9oXftN6P8NZyL28gpag=
 github.com/rogpeppe/fastuuid v0.0.0-20150106093220-6724a57986af/go.mod h1:XWv6SoW27p1b0cqNHllgS5HIMJraePCO15w5zCzIWYg=
