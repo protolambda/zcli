@@ -1,8 +1,9 @@
-package cmd
+package transition
 
 import (
 	"bytes"
 	"fmt"
+	. "github.com/protolambda/zcli/util"
 	"github.com/protolambda/zrnt/eth2/beacon/attestations"
 	"github.com/protolambda/zrnt/eth2/beacon/deposits"
 	"github.com/protolambda/zrnt/eth2/beacon/exits"
@@ -80,14 +81,14 @@ func init() {
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			isDelta, err := cmd.Flags().GetBool("delta")
-			if check(err, cmd.ErrOrStderr(), "delta flag could not be parsed") {
+			if Check(err, cmd.ErrOrStderr(), "delta flag could not be parsed") {
 				return
 			}
 
 			slots, _ := strconv.ParseUint(args[0], 10, 64)
 
 			state, err := loadPreFull(cmd)
-			if check(err, cmd.ErrOrStderr(), "pre state could not be loaded") {
+			if Check(err, cmd.ErrOrStderr(), "pre state could not be loaded") {
 				return
 			}
 
@@ -95,13 +96,13 @@ func init() {
 			if isDelta {
 				to += state.Slot
 			} else if to < state.Slot {
-				report(cmd.ErrOrStderr(), "to slot is lower than pre-state slot")
+				Report(cmd.ErrOrStderr(), "to slot is lower than pre-state slot")
 				return
 			}
 
 			state.ProcessSlots(to)
 			err = writePost(cmd, state.BeaconState)
-			if check(err, cmd.ErrOrStderr(), "could not write post-state") {
+			if Check(err, cmd.ErrOrStderr(), "could not write post-state") {
 				return
 			}
 		},
@@ -115,32 +116,32 @@ func init() {
 		Args:  cobra.ArbitraryArgs,
 		Run: func(cmd *cobra.Command, args []string) {
 			verifyStateRoot, err := cmd.Flags().GetBool("verify-state-root")
-			if check(err, cmd.ErrOrStderr(), "verify-state-root could not be parsed") {
+			if Check(err, cmd.ErrOrStderr(), "verify-state-root could not be parsed") {
 				return
 			}
 
 			state, err := loadPreFull(cmd)
-			if check(err, cmd.ErrOrStderr(), "could not load pre-state") {
+			if Check(err, cmd.ErrOrStderr(), "could not load pre-state") {
 				return
 			}
 
 			for i := 0; i < len(args); i++ {
 				var b phase0.BeaconBlock
 				err := loadSSZ(args[i], &b, phase0.BeaconBlockSSZ)
-				if check(err, cmd.ErrOrStderr(), "could not load block: %s", args[i]) {
+				if Check(err, cmd.ErrOrStderr(), "could not load block: %s", args[i]) {
 					return
 				}
 
 				blockProc := &phase0.BlockProcessFeature{Block: &b, Meta: state}
 
 				err = state.StateTransition(blockProc, verifyStateRoot)
-				if check(err, cmd.ErrOrStderr(), "failed block transition to block %s", args[i]) {
+				if Check(err, cmd.ErrOrStderr(), "failed block transition to block %s", args[i]) {
 					return
 				}
 			}
 
 			err = writePost(cmd, state.BeaconState)
-			if check(err, cmd.ErrOrStderr(), "could not write post-state") {
+			if Check(err, cmd.ErrOrStderr(), "could not write post-state") {
 				return
 			}
 		},
@@ -172,12 +173,12 @@ func init() {
 
 	transition := func(cmd *cobra.Command, change func(state *phase0.FullFeaturedState)) {
 		state, err := loadPreFull(cmd)
-		if check(err, cmd.ErrOrStderr(), "pre state could not be loaded") {
+		if Check(err, cmd.ErrOrStderr(), "pre state could not be loaded") {
 			return
 		}
 		change(state)
 		err = writePost(cmd, state.BeaconState)
-		if check(err, cmd.ErrOrStderr(), "could not write post-state") {
+		if Check(err, cmd.ErrOrStderr(), "could not write post-state") {
 			return
 		}
 	}
@@ -241,11 +242,11 @@ func init() {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var op attestations.Attestation
 				err := loadSSZ(args[0], &op, attestations.AttestationSSZ)
-				if check(err, cmd.ErrOrStderr(), "could not load attestation") {
+				if Check(err, cmd.ErrOrStderr(), "could not load attestation") {
 					return
 				}
 				err = state.ProcessAttestation(&op)
-				if check(err, cmd.ErrOrStderr(), "failed to process attestation") {
+				if Check(err, cmd.ErrOrStderr(), "failed to process attestation") {
 					return
 				}
 			})
@@ -259,11 +260,11 @@ func init() {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var op attslash.AttesterSlashing
 				err := loadSSZ(args[0], &op, attslash.AttesterSlashingSSZ)
-				if check(err, cmd.ErrOrStderr(), "could not load attester slashing") {
+				if Check(err, cmd.ErrOrStderr(), "could not load attester slashing") {
 					return
 				}
 				err = state.ProcessAttesterSlashing(&op)
-				if check(err, cmd.ErrOrStderr(), "failed to process attester slashing") {
+				if Check(err, cmd.ErrOrStderr(), "failed to process attester slashing") {
 					return
 				}
 			})
@@ -277,11 +278,11 @@ func init() {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var op propslash.ProposerSlashing
 				err := loadSSZ(args[0], &op, propslash.ProposerSlashingSSZ)
-				if check(err, cmd.ErrOrStderr(), "could not load proposer slashing") {
+				if Check(err, cmd.ErrOrStderr(), "could not load proposer slashing") {
 					return
 				}
 				err = state.ProcessProposerSlashing(&op)
-				if check(err, cmd.ErrOrStderr(), "failed to process proposer slashing") {
+				if Check(err, cmd.ErrOrStderr(), "failed to process proposer slashing") {
 					return
 				}
 			})
@@ -295,11 +296,11 @@ func init() {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var op deposits.Deposit
 				err := loadSSZ(args[0], &op, deposits.DepositSSZ)
-				if check(err, cmd.ErrOrStderr(), "could not load deposit") {
+				if Check(err, cmd.ErrOrStderr(), "could not load deposit") {
 					return
 				}
 				err = state.ProcessDeposit(&op)
-				if check(err, cmd.ErrOrStderr(), "failed to process deposit") {
+				if Check(err, cmd.ErrOrStderr(), "failed to process deposit") {
 					return
 				}
 			})
@@ -313,11 +314,11 @@ func init() {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var op transfers.Transfer
 				err := loadSSZ(args[0], &op, transfers.TransferSSZ)
-				if check(err, cmd.ErrOrStderr(), "could not load transfer") {
+				if Check(err, cmd.ErrOrStderr(), "could not load transfer") {
 					return
 				}
 				err = state.ProcessTransfer(&op)
-				if check(err, cmd.ErrOrStderr(), "failed to process transfer") {
+				if Check(err, cmd.ErrOrStderr(), "failed to process transfer") {
 					return
 				}
 			})
@@ -331,11 +332,11 @@ func init() {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var op exits.VoluntaryExit
 				err := loadSSZ(args[0], &op, exits.VoluntaryExitSSZ)
-				if check(err, cmd.ErrOrStderr(), "could not load voluntary exit") {
+				if Check(err, cmd.ErrOrStderr(), "could not load voluntary exit") {
 					return
 				}
 				err = state.ProcessVoluntaryExit(&op)
-				if check(err, cmd.ErrOrStderr(), "failed to process voluntary exit") {
+				if Check(err, cmd.ErrOrStderr(), "failed to process voluntary exit") {
 					return
 				}
 			})
@@ -351,11 +352,11 @@ func init() {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var bh header.BeaconBlockHeader
 				err := loadSSZ(args[0], &bh, header.BeaconBlockHeaderSSZ)
-				if check(err, cmd.ErrOrStderr(), "could not load block header") {
+				if Check(err, cmd.ErrOrStderr(), "could not load block header") {
 					return
 				}
 				err = state.ProcessHeader(&bh)
-				if check(err, cmd.ErrOrStderr(), "failed to process block header") {
+				if Check(err, cmd.ErrOrStderr(), "failed to process block header") {
 					return
 				}
 			})
@@ -368,18 +369,18 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				if uint64(len(args)) > ((*phase0.Attestations)(nil)).Limit() {
-					report(cmd.ErrOrStderr(), "too many attestations")
+					Report(cmd.ErrOrStderr(), "too many attestations")
 					return
 				}
 				ops := make(phase0.Attestations, len(args), len(args))
 				for i, arg := range args {
 					err := loadSSZ(args[0], &ops[i], attestations.AttestationSSZ)
-					if check(err, cmd.ErrOrStderr(), "could not load attestation %d %s", i, arg) {
+					if Check(err, cmd.ErrOrStderr(), "could not load attestation %d %s", i, arg) {
 						return
 					}
 				}
 				err := state.ProcessAttestations(ops)
-				if check(err, cmd.ErrOrStderr(), "failed to process attestations") {
+				if Check(err, cmd.ErrOrStderr(), "failed to process attestations") {
 					return
 				}
 			})
@@ -392,18 +393,18 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				if uint64(len(args)) > ((*phase0.AttesterSlashings)(nil)).Limit() {
-					report(cmd.ErrOrStderr(), "too many attester slashings")
+					Report(cmd.ErrOrStderr(), "too many attester slashings")
 					return
 				}
 				ops := make(phase0.AttesterSlashings, len(args), len(args))
 				for i, arg := range args {
 					err := loadSSZ(args[0], &ops[i], attslash.AttesterSlashingSSZ)
-					if check(err, cmd.ErrOrStderr(), "could not load attester slashing %d %s", i, arg) {
+					if Check(err, cmd.ErrOrStderr(), "could not load attester slashing %d %s", i, arg) {
 						return
 					}
 				}
 				err := state.ProcessAttesterSlashings(ops)
-				if check(err, cmd.ErrOrStderr(), "failed to process attester slashings") {
+				if Check(err, cmd.ErrOrStderr(), "failed to process attester slashings") {
 					return
 				}
 			})
@@ -416,18 +417,18 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				if uint64(len(args)) > ((*phase0.ProposerSlashings)(nil)).Limit() {
-					report(cmd.ErrOrStderr(), "too many proposer slashings")
+					Report(cmd.ErrOrStderr(), "too many proposer slashings")
 					return
 				}
 				ops := make(phase0.ProposerSlashings, len(args), len(args))
 				for i, arg := range args {
 					err := loadSSZ(args[0], &ops[i], propslash.ProposerSlashingSSZ)
-					if check(err, cmd.ErrOrStderr(), "could not load proposer slashing %d %s", i, arg) {
+					if Check(err, cmd.ErrOrStderr(), "could not load proposer slashing %d %s", i, arg) {
 						return
 					}
 				}
 				err := state.ProcessProposerSlashings(ops)
-				if check(err, cmd.ErrOrStderr(), "failed to process proposer slashings") {
+				if Check(err, cmd.ErrOrStderr(), "failed to process proposer slashings") {
 					return
 				}
 			})
@@ -440,18 +441,18 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				if uint64(len(args)) > ((*phase0.Deposits)(nil)).Limit() {
-					report(cmd.ErrOrStderr(), "too many deposits")
+					Report(cmd.ErrOrStderr(), "too many deposits")
 					return
 				}
 				ops := make(phase0.Deposits, len(args), len(args))
 				for i, arg := range args {
 					err := loadSSZ(args[0], &ops[i], deposits.DepositSSZ)
-					if check(err, cmd.ErrOrStderr(), "could not load deposit %d %s", i, arg) {
+					if Check(err, cmd.ErrOrStderr(), "could not load deposit %d %s", i, arg) {
 						return
 					}
 				}
 				err := state.ProcessDeposits(ops)
-				if check(err, cmd.ErrOrStderr(), "failed to process deposits") {
+				if Check(err, cmd.ErrOrStderr(), "failed to process deposits") {
 					return
 				}
 			})
@@ -464,18 +465,18 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				if uint64(len(args)) > ((*phase0.Transfers)(nil)).Limit() {
-					report(cmd.ErrOrStderr(), "too many transfers")
+					Report(cmd.ErrOrStderr(), "too many transfers")
 					return
 				}
 				ops := make(phase0.Transfers, len(args), len(args))
 				for i, arg := range args {
 					err := loadSSZ(args[0], &ops[i], transfers.TransferSSZ)
-					if check(err, cmd.ErrOrStderr(), "could not load transfer %d %s", i, arg) {
+					if Check(err, cmd.ErrOrStderr(), "could not load transfer %d %s", i, arg) {
 						return
 					}
 				}
 				err := state.ProcessTransfers(ops)
-				if check(err, cmd.ErrOrStderr(), "failed to process transfers") {
+				if Check(err, cmd.ErrOrStderr(), "failed to process transfers") {
 					return
 				}
 			})
@@ -488,18 +489,18 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				if uint64(len(args)) > ((*phase0.VoluntaryExits)(nil)).Limit() {
-					report(cmd.ErrOrStderr(), "too many voluntary exits")
+					Report(cmd.ErrOrStderr(), "too many voluntary exits")
 					return
 				}
 				ops := make(phase0.VoluntaryExits, len(args), len(args))
 				for i, arg := range args {
 					err := loadSSZ(args[0], &ops[i], exits.VoluntaryExitSSZ)
-					if check(err, cmd.ErrOrStderr(), "could not load voluntary exit %d %s", i, arg) {
+					if Check(err, cmd.ErrOrStderr(), "could not load voluntary exit %d %s", i, arg) {
 						return
 					}
 				}
 				err := state.ProcessVoluntaryExits(ops)
-				if check(err, cmd.ErrOrStderr(), "failed to process voluntary exits") {
+				if Check(err, cmd.ErrOrStderr(), "failed to process voluntary exits") {
 					return
 				}
 			})
@@ -563,25 +564,5 @@ func loadPreFull(cmd *cobra.Command) (*phase0.FullFeaturedState, error) {
 }
 
 func writePost(cmd *cobra.Command, state *phase0.BeaconState) error {
-	return writeState(cmd, "post", state)
-}
-
-func writeState(cmd *cobra.Command, outKey string, state *phase0.BeaconState) error {
-	outPath, err := cmd.Flags().GetString(outKey)
-	if err != nil {
-		return fmt.Errorf("post path could not be parsed: %v", err)
-	}
-
-	var w io.Writer
-	if outPath == "" {
-		w = os.Stdout
-	} else {
-		w, err = os.OpenFile(outPath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
-	}
-
-	_, err = zssz.Encode(w, state, phase0.BeaconStateSSZ)
-	if err != nil {
-		return fmt.Errorf("cannot encode post-state: %v", err)
-	}
-	return nil
+	return WriteState(cmd, "post", state)
 }
