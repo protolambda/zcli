@@ -38,7 +38,7 @@ func (t *CmdType) MakeCmd() *cobra.Command {
 			}
 			dst := t.Alloc()
 
-			err := LoadSSZInputPath(cmd, path, true, dst, phase0.BeaconStateSSZ)
+			err := LoadSSZInputPath(cmd, path, true, dst, t.SSZTyp)
 			if Check(err, cmd.ErrOrStderr(), "cannot load input") {
 				return
 			}
@@ -59,7 +59,7 @@ var CmdTypes = []*CmdType{
 	{"deposit", "Deposit", deposits.DepositSSZ, func() interface{} { return new(deposits.Deposit) }},
 	{"transfer", "Transfer", transfers.TransferSSZ, func() interface{} { return new(transfers.Transfer) }},
 	{"voluntary_exit", "VoluntaryExit", exits.VoluntaryExitSSZ, func() interface{} { return new(exits.VoluntaryExit) }},
-	{"deposit_data", "Deposit", deposits.DepositDataSSZ, func() interface{} { return new(deposits.DepositData) }},
+	{"deposit_data", "DepositData", deposits.DepositDataSSZ, func() interface{} { return new(deposits.DepositData) }},
 	{"eth1_data", "Eth1Data", zssz.GetSSZ((*eth1.Eth1Data)(nil)), func() interface{} { return new(eth1.Eth1Data) }},
 }
 
