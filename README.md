@@ -1,7 +1,7 @@
 # ZRNT CLI
 
 ```bash
-go get -u github.com/protolambda/zcli
+go get -tags preset_minimal github.com/protolambda/zcli
 
 zcli --help
 ```
