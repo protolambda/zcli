@@ -34,7 +34,12 @@ Quick overview of all commands (run `zcli <sub command> --help` to get usage opt
 
 ```text
 zcli
-  diff        find the differences in SSZ data
+  # these commands all have sub-commands to specify the type of the SSZ data.
+  diff             find the differences in SSZ data
+  pretty           pretty-print SSZ data
+  signing-root     (aliases: signing_root, sigr) Compute Signing-Root, output in hex
+  hash-tree-root   (aliases: hash_tree_root, htr) Compute Hash-Tree-Root, output in hex
+  # the type sub-commands:
       attestation
       attester_slashing
       block
@@ -51,7 +56,6 @@ zcli
   genesis     Generate a genesis state
       mock        Generate a genesis state from a predefined set of keys
 
-  pretty      pretty-print SSZ data
       attestation
       attester_slashing
       block
