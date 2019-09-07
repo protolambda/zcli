@@ -56,19 +56,6 @@ zcli
   genesis     Generate a genesis state
       mock        Generate a genesis state from a predefined set of keys
 
-      attestation
-      attester_slashing
-      block
-      block_body
-      block_header
-      deposit
-      deposit_data
-      eth1_data
-      proposer_slashing
-      state
-      transfer
-      voluntary_exit
-
   transition  Run a state-transition
       blocks      Process blocks on the pre-state to get a post-state
       slots       Process empty slots on the pre-state to get a post-state
