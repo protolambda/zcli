@@ -12,13 +12,13 @@ import (
 )
 
 func Report(out io.Writer, msg string, args ...interface{}) {
-	_, _ = fmt.Fprintf(out, msg, args...)
+	_, _ = fmt.Fprintf(out, msg + "\n", args...)
 }
 
 func Check(err error, out io.Writer, msg string, args ...interface{}) bool {
 	if err != nil {
 		Report(out, msg, args...)
-		Report(out, "\n%v", err)
+		Report(out, "%v", err)
 		return true
 	} else {
 		return false

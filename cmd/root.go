@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/protolambda/zcli/cmd/diff"
 	"github.com/protolambda/zcli/cmd/genesis"
+	"github.com/protolambda/zcli/cmd/keys"
 	"github.com/protolambda/zcli/cmd/pretty"
 	"github.com/protolambda/zcli/cmd/roots"
 	"github.com/protolambda/zcli/cmd/transition"
@@ -28,6 +29,7 @@ func init() {
 	RootCmd.AddCommand(pretty.PrettyCmd)
 	RootCmd.AddCommand(diff.DiffCmd)
 	RootCmd.AddCommand(roots.HashTreeRootCmd, roots.SigningRootCmd)
+	RootCmd.AddCommand(keys.KeysCmd)
 }
 
 func Execute() {

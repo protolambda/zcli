@@ -56,6 +56,10 @@ zcli
   genesis     Generate a genesis state
       mock        Generate a genesis state from a predefined set of keys
 
+  keys        Generate and process keys
+      generate    Generate a list of keys
+      shard       Shard (split) a YAML list of keys into ranges. Specify sizes as arguments.
+
   transition  Run a state-transition
       blocks      Process blocks on the pre-state to get a post-state
       slots       Process empty slots on the pre-state to get a post-state

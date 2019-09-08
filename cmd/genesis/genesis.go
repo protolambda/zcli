@@ -8,6 +8,7 @@ import (
 	"github.com/protolambda/zrnt/eth2/util/hashing"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
+	"io"
 	"os"
 	"strings"
 )
@@ -52,10 +53,15 @@ func init() {
 				return
 			}
 
-			r, err := os.Open(keysPath)
-			if err != nil {
-				Report(cmd.ErrOrStderr(), "cannot open key pairs file: %s\n%v", keysPath, err)
-				return
+			var r io.Reader
+			if keysPath == "" {
+				r = cmd.InOrStdin()
+			} else {
+				r, err = os.Open(keysPath)
+				if err != nil {
+					Report(cmd.ErrOrStderr(), "cannot open key pairs file: %s\n%v", keysPath, err)
+					return
+				}
 			}
 			var keys KeyPairs
 			dec := yaml.NewDecoder(r)
@@ -76,6 +82,7 @@ func init() {
 				if strings.HasPrefix(k.Pub, "0x") {
 					k.Pub = k.Pub[2:]
 				}
+				k.Pub = strings.Repeat("0", (48*2)-len(k.Pub)) + k.Pub
 				if _, err := hex.Decode(pub[:], []byte(k.Pub[:])); Check(err, cmd.ErrOrStderr(), "could not decode pubkey for %d", i) {
 					return
 				}
@@ -116,6 +123,7 @@ func decodeRoot(inputHex string, out *[32]byte) (err error) {
 	if strings.HasPrefix(inputHex, "0x") {
 		inputHex = inputHex[2:]
 	}
+	inputHex = strings.Repeat("0", (32*2)-len(inputHex))+inputHex
 	_, err = hex.Decode(out[:], []byte(inputHex[:]))
 	return
 }
