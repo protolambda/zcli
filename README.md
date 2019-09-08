@@ -56,6 +56,9 @@ zcli
   genesis     Generate a genesis state
       mock        Generate a genesis state from a predefined set of keys
 
+  meta        Print meta information of a BeaconState
+      committees  Print committees for the given state
+
   keys        Generate and process keys
       generate    Generate a list of keys
       shard       Shard (split) a YAML list of keys into ranges. Specify sizes as arguments.

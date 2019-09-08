@@ -5,6 +5,7 @@ import (
 	"github.com/protolambda/zcli/cmd/diff"
 	"github.com/protolambda/zcli/cmd/genesis"
 	"github.com/protolambda/zcli/cmd/keys"
+	"github.com/protolambda/zcli/cmd/meta"
 	"github.com/protolambda/zcli/cmd/pretty"
 	"github.com/protolambda/zcli/cmd/roots"
 	"github.com/protolambda/zcli/cmd/transition"
@@ -18,7 +19,7 @@ func init() {
 	RootCmd = &cobra.Command{
 		Use:   "zcli",
 		Short: "ZRNT CLI is a tool for ETH 2 debugging",
-		Long: `A command line tool for ETH 2 debugging, based on ZRNT, the Go exec-spec built by @protolambda.`,
+		Long:  `A command line tool for ETH 2 debugging, based on ZRNT, the Go exec-spec built by @protolambda.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			// Do Stuff Here
 		},
@@ -30,6 +31,7 @@ func init() {
 	RootCmd.AddCommand(diff.DiffCmd)
 	RootCmd.AddCommand(roots.HashTreeRootCmd, roots.SigningRootCmd)
 	RootCmd.AddCommand(keys.KeysCmd)
+	RootCmd.AddCommand(meta.MetaCmd)
 }
 
 func Execute() {
