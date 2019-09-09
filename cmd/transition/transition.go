@@ -106,7 +106,7 @@ func init() {
 	TransitionCmd.AddCommand(SlotsCmd)
 
 	BlocksCmd = &cobra.Command{
-		Use:   "blocks",
+		Use:   "blocks [<block 0.ssz> [<block 1.ssz> [<block 2.ssz> [ ... ]]]",
 		Short: "Process blocks on the pre-state to get a post-state",
 		Args:  cobra.ArbitraryArgs,
 		Run: func(cmd *cobra.Command, args []string) {
@@ -131,7 +131,8 @@ func init() {
 
 				err = state.StateTransition(blockProc, verifyStateRoot)
 				if Check(err, cmd.ErrOrStderr(), "failed block transition to block %s", args[i]) {
-					return
+					// still output the state, just stop processing blocks
+					break
 				}
 			}
 
