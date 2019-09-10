@@ -231,9 +231,9 @@ func init() {
 	EpochCmd.AddCommand(CrosslinksCmd, FinalUpdatesCmd, JustificationAndFinalizationCmd, RegistryUpdatesCmd, SlashingsCmd)
 
 	AttestationCmd = &cobra.Command{
-		Use:   "attestation",
+		Use:   "attestation <data.ssz>",
 		Short: "process_attestation sub state-transition",
-		Args:  cobra.NoArgs,
+		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var op attestations.Attestation
@@ -249,9 +249,9 @@ func init() {
 		},
 	}
 	AttesterSlashingCmd = &cobra.Command{
-		Use:   "attester_slashing",
+		Use:   "attester_slashing <data.ssz>",
 		Short: "process_attester_slashing sub state-transition",
-		Args:  cobra.NoArgs,
+		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var op attslash.AttesterSlashing
@@ -267,9 +267,9 @@ func init() {
 		},
 	}
 	ProposerSlashingCmd = &cobra.Command{
-		Use:   "proposer_slashing",
+		Use:   "proposer_slashing <data.ssz>",
 		Short: "process_proposer_slashing sub state-transition",
-		Args:  cobra.NoArgs,
+		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var op propslash.ProposerSlashing
@@ -285,9 +285,9 @@ func init() {
 		},
 	}
 	DepositCmd = &cobra.Command{
-		Use:   "deposit",
+		Use:   "deposit <data.ssz>",
 		Short: "process_deposit sub state-transition",
-		Args:  cobra.NoArgs,
+		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var op deposits.Deposit
@@ -303,9 +303,9 @@ func init() {
 		},
 	}
 	TransferCmd = &cobra.Command{
-		Use:   "transfer",
+		Use:   "transfer <data.ssz>",
 		Short: "process_transfer sub state-transition",
-		Args:  cobra.NoArgs,
+		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var op transfers.Transfer
@@ -321,9 +321,9 @@ func init() {
 		},
 	}
 	VoluntaryExitCmd = &cobra.Command{
-		Use:   "voluntary_exit",
+		Use:   "voluntary_exit <data.ssz>",
 		Short: "process_voluntary_exit sub state-transition",
-		Args:  cobra.NoArgs,
+		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var op exits.VoluntaryExit
@@ -341,9 +341,9 @@ func init() {
 	OpCmd.AddCommand(AttestationCmd, AttesterSlashingCmd, ProposerSlashingCmd, DepositCmd, TransferCmd, VoluntaryExitCmd)
 
 	BlockHeaderCmd = &cobra.Command{
-		Use:   "block_header",
+		Use:   "block_header <data.ssz>",
 		Short: "process_block_header sub state-transition",
-		Args:  cobra.NoArgs,
+		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				var bh header.BeaconBlockHeader
@@ -359,9 +359,9 @@ func init() {
 		},
 	}
 	AttestationsCmd = &cobra.Command{
-		Use:   "attestations",
+		Use:   "attestations [<data 0.ssz> [<data 1.ssz> [<data 2.ssz> [ ... ]]]]",
 		Short: "process_attestations sub state-transition",
-		Args:  cobra.NoArgs,
+		Args:  cobra.RangeArgs(0, core.MAX_ATTESTATIONS),
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				if uint64(len(args)) > ((*phase0.Attestations)(nil)).Limit() {
@@ -370,7 +370,7 @@ func init() {
 				}
 				ops := make(phase0.Attestations, len(args), len(args))
 				for i, arg := range args {
-					err := LoadSSZ(args[0], &ops[i], attestations.AttestationSSZ)
+					err := LoadSSZ(arg, &ops[i], attestations.AttestationSSZ)
 					if Check(err, cmd.ErrOrStderr(), "could not load attestation %d %s", i, arg) {
 						return
 					}
@@ -383,9 +383,9 @@ func init() {
 		},
 	}
 	AttesterSlashingsCmd = &cobra.Command{
-		Use:   "attester_slashings",
+		Use:   "attester_slashings [<data 0.ssz> [<data 1.ssz> [<data 2.ssz> [ ... ]]]]",
 		Short: "process_attester_slashings sub state-transition",
-		Args:  cobra.NoArgs,
+		Args:  cobra.RangeArgs(0, core.MAX_ATTESTER_SLASHINGS),
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				if uint64(len(args)) > ((*phase0.AttesterSlashings)(nil)).Limit() {
@@ -394,7 +394,7 @@ func init() {
 				}
 				ops := make(phase0.AttesterSlashings, len(args), len(args))
 				for i, arg := range args {
-					err := LoadSSZ(args[0], &ops[i], attslash.AttesterSlashingSSZ)
+					err := LoadSSZ(arg, &ops[i], attslash.AttesterSlashingSSZ)
 					if Check(err, cmd.ErrOrStderr(), "could not load attester slashing %d %s", i, arg) {
 						return
 					}
@@ -407,9 +407,9 @@ func init() {
 		},
 	}
 	ProposerSlashingsCmd = &cobra.Command{
-		Use:   "proposer_slashings",
+		Use:   "proposer_slashings [<data 0.ssz> [<data 1.ssz> [<data 2.ssz> [ ... ]]]]",
 		Short: "process_proposer_slashings sub state-transition",
-		Args:  cobra.NoArgs,
+		Args:  cobra.RangeArgs(0, core.MAX_PROPOSER_SLASHINGS),
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				if uint64(len(args)) > ((*phase0.ProposerSlashings)(nil)).Limit() {
@@ -418,7 +418,7 @@ func init() {
 				}
 				ops := make(phase0.ProposerSlashings, len(args), len(args))
 				for i, arg := range args {
-					err := LoadSSZ(args[0], &ops[i], propslash.ProposerSlashingSSZ)
+					err := LoadSSZ(arg, &ops[i], propslash.ProposerSlashingSSZ)
 					if Check(err, cmd.ErrOrStderr(), "could not load proposer slashing %d %s", i, arg) {
 						return
 					}
@@ -431,9 +431,9 @@ func init() {
 		},
 	}
 	DepositsCmd = &cobra.Command{
-		Use:   "deposits",
+		Use:   "deposits [<data 0.ssz> [<data 1.ssz> [<data 2.ssz> [ ... ]]]]",
 		Short: "process_deposits sub state-transition",
-		Args:  cobra.NoArgs,
+		Args:  cobra.RangeArgs(0, core.MAX_DEPOSITS),
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				if uint64(len(args)) > ((*phase0.Deposits)(nil)).Limit() {
@@ -442,7 +442,7 @@ func init() {
 				}
 				ops := make(phase0.Deposits, len(args), len(args))
 				for i, arg := range args {
-					err := LoadSSZ(args[0], &ops[i], deposits.DepositSSZ)
+					err := LoadSSZ(arg, &ops[i], deposits.DepositSSZ)
 					if Check(err, cmd.ErrOrStderr(), "could not load deposit %d %s", i, arg) {
 						return
 					}
@@ -455,9 +455,9 @@ func init() {
 		},
 	}
 	TransfersCmd = &cobra.Command{
-		Use:   "transfers",
+		Use:   "transfers [<data 0.ssz> [<data 1.ssz> [<data 2.ssz> [ ... ]]]]",
 		Short: "process_transfers sub state-transition",
-		Args:  cobra.NoArgs,
+		Args:  cobra.RangeArgs(0, core.MAX_TRANSFERS),
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				if uint64(len(args)) > ((*phase0.Transfers)(nil)).Limit() {
@@ -466,7 +466,7 @@ func init() {
 				}
 				ops := make(phase0.Transfers, len(args), len(args))
 				for i, arg := range args {
-					err := LoadSSZ(args[0], &ops[i], transfers.TransferSSZ)
+					err := LoadSSZ(arg, &ops[i], transfers.TransferSSZ)
 					if Check(err, cmd.ErrOrStderr(), "could not load transfer %d %s", i, arg) {
 						return
 					}
@@ -479,9 +479,9 @@ func init() {
 		},
 	}
 	VoluntaryExitsCmd = &cobra.Command{
-		Use:   "voluntary_exits",
+		Use:   "voluntary_exits [<data 0.ssz> [<data 1.ssz> [<data 2.ssz> [ ... ]]]]",
 		Short: "process_voluntary_exits sub state-transition",
-		Args:  cobra.NoArgs,
+		Args:  cobra.RangeArgs(0, core.MAX_VOLUNTARY_EXITS),
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
 				if uint64(len(args)) > ((*phase0.VoluntaryExits)(nil)).Limit() {
@@ -490,7 +490,7 @@ func init() {
 				}
 				ops := make(phase0.VoluntaryExits, len(args), len(args))
 				for i, arg := range args {
-					err := LoadSSZ(args[0], &ops[i], exits.VoluntaryExitSSZ)
+					err := LoadSSZ(arg, &ops[i], exits.VoluntaryExitSSZ)
 					if Check(err, cmd.ErrOrStderr(), "could not load voluntary exit %d %s", i, arg) {
 						return
 					}
