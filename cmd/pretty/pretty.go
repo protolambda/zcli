@@ -14,7 +14,7 @@ func MakeCmd(st *spec_types.SpecType) *cobra.Command {
 	return &cobra.Command{
 		Use:   fmt.Sprintf("%s [input path]", st.Name),
 		Short: fmt.Sprintf("Pretty print a %s, if the input path is not specified, input is read from STDIN", st.TypeName),
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			var path string
 			if len(args) > 0 {
