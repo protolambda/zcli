@@ -28,6 +28,7 @@ func MakeCmd(st *spec_types.SpecType) *cobra.Command {
 			}
 
 			zssz.Pretty(cmd.OutOrStdout(), "  ", dst, st.SSZTyp)
+			_, _ = fmt.Fprintln(cmd.OutOrStdout(), "")
 		},
 	}
 }
