@@ -18,7 +18,7 @@ WORKDIR /app
 # Copy over the CLI from the build phase
 COPY --from=zcli_build /app/zcli /bin/zcli
 # Copy over the wrapper executable that will call the cli to run Muskoka tasks
-COPY --from=muskoka_worker /app/muskoka_worker /bin/muskoka_worker
+COPY --from=protolambda/muskoka_worker:v0.1.0 /app/muskoka_worker /bin/muskoka_worker
 
 
 # specify GCP project
