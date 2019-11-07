@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/protolambda/zcli/cmd/checker"
 	"github.com/protolambda/zcli/cmd/diff"
 	"github.com/protolambda/zcli/cmd/genesis"
 	"github.com/protolambda/zcli/cmd/keys"
@@ -32,7 +33,7 @@ func init() {
 		Short: "Print versions of integrated tools",
 		Run: func(cmd *cobra.Command, args []string) {
 			util.Report(cmd.OutOrStdout(), `
-ZCLI: v0.0.12
+ZCLI: v0.0.13
 ZRNT: `+eth2.VERSION+`
 ZSSZ: `+zssz.VERSION+`
 `)
@@ -44,6 +45,7 @@ ZSSZ: `+zssz.VERSION+`
 	RootCmd.AddCommand(transition.TransitionCmd)
 	RootCmd.AddCommand(pretty.PrettyCmd)
 	RootCmd.AddCommand(diff.DiffCmd)
+	RootCmd.AddCommand(checker.CheckCmd)
 	RootCmd.AddCommand(roots.HashTreeRootCmd, roots.SigningRootCmd)
 	RootCmd.AddCommand(keys.KeysCmd)
 	RootCmd.AddCommand(meta.MetaCmd)
