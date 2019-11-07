@@ -32,5 +32,5 @@ RUN rm key_b64.txt
 # Direct application to find the service account
 ENV GOOGLE_APPLICATION_CREDENTIALS /app/service_account.key.json
 
-ENTRYPOINT muskoka_worker --spec-version=v0.8.3 --spec-config=minimal --cli-cmd="zcli transition blocks" --worker-id=worker1 --client-name=zrnt  --client-version=v0.8.3
+ENTRYPOINT muskoka_worker --spec-version=v0.8.3 --spec-config=minimal --cli-cmd="zcli transition blocks" --worker-id=worker1 --client-name=zrnt  --results-bucket=muskoka_zrnt  --client-version=v0.8.3
 
