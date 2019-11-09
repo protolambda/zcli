@@ -59,7 +59,7 @@ zcli
 
   meta        Print meta information of a BeaconState
       committees  Print beacon committees for the given state. For prev, current and next epoch.
-      proposers   Print beacon proposer indices for the given state. For prev, current and next epoch.
+      proposers   Print beacon proposer indices for the given state. For current and next epoch.
 
   keys        Generate and process keys
       generate    Generate a list of keys
