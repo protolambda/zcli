@@ -37,6 +37,7 @@ zcli
   # these commands all have sub-commands to specify the type of the SSZ data.
   diff             find the differences in SSZ data
   pretty           pretty-print SSZ data
+  check            check SSZ data format
   signing-root     (aliases: signing_root, sigr) Compute Signing-Root, output in hex
   hash-tree-root   (aliases: hash_tree_root, htr) Compute Hash-Tree-Root, output in hex
   # the type sub-commands:
@@ -57,7 +58,8 @@ zcli
       mock        Generate a genesis state from a predefined set of keys
 
   meta        Print meta information of a BeaconState
-      committees  Print committees for the given state
+      committees  Print beacon committees for the given state. For prev, current and next epoch.
+      proposers   Print beacon proposer indices for the given state. For prev, current and next epoch.
 
   keys        Generate and process keys
       generate    Generate a list of keys
@@ -73,11 +75,9 @@ zcli
               block_header       process_block_header sub state-transition
               deposits           process_deposits sub state-transition
               proposer_slashings process_proposer_slashings sub state-transition
-              transfers          process_transfers sub state-transition
               voluntary_exits    process_voluntary_exits sub state-transition
 
           epoch       Run an epoch sub state-transition
-              crosslinks                     process_crosslinks sub state-transition
               final_updates                  process_final_updates sub state-transition
               justification_and_finalization process_justification_and_finalization sub state-transition
               registry_updates               process_registry_updates sub state-transition
@@ -88,7 +88,6 @@ zcli
               attester_slashing process_attester_slashing sub state-transition
               deposit           process_deposit sub state-transition
               proposer_slashing process_proposer_slashing sub state-transition
-              transfer          process_transfer sub state-transition
               voluntary_exit    process_voluntary_exit sub state-transition
 
   help        Help about any command
