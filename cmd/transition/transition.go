@@ -9,7 +9,6 @@ import (
 	"github.com/protolambda/zrnt/eth2/beacon/header"
 	"github.com/protolambda/zrnt/eth2/beacon/slashings/attslash"
 	"github.com/protolambda/zrnt/eth2/beacon/slashings/propslash"
-	"github.com/protolambda/zrnt/eth2/beacon/transfers"
 	"github.com/protolambda/zrnt/eth2/core"
 	"github.com/protolambda/zrnt/eth2/phase0"
 	"github.com/spf13/cobra"
@@ -25,7 +24,6 @@ var (
 
 var (
 	EpochCmd                        *cobra.Command
-	CrosslinksCmd                   *cobra.Command
 	FinalUpdatesCmd                 *cobra.Command
 	JustificationAndFinalizationCmd *cobra.Command
 	RegistryUpdatesCmd              *cobra.Command
@@ -38,7 +36,6 @@ var (
 	AttesterSlashingCmd *cobra.Command
 	ProposerSlashingCmd *cobra.Command
 	DepositCmd          *cobra.Command
-	TransferCmd         *cobra.Command
 	VoluntaryExitCmd    *cobra.Command
 )
 
@@ -49,7 +46,6 @@ var (
 	AttesterSlashingsCmd *cobra.Command
 	ProposerSlashingsCmd *cobra.Command
 	DepositsCmd          *cobra.Command
-	TransfersCmd         *cobra.Command
 	VoluntaryExitsCmd    *cobra.Command
 )
 
@@ -178,16 +174,6 @@ func init() {
 			return
 		}
 	}
-	CrosslinksCmd = &cobra.Command{
-		Use:   "crosslinks",
-		Short: "process_crosslinks sub state-transition",
-		Args:  cobra.NoArgs,
-		Run: func(cmd *cobra.Command, args []string) {
-			transition(cmd, func(state *phase0.FullFeaturedState) {
-				state.ProcessEpochCrosslinks()
-			})
-		},
-	}
 	FinalUpdatesCmd = &cobra.Command{
 		Use:   "final_updates",
 		Short: "process_final_updates sub state-transition",
@@ -228,7 +214,7 @@ func init() {
 			})
 		},
 	}
-	EpochCmd.AddCommand(CrosslinksCmd, FinalUpdatesCmd, JustificationAndFinalizationCmd, RegistryUpdatesCmd, SlashingsCmd)
+	EpochCmd.AddCommand(FinalUpdatesCmd, JustificationAndFinalizationCmd, RegistryUpdatesCmd, SlashingsCmd)
 
 	AttestationCmd = &cobra.Command{
 		Use:   "attestation <data.ssz>",
@@ -302,24 +288,6 @@ func init() {
 			})
 		},
 	}
-	TransferCmd = &cobra.Command{
-		Use:   "transfer <data.ssz>",
-		Short: "process_transfer sub state-transition",
-		Args:  cobra.ExactArgs(1),
-		Run: func(cmd *cobra.Command, args []string) {
-			transition(cmd, func(state *phase0.FullFeaturedState) {
-				var op transfers.Transfer
-				err := LoadSSZ(args[0], &op, transfers.TransferSSZ)
-				if Check(err, cmd.ErrOrStderr(), "could not load transfer") {
-					return
-				}
-				err = state.ProcessTransfer(&op)
-				if Check(err, cmd.ErrOrStderr(), "failed to process transfer") {
-					return
-				}
-			})
-		},
-	}
 	VoluntaryExitCmd = &cobra.Command{
 		Use:   "voluntary_exit <data.ssz>",
 		Short: "process_voluntary_exit sub state-transition",
@@ -338,7 +306,7 @@ func init() {
 			})
 		},
 	}
-	OpCmd.AddCommand(AttestationCmd, AttesterSlashingCmd, ProposerSlashingCmd, DepositCmd, TransferCmd, VoluntaryExitCmd)
+	OpCmd.AddCommand(AttestationCmd, AttesterSlashingCmd, ProposerSlashingCmd, DepositCmd, VoluntaryExitCmd)
 
 	BlockHeaderCmd = &cobra.Command{
 		Use:   "block_header <data.ssz>",
@@ -454,30 +422,6 @@ func init() {
 			})
 		},
 	}
-	TransfersCmd = &cobra.Command{
-		Use:   "transfers [<data 0.ssz> [<data 1.ssz> [<data 2.ssz> [ ... ]]]]",
-		Short: "process_transfers sub state-transition",
-		Args:  cobra.RangeArgs(0, core.MAX_TRANSFERS),
-		Run: func(cmd *cobra.Command, args []string) {
-			transition(cmd, func(state *phase0.FullFeaturedState) {
-				if uint64(len(args)) > ((*phase0.Transfers)(nil)).Limit() {
-					Report(cmd.ErrOrStderr(), "too many transfers")
-					return
-				}
-				ops := make(phase0.Transfers, len(args), len(args))
-				for i, arg := range args {
-					err := LoadSSZ(arg, &ops[i], transfers.TransferSSZ)
-					if Check(err, cmd.ErrOrStderr(), "could not load transfer %d %s", i, arg) {
-						return
-					}
-				}
-				err := state.ProcessTransfers(ops)
-				if Check(err, cmd.ErrOrStderr(), "failed to process transfers") {
-					return
-				}
-			})
-		},
-	}
 	VoluntaryExitsCmd = &cobra.Command{
 		Use:   "voluntary_exits [<data 0.ssz> [<data 1.ssz> [<data 2.ssz> [ ... ]]]]",
 		Short: "process_voluntary_exits sub state-transition",
@@ -504,7 +448,7 @@ func init() {
 	}
 	BlockCmd.AddCommand(BlockHeaderCmd, AttestationsCmd,
 		AttesterSlashingsCmd, ProposerSlashingsCmd,
-		DepositsCmd, TransfersCmd, VoluntaryExitsCmd)
+		DepositsCmd, VoluntaryExitsCmd)
 }
 
 func loadPreFull(cmd *cobra.Command) (*phase0.FullFeaturedState, error) {
