@@ -6,6 +6,7 @@ import (
 	"github.com/protolambda/zcli/cmd/checker"
 	"github.com/protolambda/zcli/cmd/diff"
 	"github.com/protolambda/zcli/cmd/genesis"
+	"github.com/protolambda/zcli/cmd/info"
 	"github.com/protolambda/zcli/cmd/keys"
 	"github.com/protolambda/zcli/cmd/meta"
 	"github.com/protolambda/zcli/cmd/pretty"
@@ -54,6 +55,7 @@ config: `+core.PRESET_NAME+`
 	RootCmd.AddCommand(keys.KeysCmd)
 	RootCmd.AddCommand(meta.MetaCmd)
 	RootCmd.AddCommand(api_util.ExtractState)
+	RootCmd.AddCommand(info.InfoCmd)
 }
 
 func Execute() {

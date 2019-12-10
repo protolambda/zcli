@@ -22,7 +22,7 @@ func MakeCmd() *cobra.Command {
 			var inPath, outPath string
 			if len(args) > 0 {
 				if len(args) == 1 {
-					Report(cmd.ErrOrStderr(), "received two arguments but need either 0 or 2.")
+					Report(cmd.ErrOrStderr(), "received 1 argument but need either 0 or 2.")
 					return
 				}
 				inPath = args[0]
