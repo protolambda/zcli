@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/protolambda/zcli/cmd/api_util"
 	"github.com/protolambda/zcli/cmd/checker"
 	"github.com/protolambda/zcli/cmd/diff"
 	"github.com/protolambda/zcli/cmd/genesis"
@@ -52,6 +53,7 @@ config: `+core.PRESET_NAME+`
 	RootCmd.AddCommand(roots.HashTreeRootCmd, roots.SigningRootCmd)
 	RootCmd.AddCommand(keys.KeysCmd)
 	RootCmd.AddCommand(meta.MetaCmd)
+	RootCmd.AddCommand(api_util.ExtractState)
 }
 
 func Execute() {

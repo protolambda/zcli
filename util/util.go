@@ -121,14 +121,20 @@ func LoadStateInput(r io.Reader) (*phase0.BeaconState, error) {
 func WriteStateOutput(cmd *cobra.Command, outKey string, state *phase0.BeaconState) error {
 	outPath, err := cmd.Flags().GetString(outKey)
 	if err != nil {
-		return fmt.Errorf("post path could not be parsed: %v", err)
+		return err
 	}
+	return WriteStateOutputFile(cmd, outPath, state)
+}
 
+func WriteStateOutputFile(cmd *cobra.Command, outPath string, state *phase0.BeaconState) (err error) {
 	var w io.Writer
 	if outPath == "" {
 		w = cmd.OutOrStdout()
 	} else {
 		w, err = os.OpenFile(outPath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
+		if err != nil {
+			return err
+		}
 	}
 
 	_, err = zssz.Encode(w, state, phase0.BeaconStateSSZ)

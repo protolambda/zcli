@@ -8,6 +8,7 @@ import (
 	"github.com/protolambda/zrnt/eth2/beacon/header"
 	"github.com/protolambda/zrnt/eth2/beacon/slashings/attslash"
 	"github.com/protolambda/zrnt/eth2/beacon/slashings/propslash"
+	"github.com/protolambda/zrnt/eth2/core"
 	"github.com/protolambda/zrnt/eth2/phase0"
 	"github.com/protolambda/zssz"
 	"github.com/protolambda/zssz/types"
@@ -20,7 +21,16 @@ type SpecType struct {
 	Alloc    func() interface{}
 }
 
+
+type APIBeaconState struct {
+	Root core.Root
+	BeaconState phase0.BeaconState
+}
+
+var APIBeaconStateSSZ = zssz.GetSSZ((*APIBeaconState)(nil))
+
 var SpecTypes = []*SpecType{
+	{"state_dump", "APIBeaconState", APIBeaconStateSSZ, func() interface{} { return new(APIBeaconState) }},
 	{"state", "BeaconState", phase0.BeaconStateSSZ, func() interface{} { return new(phase0.BeaconState) }},
 	{"block", "BeaconBlock", phase0.BeaconBlockSSZ, func() interface{} { return new(phase0.BeaconBlock) }},
 	{"block_header", "BlockHeader", header.BeaconBlockHeaderSSZ, func() interface{} { return new(header.BeaconBlockHeader) }},
