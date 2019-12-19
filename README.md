@@ -57,6 +57,9 @@ zcli
   api-util    API utilities for eth2 client users.
       extract-state      Extract the state from an api beacon state (wrapper with root).
 
+  info        Information about eth2 data.
+      registry    Print a summary of the validator registry. If the input path is not specified, input is read from STDIN.
+
   genesis     Generate a genesis state
       mock        Generate a genesis state from a predefined set of keys
 

@@ -58,7 +58,7 @@ func RegistryCmd() *cobra.Command {
 				}
 				out := cmd.OutOrStdout()
 				_, err := fmt.Fprintf(out, "%8s: %14s %s %10s %10s [%10s %10s %10s %10s]",
-					"", "pub", "ℹ️",
+					"index", "pubkey", "ℹ️",
 					"eff.bal.", "balance",
 					"eligible", "activation", "exit", "withdrawal")
 				if Check(err, cmd.ErrOrStderr(), "cannot write header") {
@@ -102,7 +102,7 @@ func RegistryCmd() *cobra.Command {
 func init() {
 	InfoCmd = &cobra.Command{
 		Use:   "info",
-		Short: "info about eth2 data",
+		Short: "Information about eth2 data.",
 	}
 
 	RegistryStatusCmd = RegistryCmd()
