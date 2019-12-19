@@ -54,7 +54,7 @@ config: `+core.PRESET_NAME+`
 	RootCmd.AddCommand(roots.HashTreeRootCmd, roots.SigningRootCmd)
 	RootCmd.AddCommand(keys.KeysCmd)
 	RootCmd.AddCommand(meta.MetaCmd)
-	RootCmd.AddCommand(api_util.ExtractState)
+	RootCmd.AddCommand(api_util.ApiUtilCmd)
 	RootCmd.AddCommand(info.InfoCmd)
 }
 

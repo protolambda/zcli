@@ -54,6 +54,9 @@ zcli
       transfer
       voluntary_exit
 
+  api-util    API utilities for eth2 client users.
+      extract-state      Extract the state from an api beacon state (wrapper with root).
+
   genesis     Generate a genesis state
       mock        Generate a genesis state from a predefined set of keys
 

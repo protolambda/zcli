@@ -11,11 +11,11 @@ import (
 	"os"
 )
 
-var ExtractState *cobra.Command
+var ApiUtilCmd, ExtractStateCmd *cobra.Command
 
-func MakeCmd() *cobra.Command {
+func MakeExtractStateCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   fmt.Sprintf("extract_state [input (APIBeaconState) path] [output (BeaconState) path]"),
+		Use:   fmt.Sprintf("extract-state [input (APIBeaconState) path] [output (BeaconState) path]"),
 		Short: fmt.Sprintf("Extract the state from an api beacon state (wrapper with root). If the input path is not specified, input is read from STDIN. If the output is not specified, output is written to STDOUT. The root of the wrapper is output to STDERR."),
 		Args:  cobra.MaximumNArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
@@ -61,5 +61,11 @@ func MakeCmd() *cobra.Command {
 }
 
 func init() {
-	ExtractState = MakeCmd()
+	ApiUtilCmd = &cobra.Command{
+		Use:   "api-util",
+		Short: "API utilities for eth2 client users.",
+	}
+
+	ExtractStateCmd = MakeExtractStateCmd()
+	ApiUtilCmd.AddCommand(ExtractStateCmd)
 }
