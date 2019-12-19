@@ -51,7 +51,7 @@ config: `+core.PRESET_NAME+`
 	RootCmd.AddCommand(pretty.PrettyCmd)
 	RootCmd.AddCommand(diff.DiffCmd)
 	RootCmd.AddCommand(checker.CheckCmd)
-	RootCmd.AddCommand(roots.HashTreeRootCmd, roots.SigningRootCmd)
+	RootCmd.AddCommand(roots.HashTreeRootCmd)
 	RootCmd.AddCommand(keys.KeysCmd)
 	RootCmd.AddCommand(meta.MetaCmd)
 	RootCmd.AddCommand(api_util.ApiUtilCmd)

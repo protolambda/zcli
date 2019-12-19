@@ -103,7 +103,7 @@ func init() {
 
 	BlocksCmd = &cobra.Command{
 		Use:   "blocks [<block 0.ssz> [<block 1.ssz> [<block 2.ssz> [ ... ]]]",
-		Short: "Process blocks on the pre-state to get a post-state",
+		Short: "Process signed blocks on the pre-state to get a post-state",
 		Args:  cobra.ArbitraryArgs,
 		Run: func(cmd *cobra.Command, args []string) {
 			verifyStateRoot, err := cmd.Flags().GetBool("verify-state-root")
@@ -117,8 +117,8 @@ func init() {
 			}
 
 			for i := 0; i < len(args); i++ {
-				var b phase0.BeaconBlock
-				err := LoadSSZ(args[i], &b, phase0.BeaconBlockSSZ)
+				var b phase0.SignedBeaconBlock
+				err := LoadSSZ(args[i], &b, phase0.SignedBeaconBlockSSZ)
 				if Check(err, cmd.ErrOrStderr(), "could not load block: %s", args[i]) {
 					return
 				}
@@ -294,7 +294,7 @@ func init() {
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			transition(cmd, func(state *phase0.FullFeaturedState) {
-				var op exits.VoluntaryExit
+				var op exits.SignedVoluntaryExit
 				err := LoadSSZ(args[0], &op, exits.VoluntaryExitSSZ)
 				if Check(err, cmd.ErrOrStderr(), "could not load voluntary exit") {
 					return

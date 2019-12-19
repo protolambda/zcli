@@ -38,21 +38,25 @@ zcli
   diff             find the differences in SSZ data
   pretty           pretty-print SSZ data
   check            check SSZ data format
-  signing-root     (aliases: signing_root, sigr) Compute Signing-Root, output in hex
   hash-tree-root   (aliases: hash_tree_root, htr) Compute Hash-Tree-Root, output in hex
   # the type sub-commands:
       attestation
+      attestation_data
       attester_slashing
       block
+      signed_block
       block_body
       block_header
+      signed_block_header
       deposit
       deposit_data
+      deposit_message
       eth1_data
       proposer_slashing
       state
-      transfer
+      state_dump
       voluntary_exit
+      signed_voluntary_exit
 
   api-util    API utilities for eth2 client users.
       extract-state      Extract the state from an api beacon state (wrapper with root).
@@ -95,6 +99,8 @@ zcli
               deposit           process_deposit sub state-transition
               proposer_slashing process_proposer_slashing sub state-transition
               voluntary_exit    process_voluntary_exit sub state-transition
+
+  version     Print versions of integrated tools
 
   help        Help about any command
 ```
