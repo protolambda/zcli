@@ -9,6 +9,7 @@ import (
 	"github.com/protolambda/zcli/cmd/info"
 	"github.com/protolambda/zcli/cmd/keys"
 	"github.com/protolambda/zcli/cmd/meta"
+	"github.com/protolambda/zcli/cmd/net"
 	"github.com/protolambda/zcli/cmd/pretty"
 	"github.com/protolambda/zcli/cmd/roots"
 	"github.com/protolambda/zcli/cmd/transition"
@@ -56,6 +57,7 @@ config: `+core.PRESET_NAME+`
 	RootCmd.AddCommand(meta.MetaCmd)
 	RootCmd.AddCommand(api_util.ApiUtilCmd)
 	RootCmd.AddCommand(info.InfoCmd)
+	RootCmd.AddCommand(net.NetCmd)
 }
 
 func Execute() {

@@ -61,6 +61,9 @@ zcli
   api-util    API utilities for eth2 client users.
       extract-state      Extract the state from an api beacon state (wrapper with root).
 
+  net         Util tools for networking
+      enr         Decode ENR record.
+
   info        Information about eth2 data.
       registry    Print a summary of the validator registry. If the input path is not specified, input is read from STDIN.
 
