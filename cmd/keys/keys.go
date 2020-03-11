@@ -33,7 +33,7 @@ func init() {
 	GenerateCmd = &cobra.Command{
 		Use:   "generate",
 		Short: "Generate a list of keys",
-		Args: cobra.NoArgs,
+		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
 			from, err := cmd.Flags().GetUint("from")
 			if Check(err, cmd.ErrOrStderr(), "cannot parse 'from'") {
@@ -82,10 +82,10 @@ func init() {
 	GenerateCmd.Flags().String("keys", "", "YAML keys path. If none is specified, keys are written to STDOUT")
 
 	ShardCmd = &cobra.Command{
-		Use:   "shard <size range 0> [<size range 1> [<size range 2> [...]]]",
+		Use:     "shard <size range 0> [<size range 1> [<size range 2> [...]]]",
 		Aliases: []string{"split"},
-		Short: "Shard (split) a YAML list of keys into ranges. Specify sizes as arguments.",
-		Args:  cobra.MinimumNArgs(1),
+		Short:   "Shard (split) a YAML list of keys into ranges. Specify sizes as arguments.",
+		Args:    cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			keysPath, err := cmd.Flags().GetString("keys")
 			if Check(err, cmd.ErrOrStderr(), "keys path is invalid") {

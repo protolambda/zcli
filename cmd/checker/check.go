@@ -40,8 +40,7 @@ func MakeCmd(st *spec_types.SpecType) *cobra.Command {
 				return
 			}
 
-			if err := zssz.DryCheck(bytes.NewReader(buf.Bytes()), uint64(buf.Len()), st.SSZTyp);
-				Check(err, cmd.ErrOrStderr(), "cannot verify input") {
+			if err := zssz.DryCheck(bytes.NewReader(buf.Bytes()), uint64(buf.Len()), st.SSZTyp); Check(err, cmd.ErrOrStderr(), "cannot verify input") {
 				return
 			}
 

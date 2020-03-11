@@ -21,9 +21,8 @@ type SpecType struct {
 	Alloc    func() interface{}
 }
 
-
 type APIBeaconState struct {
-	Root core.Root
+	Root        core.Root
 	BeaconState phase0.BeaconState
 }
 
@@ -48,5 +47,3 @@ var SpecTypes = []*SpecType{
 	{"signed_voluntary_exit", "SignedVoluntaryExit", exits.SignedVoluntaryExitSSZ, func() interface{} { return new(exits.SignedVoluntaryExit) }},
 	{"eth1_data", "Eth1Data", zssz.GetSSZ((*eth1.Eth1Data)(nil)), func() interface{} { return new(eth1.Eth1Data) }},
 }
-
-

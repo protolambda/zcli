@@ -11,12 +11,11 @@ import (
 
 var DiffCmd *cobra.Command
 
-
 func MakeCmd(st *spec_types.SpecType) *cobra.Command {
 	return &cobra.Command{
 		Use:   fmt.Sprintf("%s <path A> <path B>", st.Name),
 		Short: fmt.Sprintf("Diff two %s objects", st.TypeName),
-		Args: cobra.ExactArgs(2),
+		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
 			rA, err := os.Open(args[0])
 			if Check(err, cmd.ErrOrStderr(), "cannot open SSZ input A") {
@@ -42,7 +41,6 @@ func MakeCmd(st *spec_types.SpecType) *cobra.Command {
 		},
 	}
 }
-
 
 func init() {
 	DiffCmd = &cobra.Command{

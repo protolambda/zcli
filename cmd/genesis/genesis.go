@@ -123,7 +123,7 @@ func decodeRoot(inputHex string, out *[32]byte) (err error) {
 	if strings.HasPrefix(inputHex, "0x") {
 		inputHex = inputHex[2:]
 	}
-	inputHex = strings.Repeat("0", (32*2)-len(inputHex))+inputHex
+	inputHex = strings.Repeat("0", (32*2)-len(inputHex)) + inputHex
 	_, err = hex.Decode(out[:], []byte(inputHex[:]))
 	return
 }

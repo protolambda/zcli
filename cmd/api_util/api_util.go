@@ -46,8 +46,7 @@ func MakeExtractStateCmd() *cobra.Command {
 			}
 
 			var apiState spec_types.APIBeaconState
-			if err := zssz.Decode(bytes.NewReader(buf.Bytes()), uint64(buf.Len()), &apiState, spec_types.APIBeaconStateSSZ);
-				Check(err, cmd.ErrOrStderr(), "cannot verify input") {
+			if err := zssz.Decode(bytes.NewReader(buf.Bytes()), uint64(buf.Len()), &apiState, spec_types.APIBeaconStateSSZ); Check(err, cmd.ErrOrStderr(), "cannot verify input") {
 				return
 			}
 

@@ -35,9 +35,9 @@ func MakeHashTreeRootCmd(st *spec_types.SpecType) *cobra.Command {
 
 func init() {
 	HashTreeRootCmd = &cobra.Command{
-		Use:   "hash-tree-root",
+		Use:     "hash-tree-root",
 		Aliases: []string{"hash_tree_root", "htr"},
-		Short: "hash-tree-root SSZ data",
+		Short:   "hash-tree-root SSZ data",
 	}
 
 	for _, st := range spec_types.SpecTypes {
