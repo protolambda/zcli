@@ -4,7 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/binary"
 	"fmt"
-	"github.com/phoreproject/bls/g1pubs"
+	hbls "github.com/herumi/bls-eth-go-binary/bls"
 	. "github.com/protolambda/zcli/util"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
@@ -46,8 +46,11 @@ func init() {
 			keys := make(KeyPairs, 0)
 			for i := uint64(from); i < uint64(to); i++ {
 				privKey := GenerateInteropKey(i)
-				privKeyBls := g1pubs.DeserializeSecretKey(privKey)
-				pubKey := g1pubs.PrivToPub(privKeyBls).Serialize()
+				var secKey hbls.SecretKey
+				if Check(secKey.Deserialize(privKey[:]), cmd.ErrOrStderr(), "cannot deserialize secret key") {
+					return
+				}
+				pubKey := secKey.GetPublicKey().Serialize()
 				keys = append(keys, KeyPair{
 					Priv: fmt.Sprintf("0x%x", privKey),
 					Pub:  fmt.Sprintf("0x%x", pubKey),
