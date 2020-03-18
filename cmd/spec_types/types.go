@@ -46,4 +46,5 @@ var SpecTypes = []*SpecType{
 	{"voluntary_exit", "VoluntaryExit", exits.VoluntaryExitSSZ, func() interface{} { return new(exits.VoluntaryExit) }},
 	{"signed_voluntary_exit", "SignedVoluntaryExit", exits.SignedVoluntaryExitSSZ, func() interface{} { return new(exits.SignedVoluntaryExit) }},
 	{"eth1_data", "Eth1Data", zssz.GetSSZ((*eth1.Eth1Data)(nil)), func() interface{} { return new(eth1.Eth1Data) }},
+	{"fork_data", "ForkData", core.ForkDataSSZ, func() interface{} { return new(core.ForkData) }},
 }
