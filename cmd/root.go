@@ -18,6 +18,7 @@ import (
 	"github.com/protolambda/zrnt/eth2/core"
 	"github.com/protolambda/zssz"
 	"github.com/spf13/cobra"
+	"io"
 	"os"
 )
 
@@ -60,9 +61,27 @@ config: `+core.PRESET_NAME+`
 	RootCmd.AddCommand(net.NetCmd)
 }
 
+type writerWrap struct {
+	w       io.Writer
+	onWrite func()
+}
+
+func (ww *writerWrap) Write(p []byte) (n int, err error) {
+	n, err = ww.w.Write(p)
+	ww.onWrite()
+	return
+}
+
 func Execute() {
+	exitCode := 0
+	// If there's any regular error (no panics), then make it exit code 1
+	errW := &writerWrap{w: os.Stderr, onWrite: func() {
+		exitCode = 1
+	}}
+	RootCmd.SetErr(errW)
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Println(err)
-		os.Exit(1)
+		exitCode = 1
 	}
+	os.Exit(exitCode)
 }
