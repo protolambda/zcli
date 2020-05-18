@@ -121,6 +121,10 @@ github.com/prometheus/tsdb v0.6.2-0.20190402121629-4f204dcbc150/go.mod h1:qhTCs0
 github.com/protolambda/messagediff v1.3.0/go.mod h1:LboJp0EwIbJsePYpzh5Op/9G1/4mIztMRYzzwR0dR2M=
 github.com/protolambda/zrnt v0.11.0 h1:hvIB5vGEYnWkgicmwXymkmOCTGvfjVf14xEoBnAYc1g=
 github.com/protolambda/zrnt v0.11.0/go.mod h1:k5lqfFKncUeUl5/HgNOfAffpUcOotNPinXiGQNM/Gh4=
+github.com/protolambda/zrnt v0.11.1 h1:juihe6I0TSkIWmFpC7HPLlqjY8pXT9zq+RAuNiX8uww=
+github.com/protolambda/zrnt v0.11.1/go.mod h1:k5lqfFKncUeUl5/HgNOfAffpUcOotNPinXiGQNM/Gh4=
+github.com/protolambda/zrnt v0.11.2 h1:Xm/FFabauuTayoPN/V2nvYZezB6L7Kj87x+QJ5/Vz2Q=
+github.com/protolambda/zrnt v0.11.2/go.mod h1:k5lqfFKncUeUl5/HgNOfAffpUcOotNPinXiGQNM/Gh4=
 github.com/protolambda/zssz v0.1.3 h1:WL25qizRrzcmaHz62CiWA/oHX+cXDELV/UT0kpbi64Y=
 github.com/protolambda/zssz v0.1.3/go.mod h1:a4iwOX5FE7/JkKA+J/PH0Mjo9oXftN6P8NZyL28gpag=
 github.com/protolambda/zssz v0.1.4 h1:4jkt8sqwhOVR8B1JebREU/gVX0Ply4GypsV8+RWrDuw=
