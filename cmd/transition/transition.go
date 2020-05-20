@@ -26,6 +26,7 @@ var (
 	EpochCmd                        *cobra.Command
 	FinalUpdatesCmd                 *cobra.Command
 	JustificationAndFinalizationCmd *cobra.Command
+	RewardsAndPenalties             *cobra.Command
 	RegistryUpdatesCmd              *cobra.Command
 	SlashingsCmd                    *cobra.Command
 )
@@ -194,6 +195,16 @@ func init() {
 			})
 		},
 	}
+	RewardsAndPenalties = &cobra.Command{
+		Use:   "rewards_and_penalties",
+		Short: "process_rewards_and_penalties sub state-transition",
+		Args:  cobra.NoArgs,
+		Run: func(cmd *cobra.Command, args []string) {
+			transition(cmd, func(state *phase0.FullFeaturedState) {
+				state.ProcessEpochRewardsAndPenalties()
+			})
+		},
+	}
 	RegistryUpdatesCmd = &cobra.Command{
 		Use:   "registry_updates",
 		Short: "process_registry_updates sub state-transition",
@@ -214,7 +225,8 @@ func init() {
 			})
 		},
 	}
-	EpochCmd.AddCommand(FinalUpdatesCmd, JustificationAndFinalizationCmd, RegistryUpdatesCmd, SlashingsCmd)
+	EpochCmd.AddCommand(FinalUpdatesCmd, JustificationAndFinalizationCmd,
+		RewardsAndPenalties, RegistryUpdatesCmd, SlashingsCmd)
 
 	AttestationCmd = &cobra.Command{
 		Use:   "attestation <data.ssz>",
