@@ -38,7 +38,7 @@ func init() {
 		Short: "Print versions of integrated tools",
 		Run: func(cmd *cobra.Command, args []string) {
 			util.Report(cmd.OutOrStdout(), `
-ZCLI: v0.0.27
+ZCLI: v0.0.28
 ZRNT: `+eth2.VERSION+`
 ZSSZ: `+zssz.VERSION+`
 
