@@ -19,7 +19,7 @@ Options:
 - `-tags preset_minimal` to compile the minimal spec preset into the CLI
 
 ```bash
-go get -u -tags preset_minimal github.com/protolambda/zcli
+GO111MODULE=on go get -tags preset_mainnet github.com/protolambda/zcli
 ```
 
 ## Usage
@@ -72,7 +72,7 @@ zcli
 
   meta        Print meta information of a BeaconState
       committees  Print beacon committees for the given state. For prev, current and next epoch.
-      proposers   Print beacon proposer indices for the given state. For current and next epoch.
+      proposers   Print beacon proposer indices for the given state. For current epoch.
 
   keys        Generate and process keys
       generate    Generate a list of keys
