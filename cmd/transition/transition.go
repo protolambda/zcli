@@ -276,6 +276,7 @@ func init() {
 			})
 		},
 	}
+	EpochCmd.Flags().Uint64("timeout", 0, "timeout in milliseconds, 0 to disable timeout")
 	EpochCmd.AddCommand(FinalUpdatesCmd, JustificationAndFinalizationCmd,
 		RewardsAndPenalties, RegistryUpdatesCmd, SlashingsCmd)
 
@@ -354,6 +355,7 @@ func init() {
 			})
 		},
 	}
+	OpCmd.Flags().Uint64("timeout", 0, "timeout in milliseconds, 0 to disable timeout")
 	OpCmd.AddCommand(AttestationCmd, AttesterSlashingCmd, ProposerSlashingCmd, DepositCmd, VoluntaryExitCmd)
 
 	BlockHeaderCmd = &cobra.Command{
@@ -456,6 +458,7 @@ func init() {
 			})
 		},
 	}
+	BlockCmd.Flags().Uint64("timeout", 0, "timeout in milliseconds, 0 to disable timeout")
 	BlockCmd.AddCommand(BlockHeaderCmd, AttestationsCmd,
 		AttesterSlashingsCmd, ProposerSlashingsCmd,
 		DepositsCmd, VoluntaryExitsCmd)
