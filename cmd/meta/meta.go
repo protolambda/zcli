@@ -55,7 +55,7 @@ func init() {
 
 	ProposersCommand = &cobra.Command{
 		Use:   "proposers [BeaconState ssz input path]",
-		Short: "Print beacon proposer indices for the given state. For current and next epoch. If the input path is not specified, input is read from STDIN",
+		Short: "Print beacon proposer indices for the given state. For current epoch. If the input path is not specified, input is read from STDIN",
 		Args:  cobra.RangeArgs(0, 1),
 		Run: func(cmd *cobra.Command, args []string) {
 			var path string
