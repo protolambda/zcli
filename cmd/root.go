@@ -15,7 +15,7 @@ import (
 	"github.com/protolambda/zcli/cmd/transition"
 	"github.com/protolambda/zcli/util"
 	"github.com/protolambda/zrnt/eth2"
-	"github.com/protolambda/zrnt/eth2/core"
+	"github.com/protolambda/zrnt/eth2/beacon"
 	"github.com/protolambda/zssz"
 	"github.com/spf13/cobra"
 	"io"
@@ -38,11 +38,11 @@ func init() {
 		Short: "Print versions of integrated tools",
 		Run: func(cmd *cobra.Command, args []string) {
 			util.Report(cmd.OutOrStdout(), `
-ZCLI: v0.0.28
+ZCLI: v0.0.29
 ZRNT: `+eth2.VERSION+`
 ZSSZ: `+zssz.VERSION+`
 
-config: `+core.PRESET_NAME+`
+config: `+beacon.PRESET_NAME+`
 `)
 		},
 	}

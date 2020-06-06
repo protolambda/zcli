@@ -3,8 +3,7 @@ package genesis
 import (
 	"encoding/hex"
 	. "github.com/protolambda/zcli/util"
-	"github.com/protolambda/zrnt/eth2/core"
-	"github.com/protolambda/zrnt/eth2/phase0"
+	. "github.com/protolambda/zrnt/eth2/beacon"
 	"github.com/protolambda/zrnt/eth2/util/hashing"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
@@ -74,11 +73,11 @@ func init() {
 				return
 			}
 
-			var validators []phase0.KickstartValidatorData
+			var validators []KickstartValidatorData
 			var privKeys [][32]byte
 			for i := uint32(0); i < count; i++ {
 				k := &keys[i]
-				var pub core.BLSPubkey
+				var pub BLSPubkey
 				if strings.HasPrefix(k.Pub, "0x") {
 					k.Pub = k.Pub[2:]
 				}
@@ -91,21 +90,21 @@ func init() {
 					return
 				}
 				withdrawal := hashing.Hash(pub[:])
-				withdrawal[0] = core.BLS_WITHDRAWAL_PREFIX
-				validators = append(validators, phase0.KickstartValidatorData{
+				withdrawal[0] = BLS_WITHDRAWAL_PREFIX
+				validators = append(validators, KickstartValidatorData{
 					Pubkey:                pub,
 					WithdrawalCredentials: withdrawal,
-					Balance:               core.MAX_EFFECTIVE_BALANCE,
+					Balance:               MAX_EFFECTIVE_BALANCE,
 				})
 				privKeys = append(privKeys, priv)
 			}
 
-			state, err := phase0.KickStartStateWithSignatures(eth1Root, core.Timestamp(genesisTime), validators, privKeys)
+			state, _, err := KickStartStateWithSignatures(eth1Root, Timestamp(genesisTime), validators, privKeys)
 			if Check(err, cmd.ErrOrStderr(), "cannot create beacon state") {
 				return
 			}
 
-			if Check(WriteStateOutput(cmd, "out", state.BeaconState), cmd.ErrOrStderr(), "cannot output state") {
+			if Check(WriteStateViewOutput(cmd, "out", state), cmd.ErrOrStderr(), "cannot output state") {
 				return
 			}
 		},

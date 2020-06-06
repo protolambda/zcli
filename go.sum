@@ -68,6 +68,8 @@ github.com/hashicorp/golang-lru v0.0.0-20160813221303-0a025b7e63ad/go.mod h1:/m3
 github.com/hashicorp/hcl v1.0.0/go.mod h1:E5yfLk+7swimpb2L/Alb/PJmXilQ/rhwaUYs4T20WEQ=
 github.com/herumi/bls-eth-go-binary v0.0.0-20200515062714-74cff9202029 h1:EkZfWcbnYuuaQECVJgJrgZyTHSwj6GO1NgcjXlnxCOk=
 github.com/herumi/bls-eth-go-binary v0.0.0-20200515062714-74cff9202029/go.mod h1:luAnRm3OsMQeokhGzpYmc0ZKwawY7o87PUEP11Z7r7U=
+github.com/herumi/bls-eth-go-binary v0.0.0-20200522010937-01d282b5380b h1:mu+F5uA3Y68oB6KXZqWlASKMetbNufhQx2stMI+sD+Y=
+github.com/herumi/bls-eth-go-binary v0.0.0-20200522010937-01d282b5380b/go.mod h1:luAnRm3OsMQeokhGzpYmc0ZKwawY7o87PUEP11Z7r7U=
 github.com/hpcloud/tail v1.0.0 h1:nfCOvKYfkgYP8hkirhJocXT2+zOD8yUNjXaWfTlyFKI=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
 github.com/huin/goupnp v0.0.0-20161224104101-679507af18f3/go.mod h1:MZ2ZmwcBpvOoJ22IJsc7va19ZwoheaBk43rKg12SKag=
@@ -121,10 +123,14 @@ github.com/prometheus/tsdb v0.6.2-0.20190402121629-4f204dcbc150/go.mod h1:qhTCs0
 github.com/protolambda/messagediff v1.3.0/go.mod h1:LboJp0EwIbJsePYpzh5Op/9G1/4mIztMRYzzwR0dR2M=
 github.com/protolambda/zrnt v0.12.0 h1:IdDjgfR7A9oJHuMB2efkw6VRFInbNJg/VngTMYuZhgQ=
 github.com/protolambda/zrnt v0.12.0/go.mod h1:71rYzFHuC3DIO4EHG3JhioEwbrLhGmQF/8Wtw4Khw44=
+github.com/protolambda/zrnt v0.12.1 h1:w9H+gzwPvMDDjSmRijo8dvqpVMYi2gxNuPJTao8jFQQ=
+github.com/protolambda/zrnt v0.12.1/go.mod h1:Oeg+WlvlJL6q5LBUSgSltOwCgJfpGOSxcWUegHZ1PAw=
 github.com/protolambda/zssz v0.1.3 h1:WL25qizRrzcmaHz62CiWA/oHX+cXDELV/UT0kpbi64Y=
 github.com/protolambda/zssz v0.1.3/go.mod h1:a4iwOX5FE7/JkKA+J/PH0Mjo9oXftN6P8NZyL28gpag=
 github.com/protolambda/zssz v0.1.4 h1:4jkt8sqwhOVR8B1JebREU/gVX0Ply4GypsV8+RWrDuw=
 github.com/protolambda/zssz v0.1.4/go.mod h1:a4iwOX5FE7/JkKA+J/PH0Mjo9oXftN6P8NZyL28gpag=
+github.com/protolambda/ztyp v0.0.1 h1:rW8+XYVWp0rOlH/ot7H61crZKXbsj6T3ZT7MWX1tOAk=
+github.com/protolambda/ztyp v0.0.1/go.mod h1:u9yT4ioIokwlHrOfiZ52ezHfKdza3phxhTJix01vGgU=
 github.com/rjeczalik/notify v0.9.1/go.mod h1:rKwnCoCGeuQnwBtTSPL9Dad03Vh2n40ePRrjvIXnJho=
 github.com/robertkrimen/otto v0.0.0-20170205013659-6a77b7cbc37d/go.mod h1:xvqspoSXJTIpemEonrMDFq6XzwHYYgToXWj5eRX1OtY=
 github.com/rs/cors v0.0.0-20160617231935-a62a804a8a00/go.mod h1:gFx+x8UowdsKA9AchylcLynDq+nNFfI8FkUZdN/jGCU=

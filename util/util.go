@@ -3,7 +3,7 @@ package util
 import (
 	"bytes"
 	"fmt"
-	"github.com/protolambda/zrnt/eth2/phase0"
+	"github.com/protolambda/zrnt/eth2/beacon"
 	"github.com/protolambda/zssz"
 	"github.com/protolambda/zssz/types"
 	"github.com/spf13/cobra"
@@ -80,15 +80,39 @@ func LoadSSZInputPath(cmd *cobra.Command, inPath string, stdInFallback bool, dst
 	return nil
 }
 
-func LoadStateInputFlag(cmd *cobra.Command, inputKey string, stdInFallback bool) (*phase0.BeaconState, error) {
+func LoadStateViewInputPath(cmd *cobra.Command, inPath string, stdInFallback bool) (*beacon.BeaconStateView, error) {
+	var r io.Reader
+	if stdInFallback && inPath == "" {
+		r = cmd.InOrStdin()
+	} else {
+		var err error
+		r, err = os.Open(inPath)
+		if err != nil {
+			return nil, fmt.Errorf("cannot read state view from input path: %v", err)
+		}
+	}
+	var buf bytes.Buffer
+	_, err := buf.ReadFrom(r)
+	if err != nil {
+		return nil, fmt.Errorf("cannot read ssz into buffer: %v", err)
+	}
+
+	v, err := beacon.BeaconStateType.Deserialize(bytes.NewReader(buf.Bytes()), uint64(buf.Len()))
+	if err != nil {
+		return nil, fmt.Errorf("cannot decode ssz: %v", err)
+	}
+	return beacon.AsBeaconStateView(v, nil)
+}
+
+func LoadStateViewInputFlag(cmd *cobra.Command, inputKey string, stdInFallback bool) (*beacon.BeaconStateView, error) {
 	inPath, err := cmd.Flags().GetString(inputKey)
 	if err != nil {
 		return nil, fmt.Errorf("state path could not be parsed")
 	}
-	return LoadStateInputPath(cmd, inPath, stdInFallback)
+	return LoadStateViewInputPath(cmd, inPath, stdInFallback)
 }
 
-func LoadStateInputPath(cmd *cobra.Command, inPath string, stdInFallback bool) (*phase0.BeaconState, error) {
+func LoadStateInputPath(cmd *cobra.Command, inPath string, stdInFallback bool) (*beacon.BeaconState, error) {
 	var r io.Reader
 	if stdInFallback && inPath == "" {
 		r = cmd.InOrStdin()
@@ -102,15 +126,15 @@ func LoadStateInputPath(cmd *cobra.Command, inPath string, stdInFallback bool) (
 	return LoadStateInput(r)
 }
 
-func LoadStateInput(r io.Reader) (*phase0.BeaconState, error) {
+func LoadStateInput(r io.Reader) (*beacon.BeaconState, error) {
 	var buf bytes.Buffer
 	_, err := buf.ReadFrom(r)
 	if err != nil {
 		return nil, fmt.Errorf("cannot read state into buffer: %v", err)
 	}
 
-	var pre phase0.BeaconState
-	err = zssz.Decode(bytes.NewReader(buf.Bytes()), uint64(buf.Len()), &pre, phase0.BeaconStateSSZ)
+	var pre beacon.BeaconState
+	err = zssz.Decode(bytes.NewReader(buf.Bytes()), uint64(buf.Len()), &pre, beacon.BeaconStateSSZ)
 	if err != nil {
 		return nil, fmt.Errorf("cannot decode state: %v", err)
 	}
@@ -118,15 +142,15 @@ func LoadStateInput(r io.Reader) (*phase0.BeaconState, error) {
 	return &pre, nil
 }
 
-func WriteStateOutput(cmd *cobra.Command, outKey string, state *phase0.BeaconState) error {
+func WriteStateViewOutput(cmd *cobra.Command, outKey string, state *beacon.BeaconStateView) error {
 	outPath, err := cmd.Flags().GetString(outKey)
 	if err != nil {
 		return err
 	}
-	return WriteStateOutputFile(cmd, outPath, state)
+	return WriteStateViewOutputFile(cmd, outPath, state)
 }
 
-func WriteStateOutputFile(cmd *cobra.Command, outPath string, state *phase0.BeaconState) (err error) {
+func WriteStateViewOutputFile(cmd *cobra.Command, outPath string, state *beacon.BeaconStateView) (err error) {
 	var w io.Writer
 	if outPath == "" {
 		w = cmd.OutOrStdout()
@@ -137,7 +161,24 @@ func WriteStateOutputFile(cmd *cobra.Command, outPath string, state *phase0.Beac
 		}
 	}
 
-	_, err = zssz.Encode(w, state, phase0.BeaconStateSSZ)
+	if err := state.Serialize(w); err != nil {
+		return fmt.Errorf("cannot encode post-state: %v", err)
+	}
+	return nil
+}
+
+func WriteStateOutputFile(cmd *cobra.Command, outPath string, state *beacon.BeaconState) (err error) {
+	var w io.Writer
+	if outPath == "" {
+		w = cmd.OutOrStdout()
+	} else {
+		w, err = os.OpenFile(outPath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
+		if err != nil {
+			return err
+		}
+	}
+
+	_, err = zssz.Encode(w, state, beacon.BeaconStateSSZ)
 	if err != nil {
 		return fmt.Errorf("cannot encode post-state: %v", err)
 	}

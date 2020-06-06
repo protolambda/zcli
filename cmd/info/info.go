@@ -3,8 +3,7 @@ package info
 import (
 	"fmt"
 	. "github.com/protolambda/zcli/util"
-	"github.com/protolambda/zrnt/eth2/beacon/validator"
-	"github.com/protolambda/zrnt/eth2/core"
+	. "github.com/protolambda/zrnt/eth2/beacon"
 	"github.com/spf13/cobra"
 )
 
@@ -29,8 +28,8 @@ func RegistryCmd() *cobra.Command {
 				return
 			}
 			{
-				currentEpoch := state.CurrentEpoch()
-				fmtStatus := func(v *validator.Validator) string {
+				currentEpoch := state.Slot.ToEpoch()
+				fmtStatus := func(v *Validator) string {
 					if v.Slashed {
 						return "💀"
 					}
@@ -49,8 +48,8 @@ func RegistryCmd() *cobra.Command {
 						return "📦"
 					}
 				}
-				fmtEpoch := func(epoch core.Epoch) string {
-					if epoch == ^core.Epoch(0) {
+				fmtEpoch := func(epoch Epoch) string {
+					if epoch == ^Epoch(0) {
 						return "♾️"
 					} else {
 						return fmt.Sprintf("%10d", epoch)

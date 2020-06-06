@@ -2,8 +2,7 @@ package meta
 
 import (
 	. "github.com/protolambda/zcli/util"
-	"github.com/protolambda/zrnt/eth2/core"
-	"github.com/protolambda/zrnt/eth2/phase0"
+	. "github.com/protolambda/zrnt/eth2/beacon"
 	"github.com/spf13/cobra"
 )
 
@@ -24,21 +23,29 @@ func init() {
 			if len(args) > 0 {
 				path = args[0]
 			}
-			var state phase0.BeaconState
-			err := LoadSSZInputPath(cmd, path, true, &state, phase0.BeaconStateSSZ)
+
+			state, err := LoadStateViewInputPath(cmd, path, true)
 			if Check(err, cmd.ErrOrStderr(), "cannot load input") {
 				return
 			}
+			epc, err := state.NewEpochsContext()
+			if Check(err, cmd.ErrOrStderr(), "cannot compute state epochs context") {
+				return
+			}
+			currentEpoch := epc.CurrentEpoch.Epoch
 
-			full := phase0.NewFullFeaturedState(&state)
-			full.LoadPrecomputedData()
-
-			start := state.PreviousEpoch().GetStartSlot()
-			end := (state.CurrentEpoch() + 1).GetStartSlot()
+			start := currentEpoch.Previous().GetStartSlot()
+			end := (currentEpoch + 1).GetStartSlot()
 			for slot := start; slot < end; slot++ {
-				committeesPerSlot := core.CommitteeIndex(full.GetCommitteeCountAtSlot(slot))
-				for i := core.CommitteeIndex(0); i < committeesPerSlot; i++ {
-					committee := full.GetBeaconCommittee(slot, i)
+				committeesPerSlot, err := epc.GetCommitteeCountAtSlot(slot)
+				if Check(err, cmd.ErrOrStderr(), "cannot compute committee count for slot %d", slot) {
+					return
+				}
+				for i := CommitteeIndex(0); i < CommitteeIndex(committeesPerSlot); i++ {
+					committee, err := epc.GetBeaconCommittee(slot, i)
+					if Check(err, cmd.ErrOrStderr(), "cannot get committee for slot %d committee index %d", slot, i) {
+						return
+					}
 					Report(cmd.OutOrStdout(), `epoch: %7d    slot: %9d    committee index: %4d (out of %4d)   size: %5d    indices: %v`,
 						slot.ToEpoch(), slot, i, committeesPerSlot, len(committee), committee)
 				}
@@ -55,19 +62,22 @@ func init() {
 			if len(args) > 0 {
 				path = args[0]
 			}
-			var state phase0.BeaconState
-			err := LoadSSZInputPath(cmd, path, true, &state, phase0.BeaconStateSSZ)
+			state, err := LoadStateViewInputPath(cmd, path, true)
 			if Check(err, cmd.ErrOrStderr(), "cannot load input") {
 				return
 			}
-
-			full := phase0.NewFullFeaturedState(&state)
-			full.LoadPrecomputedData()
-
-			start := state.CurrentEpoch().GetStartSlot()
-			end := (state.CurrentEpoch() + 1).GetStartSlot()
+			epc, err := state.NewEpochsContext()
+			if Check(err, cmd.ErrOrStderr(), "cannot compute state epochs context") {
+				return
+			}
+			currentEpoch := epc.CurrentEpoch.Epoch
+			start := currentEpoch.GetStartSlot()
+			end := (currentEpoch + 1).GetStartSlot()
 			for slot := start; slot < end; slot++ {
-				proposerIndex := full.GetBeaconProposerIndex(slot)
+				proposerIndex, err := epc.GetBeaconProposer(slot)
+				if Check(err, cmd.ErrOrStderr(), "cannot compute proposer index for slot %d", slot) {
+					return
+				}
 				Report(cmd.OutOrStdout(), `epoch: %7d    slot: %9d    proposer index: %4d`, slot.ToEpoch(), slot, proposerIndex)
 			}
 		},
