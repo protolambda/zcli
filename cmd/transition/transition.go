@@ -53,7 +53,11 @@ func init() {
 	TransitionCmd.PersistentFlags().StringP("pre", "i", "", "Pre (Input) path. If none is specified, input is read from STDIN")
 	TransitionCmd.PersistentFlags().StringP("post", "o", "", "Post (Output) path. If none is specified, output is written to STDOUT")
 
-	SlotsCmd = &cobra.Command{
+	withTimeout := func(cmd *cobra.Command) *cobra.Command {
+		cmd.Flags().Uint64("timeout", 0, "timeout in milliseconds, 0 to disable timeout")
+		return cmd
+	}
+	SlotsCmd = withTimeout(&cobra.Command{
 		Use:   "slots <number>",
 		Short: "Process empty slots on the pre-state to get a post-state",
 		Args: func(cmd *cobra.Command, args []string) error {
@@ -109,12 +113,11 @@ func init() {
 				return
 			}
 		},
-	}
-	SlotsCmd.Flags().Uint64("timeout", 0, "timeout in milliseconds, 0 to disable timeout")
+	})
 	SlotsCmd.Flags().Bool("delta", false, "to interpret the slot number as a delta from the pre-state")
 	TransitionCmd.AddCommand(SlotsCmd)
 
-	BlocksCmd = &cobra.Command{
+	BlocksCmd = withTimeout(&cobra.Command{
 		Use:   "blocks [<block 0.ssz> [<block 1.ssz> [<block 2.ssz> [ ... ]]]",
 		Short: "Process signed blocks on the pre-state to get a post-state",
 		Args:  cobra.ArbitraryArgs,
@@ -158,9 +161,7 @@ func init() {
 				return
 			}
 		},
-	}
-
-	BlocksCmd.Flags().Uint64("timeout", 0, "timeout in milliseconds, 0 to disable timeout. (For all blocks as a total)")
+	})
 	BlocksCmd.Flags().Bool("verify-state-root", true, "change the state-root verification step")
 
 	TransitionCmd.AddCommand(BlocksCmd)
@@ -206,7 +207,7 @@ func init() {
 			return
 		}
 	}
-	FinalUpdatesCmd = &cobra.Command{
+	FinalUpdatesCmd = withTimeout(&cobra.Command{
 		Use:   "final_updates",
 		Short: "process_final_updates sub state-transition",
 		Args:  cobra.NoArgs,
@@ -219,8 +220,8 @@ func init() {
 				return state.ProcessEpochFinalUpdates(ctx, epc, process)
 			})
 		},
-	}
-	JustificationAndFinalizationCmd = &cobra.Command{
+	})
+	JustificationAndFinalizationCmd = withTimeout(&cobra.Command{
 		Use:   "justification_and_finalization",
 		Short: "process_justification_and_finalization sub state-transition",
 		Args:  cobra.NoArgs,
@@ -233,8 +234,8 @@ func init() {
 				return state.ProcessEpochJustification(ctx, epc, process)
 			})
 		},
-	}
-	RewardsAndPenalties = &cobra.Command{
+	})
+	RewardsAndPenalties = withTimeout(&cobra.Command{
 		Use:   "rewards_and_penalties",
 		Short: "process_rewards_and_penalties sub state-transition",
 		Args:  cobra.NoArgs,
@@ -247,8 +248,8 @@ func init() {
 				return state.ProcessEpochRewardsAndPenalties(ctx, epc, process)
 			})
 		},
-	}
-	RegistryUpdatesCmd = &cobra.Command{
+	})
+	RegistryUpdatesCmd = withTimeout(&cobra.Command{
 		Use:   "registry_updates",
 		Short: "process_registry_updates sub state-transition",
 		Args:  cobra.NoArgs,
@@ -261,8 +262,8 @@ func init() {
 				return state.ProcessEpochRegistryUpdates(ctx, epc, process)
 			})
 		},
-	}
-	SlashingsCmd = &cobra.Command{
+	})
+	SlashingsCmd = withTimeout(&cobra.Command{
 		Use:   "slashings",
 		Short: "process_slashings sub state-transition",
 		Args:  cobra.NoArgs,
@@ -275,12 +276,11 @@ func init() {
 				return state.ProcessEpochSlashings(ctx, epc, process)
 			})
 		},
-	}
-	EpochCmd.Flags().Uint64("timeout", 0, "timeout in milliseconds, 0 to disable timeout")
+	})
 	EpochCmd.AddCommand(FinalUpdatesCmd, JustificationAndFinalizationCmd,
 		RewardsAndPenalties, RegistryUpdatesCmd, SlashingsCmd)
 
-	AttestationCmd = &cobra.Command{
+	AttestationCmd = withTimeout(&cobra.Command{
 		Use:   "attestation <data.ssz>",
 		Short: "process_attestation sub state-transition",
 		Args:  cobra.ExactArgs(1),
@@ -294,8 +294,8 @@ func init() {
 				return state.ProcessAttestation(epc, &op)
 			})
 		},
-	}
-	AttesterSlashingCmd = &cobra.Command{
+	})
+	AttesterSlashingCmd = withTimeout(&cobra.Command{
 		Use:   "attester_slashing <data.ssz>",
 		Short: "process_attester_slashing sub state-transition",
 		Args:  cobra.ExactArgs(1),
@@ -309,8 +309,8 @@ func init() {
 				return state.ProcessAttesterSlashing(epc, &op)
 			})
 		},
-	}
-	ProposerSlashingCmd = &cobra.Command{
+	})
+	ProposerSlashingCmd = withTimeout(&cobra.Command{
 		Use:   "proposer_slashing <data.ssz>",
 		Short: "process_proposer_slashing sub state-transition",
 		Args:  cobra.ExactArgs(1),
@@ -324,8 +324,8 @@ func init() {
 				return state.ProcessProposerSlashing(epc, &op)
 			})
 		},
-	}
-	DepositCmd = &cobra.Command{
+	})
+	DepositCmd = withTimeout(&cobra.Command{
 		Use:   "deposit <data.ssz>",
 		Short: "process_deposit sub state-transition",
 		Args:  cobra.ExactArgs(1),
@@ -339,8 +339,8 @@ func init() {
 				return state.ProcessDeposit(epc, &op, false)
 			})
 		},
-	}
-	VoluntaryExitCmd = &cobra.Command{
+	})
+	VoluntaryExitCmd = withTimeout(&cobra.Command{
 		Use:   "voluntary_exit <data.ssz>",
 		Short: "process_voluntary_exit sub state-transition",
 		Args:  cobra.ExactArgs(1),
@@ -354,11 +354,10 @@ func init() {
 				return state.ProcessVoluntaryExit(epc, &op)
 			})
 		},
-	}
-	OpCmd.Flags().Uint64("timeout", 0, "timeout in milliseconds, 0 to disable timeout")
+	})
 	OpCmd.AddCommand(AttestationCmd, AttesterSlashingCmd, ProposerSlashingCmd, DepositCmd, VoluntaryExitCmd)
 
-	BlockHeaderCmd = &cobra.Command{
+	BlockHeaderCmd = withTimeout(&cobra.Command{
 		Use:   "block_header <data.ssz>",
 		Short: "process_block_header sub state-transition (block input, not header)",
 		Args:  cobra.ExactArgs(1),
@@ -372,8 +371,8 @@ func init() {
 				return state.ProcessHeader(ctx, epc, &bh)
 			})
 		},
-	}
-	AttestationsCmd = &cobra.Command{
+	})
+	AttestationsCmd = withTimeout(&cobra.Command{
 		Use:   "attestations [<data 0.ssz> [<data 1.ssz> [<data 2.ssz> [ ... ]]]]",
 		Short: "process_attestations sub state-transition",
 		Args:  cobra.RangeArgs(0, beacon.MAX_ATTESTATIONS),
@@ -389,8 +388,8 @@ func init() {
 				return state.ProcessAttestations(ctx, epc, ops)
 			})
 		},
-	}
-	AttesterSlashingsCmd = &cobra.Command{
+	})
+	AttesterSlashingsCmd = withTimeout(&cobra.Command{
 		Use:   "attester_slashings [<data 0.ssz> [<data 1.ssz> [<data 2.ssz> [ ... ]]]]",
 		Short: "process_attester_slashings sub state-transition",
 		Args:  cobra.RangeArgs(0, beacon.MAX_ATTESTER_SLASHINGS),
@@ -406,8 +405,8 @@ func init() {
 				return state.ProcessAttesterSlashings(ctx, epc, ops)
 			})
 		},
-	}
-	ProposerSlashingsCmd = &cobra.Command{
+	})
+	ProposerSlashingsCmd = withTimeout(&cobra.Command{
 		Use:   "proposer_slashings [<data 0.ssz> [<data 1.ssz> [<data 2.ssz> [ ... ]]]]",
 		Short: "process_proposer_slashings sub state-transition",
 		Args:  cobra.RangeArgs(0, beacon.MAX_PROPOSER_SLASHINGS),
@@ -423,8 +422,8 @@ func init() {
 				return state.ProcessProposerSlashings(ctx, epc, ops)
 			})
 		},
-	}
-	DepositsCmd = &cobra.Command{
+	})
+	DepositsCmd = withTimeout(&cobra.Command{
 		Use:   "deposits [<data 0.ssz> [<data 1.ssz> [<data 2.ssz> [ ... ]]]]",
 		Short: "process_deposits sub state-transition",
 		Args:  cobra.RangeArgs(0, beacon.MAX_DEPOSITS),
@@ -440,8 +439,8 @@ func init() {
 				return state.ProcessDeposits(ctx, epc, ops)
 			})
 		},
-	}
-	VoluntaryExitsCmd = &cobra.Command{
+	})
+	VoluntaryExitsCmd = withTimeout(&cobra.Command{
 		Use:   "voluntary_exits [<data 0.ssz> [<data 1.ssz> [<data 2.ssz> [ ... ]]]]",
 		Short: "process_voluntary_exits sub state-transition",
 		Args:  cobra.RangeArgs(0, beacon.MAX_VOLUNTARY_EXITS),
@@ -457,8 +456,7 @@ func init() {
 				return state.ProcessVoluntaryExits(ctx, epc, ops)
 			})
 		},
-	}
-	BlockCmd.Flags().Uint64("timeout", 0, "timeout in milliseconds, 0 to disable timeout")
+	})
 	BlockCmd.AddCommand(BlockHeaderCmd, AttestationsCmd,
 		AttesterSlashingsCmd, ProposerSlashingsCmd,
 		DepositsCmd, VoluntaryExitsCmd)
