@@ -145,6 +145,9 @@ func LoadStateViewInputPath(cmd *cobra.Command, inPath string, stdInFallback boo
 	}
 
 	v, err := spec.BeaconState().Deserialize(codec.NewDecodingReader(bytes.NewReader(buf.Bytes()), uint64(buf.Len())))
+	if err != nil {
+		return nil, fmt.Errorf("cannot deserialize ssz state: %v", err)
+	}
 	return beacon.AsBeaconStateView(v, nil)
 }
 
