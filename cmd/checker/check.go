@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/protolambda/zcli/cmd/spec_types"
 	. "github.com/protolambda/zcli/util"
-	"github.com/protolambda/zssz"
+	"github.com/protolambda/ztyp/codec"
 	"github.com/spf13/cobra"
 	"io"
 	"os"
@@ -14,11 +14,21 @@ import (
 var CheckCmd *cobra.Command
 
 func MakeCmd(st *spec_types.SpecType) *cobra.Command {
-	return &cobra.Command{
+	c := &cobra.Command{
 		Use:   fmt.Sprintf("%s [input path]", st.Name),
 		Short: fmt.Sprintf("Check if the input is a valid serialized %s, if the input path is not specified, input is read from STDIN", st.TypeName),
 		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
+			spec, err := LoadSpec(cmd)
+			if Check(err, cmd.ErrOrStderr(), "cannot load spec") {
+				return
+			}
+			dst := st.Alloc()
+			sszObj, err := ItSSZ(dst, spec)
+			if Check(err, cmd.ErrOrStderr(), "cannot use type as ssz object") {
+				return
+			}
+
 			var path string
 			if len(args) > 0 {
 				path = args[0]
@@ -35,18 +45,21 @@ func MakeCmd(st *spec_types.SpecType) *cobra.Command {
 				}
 			}
 			var buf bytes.Buffer
-			_, err := buf.ReadFrom(r)
+			_, err = buf.ReadFrom(r)
 			if Check(err, cmd.ErrOrStderr(), "cannot read ssz into buffer") {
 				return
 			}
 
-			if err := zssz.DryCheck(bytes.NewReader(buf.Bytes()), uint64(buf.Len()), st.SSZTyp); Check(err, cmd.ErrOrStderr(), "cannot verify input") {
+			err = sszObj.Deserialize(codec.NewDecodingReader(bytes.NewReader(buf.Bytes()), uint64(buf.Len())))
+			if Check(err, cmd.ErrOrStderr(), "cannot deserialize input") {
 				return
 			}
 
 			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "valid %s!\n", st.TypeName)
 		},
 	}
+	c.Flags().StringP("spec", "s", "mainnet", "The spec configuration to use. Can also be a path to a yaml config file. E.g. 'mainnet', 'minimal', or 'my_yaml_path.yml")
+	return c
 }
 
 func init() {

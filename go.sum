@@ -123,12 +123,16 @@ github.com/prometheus/procfs v0.0.0-20181005140218-185b4288413d/go.mod h1:c3At6R
 github.com/prometheus/tsdb v0.6.2-0.20190402121629-4f204dcbc150/go.mod h1:qhTCs0VvXwvX/y3TZrWD7rabWM+ijKTux40TwIPHuXU=
 github.com/protolambda/messagediff v1.3.0 h1:wrtV08SSLxVWwuEDgLkqU1hquYcPhWT71lIkHkjU2k4=
 github.com/protolambda/messagediff v1.3.0/go.mod h1:LboJp0EwIbJsePYpzh5Op/9G1/4mIztMRYzzwR0dR2M=
+github.com/protolambda/messagediff v1.4.0 h1:fk6gxK7WybJCaeOFK1yuh2Ldplx7qYMLibiMwWFcSZY=
+github.com/protolambda/messagediff v1.4.0/go.mod h1:LboJp0EwIbJsePYpzh5Op/9G1/4mIztMRYzzwR0dR2M=
 github.com/protolambda/zrnt v0.12.0 h1:IdDjgfR7A9oJHuMB2efkw6VRFInbNJg/VngTMYuZhgQ=
 github.com/protolambda/zrnt v0.12.0/go.mod h1:71rYzFHuC3DIO4EHG3JhioEwbrLhGmQF/8Wtw4Khw44=
 github.com/protolambda/zrnt v0.12.1 h1:w9H+gzwPvMDDjSmRijo8dvqpVMYi2gxNuPJTao8jFQQ=
 github.com/protolambda/zrnt v0.12.1/go.mod h1:Oeg+WlvlJL6q5LBUSgSltOwCgJfpGOSxcWUegHZ1PAw=
 github.com/protolambda/zrnt v0.12.2-alpha.2 h1:ojrFXLUZiZOYPlEcSdB6GuWYxz6CuAjWH/zOS2rND48=
 github.com/protolambda/zrnt v0.12.2-alpha.2/go.mod h1:a/raDEpbODpGQXj9rsnmkAbPF/Dkhecb7v4cz+FTeuo=
+github.com/protolambda/zrnt v0.12.4 h1:BJE8HSYx9wJnOOBr/QdYCE0fxUOfJpSKbSCcXGprm28=
+github.com/protolambda/zrnt v0.12.4/go.mod h1:7G3u3+BgUjmQw75fQ3OYOJucujRrspBmshCx3OdRutc=
 github.com/protolambda/zssz v0.1.3 h1:WL25qizRrzcmaHz62CiWA/oHX+cXDELV/UT0kpbi64Y=
 github.com/protolambda/zssz v0.1.3/go.mod h1:a4iwOX5FE7/JkKA+J/PH0Mjo9oXftN6P8NZyL28gpag=
 github.com/protolambda/zssz v0.1.4 h1:4jkt8sqwhOVR8B1JebREU/gVX0Ply4GypsV8+RWrDuw=
@@ -139,6 +143,8 @@ github.com/protolambda/ztyp v0.0.1 h1:rW8+XYVWp0rOlH/ot7H61crZKXbsj6T3ZT7MWX1tOA
 github.com/protolambda/ztyp v0.0.1/go.mod h1:u9yT4ioIokwlHrOfiZ52ezHfKdza3phxhTJix01vGgU=
 github.com/protolambda/ztyp v0.0.2 h1:swdBQqW5KV28qW6mt27jBXmwTF0qybw9v3mMyzZo6I0=
 github.com/protolambda/ztyp v0.0.2/go.mod h1:u9yT4ioIokwlHrOfiZ52ezHfKdza3phxhTJix01vGgU=
+github.com/protolambda/ztyp v0.1.0 h1:sp717X5+vHT8sUo8o9ppi2ixTBL9HvqlcIIQNuzQU7s=
+github.com/protolambda/ztyp v0.1.0/go.mod h1:u9yT4ioIokwlHrOfiZ52ezHfKdza3phxhTJix01vGgU=
 github.com/rjeczalik/notify v0.9.1/go.mod h1:rKwnCoCGeuQnwBtTSPL9Dad03Vh2n40ePRrjvIXnJho=
 github.com/robertkrimen/otto v0.0.0-20170205013659-6a77b7cbc37d/go.mod h1:xvqspoSXJTIpemEonrMDFq6XzwHYYgToXWj5eRX1OtY=
 github.com/rs/cors v0.0.0-20160617231935-a62a804a8a00/go.mod h1:gFx+x8UowdsKA9AchylcLynDq+nNFfI8FkUZdN/jGCU=
@@ -204,4 +210,6 @@ gopkg.in/urfave/cli.v1 v1.20.0/go.mod h1:vuBzUtMdQeixQj8LVd+/98pzhxNGQoyuPBlsXHO
 gopkg.in/yaml.v2 v2.2.1/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
 gopkg.in/yaml.v2 v2.2.2 h1:ZCJp+EgiOT7lHqUV2J862kp8Qj64Jo6az82+3Td9dZw=
 gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
+gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 h1:tQIYjPdBoyREyB9XMu+nnTclpTYkz2zFM+lzLJFO4gQ=
+gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 gotest.tools v2.2.0+incompatible/go.mod h1:DsYFclhRJ6vuDpmuTbkuFWG+y2sxOXAzmJt81HFBacw=

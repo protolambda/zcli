@@ -15,11 +15,15 @@ func RegistryCmd() *cobra.Command {
 		Short: fmt.Sprintf("Print a summary of the validator registry. If the input path is not specified, input is read from STDIN."),
 		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
+			spec, err := LoadSpec(cmd)
+			if Check(err, cmd.ErrOrStderr(), "cannot load spec") {
+				return
+			}
 			var inPath string
 			if len(args) > 0 {
 				inPath = args[0]
 			}
-			state, err := LoadStateInputPath(cmd, inPath, true)
+			state, err := LoadStateInputPath(cmd, inPath, true, spec)
 			if Check(err, cmd.ErrOrStderr(), "cannot verify input") {
 				return
 			}
@@ -28,7 +32,7 @@ func RegistryCmd() *cobra.Command {
 				return
 			}
 			{
-				currentEpoch := state.Slot.ToEpoch()
+				currentEpoch := spec.SlotToEpoch(state.Slot)
 				fmtStatus := func(v *Validator) string {
 					if v.Slashed {
 						return "💀"
@@ -94,6 +98,7 @@ func RegistryCmd() *cobra.Command {
 			}
 		},
 	}
+	c.Flags().StringP("spec", "s", "mainnet", "The spec configuration to use. Can also be a path to a yaml config file. E.g. 'mainnet', 'minimal', or 'my_yaml_path.yml")
 	c.Flags().BoolP("verbose", "v", false, "verbose=bool")
 	return c
 }

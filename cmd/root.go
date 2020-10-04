@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/protolambda/zcli/cmd/api_util"
 	"github.com/protolambda/zcli/cmd/checker"
 	"github.com/protolambda/zcli/cmd/diff"
 	"github.com/protolambda/zcli/cmd/genesis"
@@ -15,8 +14,6 @@ import (
 	"github.com/protolambda/zcli/cmd/transition"
 	"github.com/protolambda/zcli/util"
 	"github.com/protolambda/zrnt/eth2"
-	"github.com/protolambda/zrnt/eth2/beacon"
-	"github.com/protolambda/zssz"
 	"github.com/spf13/cobra"
 	"io"
 	"os"
@@ -40,9 +37,6 @@ func init() {
 			util.Report(cmd.OutOrStdout(), `
 ZCLI: v0.0.30
 ZRNT: `+eth2.VERSION+`
-ZSSZ: `+zssz.VERSION+`
-
-config: `+beacon.PRESET_NAME+`
 `)
 		},
 	}
@@ -56,7 +50,6 @@ config: `+beacon.PRESET_NAME+`
 	RootCmd.AddCommand(roots.HashTreeRootCmd)
 	RootCmd.AddCommand(keys.KeysCmd)
 	RootCmd.AddCommand(meta.MetaCmd)
-	RootCmd.AddCommand(api_util.ApiUtilCmd)
 	RootCmd.AddCommand(info.InfoCmd)
 	RootCmd.AddCommand(net.NetCmd)
 }

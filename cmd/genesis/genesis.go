@@ -6,7 +6,7 @@ import (
 	. "github.com/protolambda/zrnt/eth2/beacon"
 	"github.com/protolambda/zrnt/eth2/util/hashing"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 	"io"
 	"os"
 	"strings"
@@ -30,6 +30,10 @@ func init() {
 		Use:   "mock",
 		Short: "Generate a genesis state from a predefined set of keys",
 		Run: func(cmd *cobra.Command, args []string) {
+			spec, err := LoadSpec(cmd)
+			if Check(err, cmd.ErrOrStderr(), "cannot load spec") {
+				return
+			}
 			eth1RootStr, err := cmd.Flags().GetString("eth1-root")
 			if Check(err, cmd.ErrOrStderr(), "cannot parse eth1-root") {
 				return
@@ -90,16 +94,16 @@ func init() {
 					return
 				}
 				withdrawal := hashing.Hash(pub[:])
-				withdrawal[0] = BLS_WITHDRAWAL_PREFIX
+				withdrawal[0] = spec.BLS_WITHDRAWAL_PREFIX[0]
 				validators = append(validators, KickstartValidatorData{
 					Pubkey:                pub,
 					WithdrawalCredentials: withdrawal,
-					Balance:               MAX_EFFECTIVE_BALANCE,
+					Balance:               spec.MAX_EFFECTIVE_BALANCE,
 				})
 				privKeys = append(privKeys, priv)
 			}
 
-			state, _, err := KickStartStateWithSignatures(eth1Root, Timestamp(genesisTime), validators, privKeys)
+			state, _, err := spec.KickStartStateWithSignatures(eth1Root, Timestamp(genesisTime), validators, privKeys)
 			if Check(err, cmd.ErrOrStderr(), "cannot create beacon state") {
 				return
 			}
@@ -109,6 +113,7 @@ func init() {
 			}
 		},
 	}
+	MockedCmd.Flags().StringP("spec", "s", "mainnet", "The spec configuration to use. Can also be a path to a yaml config file. E.g. 'mainnet', 'minimal', or 'my_yaml_path.yml")
 	MockedCmd.Flags().Uint64("genesis-time", 0, "Genesis time, decimal base")
 	MockedCmd.Flags().String("eth1-root", "0x4242424242424242424242424242424242424242424242424242424242424242", "Eth1 root, hex encoded")
 	MockedCmd.Flags().Uint32("count", 64, "Number of validators")

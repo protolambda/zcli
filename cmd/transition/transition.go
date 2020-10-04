@@ -52,6 +52,7 @@ func init() {
 	}
 	TransitionCmd.PersistentFlags().StringP("pre", "i", "", "Pre (Input) path. If none is specified, input is read from STDIN")
 	TransitionCmd.PersistentFlags().StringP("post", "o", "", "Post (Output) path. If none is specified, output is written to STDOUT")
+	TransitionCmd.PersistentFlags().StringP("spec", "s", "mainnet", "The spec configuration to use. Can also be a path to a yaml config file. E.g. 'mainnet', 'minimal', or 'my_yaml_path.yml")
 
 	withTimeout := func(cmd *cobra.Command) *cobra.Command {
 		cmd.Flags().Uint64("timeout", 0, "timeout in milliseconds, 0 to disable timeout")
@@ -80,9 +81,14 @@ func init() {
 				return
 			}
 
+			spec, err := LoadSpec(cmd)
+			if Check(err, cmd.ErrOrStderr(), "failed to get spec") {
+				return
+			}
+
 			slots, _ := strconv.ParseUint(args[0], 10, 64)
 
-			state, epc, err := loadPreFull(cmd)
+			state, epc, err := loadPreFull(cmd, spec)
 			if Check(err, cmd.ErrOrStderr(), "pre state could not be loaded") {
 				return
 			}
@@ -103,7 +109,7 @@ func init() {
 			if timeout != 0 {
 				ctx, _ = context.WithTimeout(ctx, time.Duration(timeout)*time.Microsecond)
 			}
-			err = state.ProcessSlots(ctx, epc, to)
+			err = spec.ProcessSlots(ctx, epc, state, to)
 			if Check(err, cmd.ErrOrStderr(), "Failed transition, could not compute post-state") {
 				return
 			}
@@ -132,7 +138,12 @@ func init() {
 				return
 			}
 
-			state, epc, err := loadPreFull(cmd)
+			spec, err := LoadSpec(cmd)
+			if Check(err, cmd.ErrOrStderr(), "failed to get spec") {
+				return
+			}
+
+			state, epc, err := loadPreFull(cmd, spec)
 			if Check(err, cmd.ErrOrStderr(), "could not load pre-state") {
 				return
 			}
@@ -144,12 +155,12 @@ func init() {
 
 			for i := 0; i < len(args); i++ {
 				var b beacon.SignedBeaconBlock
-				err := LoadSSZ(args[i], &b, beacon.SignedBeaconBlockSSZ)
+				err := LoadSSZ(args[i], spec.Wrap(&b))
 				if Check(err, cmd.ErrOrStderr(), "could not load block: %s", args[i]) {
 					return
 				}
 
-				err = state.StateTransition(ctx, epc, &b, verifyStateRoot)
+				err = spec.StateTransition(ctx, epc, state, &b, verifyStateRoot)
 				if Check(err, cmd.ErrOrStderr(), "failed block transition to block %s", args[i]) {
 					// still output the state, just stop processing blocks
 					break
@@ -186,7 +197,7 @@ func init() {
 	}
 	SubCmd.AddCommand(EpochCmd, OpCmd, BlockCmd)
 
-	transition := func(cmd *cobra.Command, change func(ctx context.Context, state *beacon.BeaconStateView, epc *beacon.EpochsContext) error) {
+	transition := func(cmd *cobra.Command, change func(ctx context.Context, spec *beacon.Spec, epc *beacon.EpochsContext, state *beacon.BeaconStateView) error) {
 		ctx := context.Background()
 		timeout, err := cmd.Flags().GetUint64("timeout")
 		if Check(err, cmd.ErrOrStderr(), "timeout flag could not be parsed") {
@@ -195,11 +206,16 @@ func init() {
 		if timeout != 0 {
 			ctx, _ = context.WithTimeout(ctx, time.Duration(timeout)*time.Microsecond)
 		}
-		state, epc, err := loadPreFull(cmd)
+		spec, err := LoadSpec(cmd)
+		if Check(err, cmd.ErrOrStderr(), "failed to get spec") {
+			return
+		}
+
+		state, epc, err := loadPreFull(cmd, spec)
 		if Check(err, cmd.ErrOrStderr(), "pre state could not be loaded") {
 			return
 		}
-		err = change(ctx, state, epc)
+		err = change(ctx, spec, epc, state)
 		// Check and report the error, but still write the post state (even if an incomplete transition), it may be useful for debugging.
 		_ = Check(err, cmd.ErrOrStderr(), "failed transition, could not compute post-state")
 		err = writePost(cmd, state)
@@ -212,12 +228,12 @@ func init() {
 		Short: "process_final_updates sub state-transition",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			transition(cmd, func(ctx context.Context, state *beacon.BeaconStateView, epc *beacon.EpochsContext) error {
-				process, err := state.PrepareEpochProcess(ctx, epc)
+			transition(cmd, func(ctx context.Context, spec *beacon.Spec, epc *beacon.EpochsContext, state *beacon.BeaconStateView) error {
+				process, err := spec.PrepareEpochProcess(ctx, epc, state)
 				if err != nil {
 					return err
 				}
-				return state.ProcessEpochFinalUpdates(ctx, epc, process)
+				return spec.ProcessEpochFinalUpdates(ctx, epc, process, state)
 			})
 		},
 	})
@@ -226,12 +242,12 @@ func init() {
 		Short: "process_justification_and_finalization sub state-transition",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			transition(cmd, func(ctx context.Context, state *beacon.BeaconStateView, epc *beacon.EpochsContext) error {
-				process, err := state.PrepareEpochProcess(ctx, epc)
+			transition(cmd, func(ctx context.Context, spec *beacon.Spec, epc *beacon.EpochsContext, state *beacon.BeaconStateView) error {
+				process, err := spec.PrepareEpochProcess(ctx, epc, state)
 				if err != nil {
 					return err
 				}
-				return state.ProcessEpochJustification(ctx, epc, process)
+				return spec.ProcessEpochJustification(ctx, epc, process, state)
 			})
 		},
 	})
@@ -240,12 +256,12 @@ func init() {
 		Short: "process_rewards_and_penalties sub state-transition",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			transition(cmd, func(ctx context.Context, state *beacon.BeaconStateView, epc *beacon.EpochsContext) error {
-				process, err := state.PrepareEpochProcess(ctx, epc)
+			transition(cmd, func(ctx context.Context, spec *beacon.Spec, epc *beacon.EpochsContext, state *beacon.BeaconStateView) error {
+				process, err := spec.PrepareEpochProcess(ctx, epc, state)
 				if err != nil {
 					return err
 				}
-				return state.ProcessEpochRewardsAndPenalties(ctx, epc, process)
+				return spec.ProcessEpochRewardsAndPenalties(ctx, epc, process, state)
 			})
 		},
 	})
@@ -254,12 +270,12 @@ func init() {
 		Short: "process_registry_updates sub state-transition",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			transition(cmd, func(ctx context.Context, state *beacon.BeaconStateView, epc *beacon.EpochsContext) error {
-				process, err := state.PrepareEpochProcess(ctx, epc)
+			transition(cmd, func(ctx context.Context, spec *beacon.Spec, epc *beacon.EpochsContext, state *beacon.BeaconStateView) error {
+				process, err := spec.PrepareEpochProcess(ctx, epc, state)
 				if err != nil {
 					return err
 				}
-				return state.ProcessEpochRegistryUpdates(ctx, epc, process)
+				return spec.ProcessEpochRegistryUpdates(ctx, epc, process, state)
 			})
 		},
 	})
@@ -268,12 +284,12 @@ func init() {
 		Short: "process_slashings sub state-transition",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			transition(cmd, func(ctx context.Context, state *beacon.BeaconStateView, epc *beacon.EpochsContext) error {
-				process, err := state.PrepareEpochProcess(ctx, epc)
+			transition(cmd, func(ctx context.Context, spec *beacon.Spec, epc *beacon.EpochsContext, state *beacon.BeaconStateView) error {
+				process, err := spec.PrepareEpochProcess(ctx, epc, state)
 				if err != nil {
 					return err
 				}
-				return state.ProcessEpochSlashings(ctx, epc, process)
+				return spec.ProcessEpochSlashings(ctx, epc, process, state)
 			})
 		},
 	})
@@ -285,13 +301,13 @@ func init() {
 		Short: "process_attestation sub state-transition",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			transition(cmd, func(ctx context.Context, state *beacon.BeaconStateView, epc *beacon.EpochsContext) error {
+			transition(cmd, func(ctx context.Context, spec *beacon.Spec, epc *beacon.EpochsContext, state *beacon.BeaconStateView) error {
 				var op beacon.Attestation
-				err := LoadSSZ(args[0], &op, beacon.AttestationSSZ)
+				err := LoadSSZ(args[0], spec.Wrap(&op))
 				if err != nil {
 					return err
 				}
-				return state.ProcessAttestation(epc, &op)
+				return spec.ProcessAttestation(epc, state, &op)
 			})
 		},
 	})
@@ -300,13 +316,13 @@ func init() {
 		Short: "process_attester_slashing sub state-transition",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			transition(cmd, func(ctx context.Context, state *beacon.BeaconStateView, epc *beacon.EpochsContext) error {
+			transition(cmd, func(ctx context.Context, spec *beacon.Spec, epc *beacon.EpochsContext, state *beacon.BeaconStateView) error {
 				var op beacon.AttesterSlashing
-				err := LoadSSZ(args[0], &op, beacon.AttesterSlashingSSZ)
+				err := LoadSSZ(args[0], spec.Wrap(&op))
 				if err != nil {
 					return err
 				}
-				return state.ProcessAttesterSlashing(epc, &op)
+				return spec.ProcessAttesterSlashing(epc, state, &op)
 			})
 		},
 	})
@@ -315,13 +331,13 @@ func init() {
 		Short: "process_proposer_slashing sub state-transition",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			transition(cmd, func(ctx context.Context, state *beacon.BeaconStateView, epc *beacon.EpochsContext) error {
+			transition(cmd, func(ctx context.Context, spec *beacon.Spec, epc *beacon.EpochsContext, state *beacon.BeaconStateView) error {
 				var op beacon.ProposerSlashing
-				err := LoadSSZ(args[0], &op, beacon.ProposerSlashingSSZ)
+				err := LoadSSZ(args[0], &op)
 				if err != nil {
 					return err
 				}
-				return state.ProcessProposerSlashing(epc, &op)
+				return spec.ProcessProposerSlashing(epc, state, &op)
 			})
 		},
 	})
@@ -330,13 +346,13 @@ func init() {
 		Short: "process_deposit sub state-transition",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			transition(cmd, func(ctx context.Context, state *beacon.BeaconStateView, epc *beacon.EpochsContext) error {
+			transition(cmd, func(ctx context.Context, spec *beacon.Spec, epc *beacon.EpochsContext, state *beacon.BeaconStateView) error {
 				var op beacon.Deposit
-				err := LoadSSZ(args[0], &op, beacon.DepositSSZ)
+				err := LoadSSZ(args[0], &op)
 				if err != nil {
 					return err
 				}
-				return state.ProcessDeposit(epc, &op, false)
+				return spec.ProcessDeposit(epc, state, &op, false)
 			})
 		},
 	})
@@ -345,13 +361,13 @@ func init() {
 		Short: "process_voluntary_exit sub state-transition",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			transition(cmd, func(ctx context.Context, state *beacon.BeaconStateView, epc *beacon.EpochsContext) error {
+			transition(cmd, func(ctx context.Context, spec *beacon.Spec, epc *beacon.EpochsContext, state *beacon.BeaconStateView) error {
 				var op beacon.SignedVoluntaryExit
-				err := LoadSSZ(args[0], &op, beacon.VoluntaryExitSSZ)
+				err := LoadSSZ(args[0], &op)
 				if err != nil {
 					return err
 				}
-				return state.ProcessVoluntaryExit(epc, &op)
+				return spec.ProcessVoluntaryExit(epc, state, &op)
 			})
 		},
 	})
@@ -362,98 +378,98 @@ func init() {
 		Short: "process_block_header sub state-transition (block input, not header)",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			transition(cmd, func(ctx context.Context, state *beacon.BeaconStateView, epc *beacon.EpochsContext) error {
+			transition(cmd, func(ctx context.Context, spec *beacon.Spec, epc *beacon.EpochsContext, state *beacon.BeaconStateView) error {
 				var bh beacon.BeaconBlock
-				err := LoadSSZ(args[0], &bh, beacon.BeaconBlockSSZ)
+				err := LoadSSZ(args[0], spec.Wrap(&bh))
 				if err != nil {
 					return err
 				}
-				return state.ProcessHeader(ctx, epc, &bh)
+				return spec.ProcessHeader(ctx, epc, state, &bh)
 			})
 		},
 	})
 	AttestationsCmd = withTimeout(&cobra.Command{
 		Use:   "attestations [<data 0.ssz> [<data 1.ssz> [<data 2.ssz> [ ... ]]]]",
 		Short: "process_attestations sub state-transition",
-		Args:  cobra.RangeArgs(0, beacon.MAX_ATTESTATIONS),
+		Args:  cobra.ArbitraryArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			transition(cmd, func(ctx context.Context, state *beacon.BeaconStateView, epc *beacon.EpochsContext) error {
+			transition(cmd, func(ctx context.Context, spec *beacon.Spec, epc *beacon.EpochsContext, state *beacon.BeaconStateView) error {
 				ops := make(beacon.Attestations, len(args), len(args))
 				for i, arg := range args {
-					err := LoadSSZ(arg, &ops[i], beacon.AttestationSSZ)
+					err := LoadSSZ(arg, spec.Wrap(&ops[i]))
 					if err != nil {
 						return fmt.Errorf("could not load operation %d %s: %v", i, arg, err)
 					}
 				}
-				return state.ProcessAttestations(ctx, epc, ops)
+				return spec.ProcessAttestations(ctx, epc, state, ops)
 			})
 		},
 	})
 	AttesterSlashingsCmd = withTimeout(&cobra.Command{
 		Use:   "attester_slashings [<data 0.ssz> [<data 1.ssz> [<data 2.ssz> [ ... ]]]]",
 		Short: "process_attester_slashings sub state-transition",
-		Args:  cobra.RangeArgs(0, beacon.MAX_ATTESTER_SLASHINGS),
+		Args:  cobra.ArbitraryArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			transition(cmd, func(ctx context.Context, state *beacon.BeaconStateView, epc *beacon.EpochsContext) error {
+			transition(cmd, func(ctx context.Context, spec *beacon.Spec, epc *beacon.EpochsContext, state *beacon.BeaconStateView) error {
 				ops := make(beacon.AttesterSlashings, len(args), len(args))
 				for i, arg := range args {
-					err := LoadSSZ(arg, &ops[i], beacon.AttesterSlashingSSZ)
+					err := LoadSSZ(arg, spec.Wrap(&ops[i]))
 					if err != nil {
 						return fmt.Errorf("could not load operation %d %s: %v", i, arg, err)
 					}
 				}
-				return state.ProcessAttesterSlashings(ctx, epc, ops)
+				return spec.ProcessAttesterSlashings(ctx, epc, state, ops)
 			})
 		},
 	})
 	ProposerSlashingsCmd = withTimeout(&cobra.Command{
 		Use:   "proposer_slashings [<data 0.ssz> [<data 1.ssz> [<data 2.ssz> [ ... ]]]]",
 		Short: "process_proposer_slashings sub state-transition",
-		Args:  cobra.RangeArgs(0, beacon.MAX_PROPOSER_SLASHINGS),
+		Args:  cobra.ArbitraryArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			transition(cmd, func(ctx context.Context, state *beacon.BeaconStateView, epc *beacon.EpochsContext) error {
+			transition(cmd, func(ctx context.Context, spec *beacon.Spec, epc *beacon.EpochsContext, state *beacon.BeaconStateView) error {
 				ops := make(beacon.ProposerSlashings, len(args), len(args))
 				for i, arg := range args {
-					err := LoadSSZ(arg, &ops[i], beacon.ProposerSlashingSSZ)
+					err := LoadSSZ(arg, &ops[i])
 					if err != nil {
 						return fmt.Errorf("could not load operation %d %s: %v", i, arg, err)
 					}
 				}
-				return state.ProcessProposerSlashings(ctx, epc, ops)
+				return spec.ProcessProposerSlashings(ctx, epc, state, ops)
 			})
 		},
 	})
 	DepositsCmd = withTimeout(&cobra.Command{
 		Use:   "deposits [<data 0.ssz> [<data 1.ssz> [<data 2.ssz> [ ... ]]]]",
 		Short: "process_deposits sub state-transition",
-		Args:  cobra.RangeArgs(0, beacon.MAX_DEPOSITS),
+		Args:  cobra.ArbitraryArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			transition(cmd, func(ctx context.Context, state *beacon.BeaconStateView, epc *beacon.EpochsContext) error {
+			transition(cmd, func(ctx context.Context, spec *beacon.Spec, epc *beacon.EpochsContext, state *beacon.BeaconStateView) error {
 				ops := make(beacon.Deposits, len(args), len(args))
 				for i, arg := range args {
-					err := LoadSSZ(arg, &ops[i], beacon.DepositSSZ)
+					err := LoadSSZ(arg, &ops[i])
 					if err != nil {
 						return fmt.Errorf("could not load operation %d %s: %v", i, arg, err)
 					}
 				}
-				return state.ProcessDeposits(ctx, epc, ops)
+				return spec.ProcessDeposits(ctx, epc, state, ops)
 			})
 		},
 	})
 	VoluntaryExitsCmd = withTimeout(&cobra.Command{
 		Use:   "voluntary_exits [<data 0.ssz> [<data 1.ssz> [<data 2.ssz> [ ... ]]]]",
 		Short: "process_voluntary_exits sub state-transition",
-		Args:  cobra.RangeArgs(0, beacon.MAX_VOLUNTARY_EXITS),
+		Args:  cobra.ArbitraryArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			transition(cmd, func(ctx context.Context, state *beacon.BeaconStateView, epc *beacon.EpochsContext) error {
+			transition(cmd, func(ctx context.Context, spec *beacon.Spec, epc *beacon.EpochsContext, state *beacon.BeaconStateView) error {
 				ops := make(beacon.VoluntaryExits, len(args), len(args))
 				for i, arg := range args {
-					err := LoadSSZ(arg, &ops[i], beacon.VoluntaryExitSSZ)
+					err := LoadSSZ(arg, &ops[i])
 					if err != nil {
 						return fmt.Errorf("could not load operation %d %s: %v", i, arg, err)
 					}
 				}
-				return state.ProcessVoluntaryExits(ctx, epc, ops)
+				return spec.ProcessVoluntaryExits(ctx, epc, state, ops)
 			})
 		},
 	})
@@ -462,12 +478,12 @@ func init() {
 		DepositsCmd, VoluntaryExitsCmd)
 }
 
-func loadPreFull(cmd *cobra.Command) (*beacon.BeaconStateView, *beacon.EpochsContext, error) {
-	pre, err := LoadStateViewInputFlag(cmd, "pre", true)
+func loadPreFull(cmd *cobra.Command, spec *beacon.Spec) (*beacon.BeaconStateView, *beacon.EpochsContext, error) {
+	pre, err := LoadStateViewInputFlag(cmd, "pre", true, spec)
 	if err != nil {
 		return nil, nil, err
 	}
-	epc, err := pre.NewEpochsContext()
+	epc, err := spec.NewEpochsContext(pre)
 	if err != nil {
 		return nil, nil, err
 	}

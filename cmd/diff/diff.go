@@ -12,17 +12,25 @@ import (
 var DiffCmd *cobra.Command
 
 func MakeCmd(st *spec_types.SpecType) *cobra.Command {
-	return &cobra.Command{
+	diffCmd := &cobra.Command{
 		Use:   fmt.Sprintf("%s <path A> <path B>", st.Name),
 		Short: fmt.Sprintf("Diff two %s objects", st.TypeName),
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
+			spec, err := LoadSpec(cmd)
+			if Check(err, cmd.ErrOrStderr(), "cannot load spec") {
+				return
+			}
 			rA, err := os.Open(args[0])
 			if Check(err, cmd.ErrOrStderr(), "cannot open SSZ input A") {
 				return
 			}
 			objA := st.Alloc()
-			if Check(LoadSSZInput(rA, objA, st.SSZTyp), cmd.ErrOrStderr(), "cannot load SSZ input A") {
+			objASSZ, err := ItSSZ(objA, spec)
+			if Check(err, cmd.ErrOrStderr(), "cannot open decode input A") {
+				return
+			}
+			if Check(LoadSSZInput(rA, objASSZ), cmd.ErrOrStderr(), "cannot load SSZ input A") {
 				return
 			}
 			rB, err := os.Open(args[1])
@@ -30,7 +38,11 @@ func MakeCmd(st *spec_types.SpecType) *cobra.Command {
 				return
 			}
 			objB := st.Alloc()
-			if Check(LoadSSZInput(rB, objB, st.SSZTyp), cmd.ErrOrStderr(), "cannot load SSZ input B") {
+			objBSSZ, err := ItSSZ(objB, spec)
+			if Check(err, cmd.ErrOrStderr(), "cannot open decode input B") {
+				return
+			}
+			if Check(LoadSSZInput(rB, objBSSZ), cmd.ErrOrStderr(), "cannot load SSZ input B") {
 				return
 			}
 			if diff, equal := messagediff.PrettyDiff(objA, objB, messagediff.SliceWeakEmptyOption{}); equal {
@@ -40,6 +52,8 @@ func MakeCmd(st *spec_types.SpecType) *cobra.Command {
 			}
 		},
 	}
+	diffCmd.Flags().StringP("spec", "s", "mainnet", "The spec configuration to use. Can also be a path to a yaml config file. E.g. 'mainnet', 'minimal', or 'my_yaml_path.yml")
+	return diffCmd
 }
 
 func init() {
