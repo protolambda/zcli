@@ -16,10 +16,10 @@ Based on the Go-spec: [ZRNT](https://github.com/protolambda/zrnt)
 Options:
  
 - `-u` to update dependencies (do not use an old ZRNT or ZSSZ dependency in your debugging CLI)
-- `-tags preset_minimal` to compile the minimal spec preset into the CLI
+- `-tags bls_off` to disable BLS for testing purposes (not secure!!!)
 
 ```bash
-GO111MODULE=on go get -tags preset_mainnet github.com/protolambda/zcli
+GO111MODULE=on go get github.com/protolambda/zcli
 ```
 
 ## Usage
@@ -36,7 +36,7 @@ Quick overview of all commands (run `zcli <sub command> --help` to get usage opt
 zcli
   # these commands all have sub-commands to specify the type of the SSZ data.
   diff             find the differences in SSZ data
-  pretty           pretty-print SSZ data
+  pretty           pretty-print SSZ data (indented JSON)
   check            check SSZ data format
   hash-tree-root   (aliases: hash_tree_root, htr) Compute Hash-Tree-Root, output in hex
   # the type sub-commands:
@@ -107,3 +107,13 @@ zcli
 
   help        Help about any command
 ```
+
+All commands have a `--help` for additional information, flags, etc.
+
+And for many commands, use `--spec` to select a known config (`minimal`, `mainnet`, etc.) or a custom YAML config file!
+E.g. `--spec=medalla_config.yaml`
+
+
+## License
+
+MIT, see [`LICENSE`](./LICENSE) file.
