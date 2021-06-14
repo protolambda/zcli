@@ -213,3 +213,13 @@ var TypesByPhase = map[string]map[string]SpecType{
 	"merge":    MergeSpecTypes,
 	"sharding": ShardingSpecTypes,
 }
+
+var Phases = []string{"phase0", "altair", "merge", "sharding"}
+
+func TypeNames(types map[string]SpecType) []string {
+	out := make([]string, 0, len(types))
+	for k := range types {
+		out = append(out, k)
+	}
+	return out
+}

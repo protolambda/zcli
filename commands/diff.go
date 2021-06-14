@@ -32,7 +32,7 @@ func (c *DiffPhaseCmd) Cmd(route string) (cmd interface{}, err error) {
 	if !ok {
 		return nil, fmt.Errorf("unrecognized spec object type: %s", route)
 	}
-	return &DiffObjCmd{PhaseName: route, TypeName: route, Type: specType}, nil
+	return &DiffObjCmd{PhaseName: c.PhaseName, TypeName: route, Type: specType}, nil
 }
 
 type DiffObjCmd struct {

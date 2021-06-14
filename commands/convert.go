@@ -31,11 +31,12 @@ func (c *ConvertPhaseCmd) Cmd(route string) (cmd interface{}, err error) {
 	if !ok {
 		return nil, fmt.Errorf("unrecognized spec object type: %s", route)
 	}
-	return &ConvertObjCmd{PhaseName: route, Type: specType}, nil
+	return &ConvertObjCmd{PhaseName: c.PhaseName, TypeName: route, Type: specType}, nil
 }
 
 type ConvertObjCmd struct {
 	PhaseName   string
+	TypeName    string
 	Type        spec_types.SpecType
 	SpecOptions `ask:"."`
 	Input       util.ObjInput  `ask:"<input>" help:"Input path, prefix with format, empty path for STDIN"`

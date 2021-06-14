@@ -40,7 +40,7 @@ zcli
 
 All commands have a `--help` for additional information, flags, etc.
 
-And for many commands, use `--config` and `--{forkname}-preset` to select a known (`minimal`, `mainnet`, etc.) or custom YAML config/preset file!
+And for many commands, use `--config` and `--preset-{forkname}` to select a known (`minimal`, `mainnet`, etc.) or custom YAML config/preset file!
 E.g. `--config=local_testnet.yaml`
 
 

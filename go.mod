@@ -11,3 +11,4 @@ require (
 )
 
 replace github.com/protolambda/zrnt => ../zrnt
+replace github.com/protolambda/ask => ../ask

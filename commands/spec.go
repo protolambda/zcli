@@ -13,10 +13,10 @@ type SpecOptions struct {
 	LegacyConfigChanged bool   `changed:"legacy-config"`
 
 	Config         string `ask:"--config" help:"Eth2 spec configuration, name or path to YAML"`
-	Phase0Preset   string `ask:"--phase0-preset" help:"Eth2 phase0 spec preset, name or path to YAML"`
-	AltairPreset   string `ask:"--phase0-preset" help:"Eth2 altair spec preset, name or path to YAML"`
-	MergePreset    string `ask:"--phase0-preset" help:"Eth2 merge spec preset, name or path to YAML"`
-	ShardingPreset string `ask:"--phase0-preset" help:"Eth2 sharding spec preset, name or path to YAML"`
+	Phase0Preset   string `ask:"--preset-phase0" help:"Eth2 phase0 spec preset, name or path to YAML"`
+	AltairPreset   string `ask:"--preset-altair" help:"Eth2 altair spec preset, name or path to YAML"`
+	MergePreset    string `ask:"--preset-merge" help:"Eth2 merge spec preset, name or path to YAML"`
+	ShardingPreset string `ask:"--preset-sharding" help:"Eth2 sharding spec preset, name or path to YAML"`
 
 	// TODO: execution engine config for Merge
 	// TODO: trusted setup config for Sharding
