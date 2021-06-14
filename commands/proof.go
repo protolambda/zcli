@@ -150,7 +150,7 @@ func (c *ProofObjCmd) Run(ctx context.Context, args ...string) error {
 		n := tree.Gindex64(1)
 		for {
 			right, ok := iter.Next()
-			if ok {
+			if !ok {
 				break
 			}
 			n *= 2
