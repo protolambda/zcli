@@ -39,22 +39,22 @@ func (c *TransitionSubCmd) Cmd(route string) (cmd interface{}, err error) {
 }
 
 type TransitionSlotsCmd struct {
-	PreFork     string
-	Slots       uint64        `ask:"<slots>" help:"Number of slots to process"`
-	Timeout     time.Duration `ask:"--timeout" help:"Timeout, e.g. 100ms"`
-	SpecOptions `ask:"."`
-	Pre         util.ObjInput `ask:"--pre" help:"Pre-state"`
-	Post        util.ObjInput `ask:"--post" help:"Post-state"`
+	PreFork          string
+	Slots            uint64        `ask:"<slots>" help:"Number of slots to process"`
+	Timeout          time.Duration `ask:"--timeout" help:"Timeout, e.g. 100ms"`
+	util.SpecOptions `ask:"."`
+	Pre              util.ObjInput `ask:"--pre" help:"Pre-state"`
+	Post             util.ObjInput `ask:"--post" help:"Post-state"`
 	// TODO: maybe fork-override, to transition between forks?
 }
 
 type TransitionBlocksCmd struct {
-	PreFork         string
-	VerifyStateRoot bool          `ask:"--verify-state-root" help:"Verify the state root of each block"`
-	Timeout         time.Duration `ask:"--timeout" help:"Timeout, e.g. 100ms"`
-	SpecOptions     `ask:"."`
-	Pre             util.ObjInput `ask:"--pre" help:"Pre-state"`
-	Post            util.ObjInput `ask:"--post" help:"Post-state"`
+	PreFork          string
+	VerifyStateRoot  bool          `ask:"--verify-state-root" help:"Verify the state root of each block"`
+	Timeout          time.Duration `ask:"--timeout" help:"Timeout, e.g. 100ms"`
+	util.SpecOptions `ask:"."`
+	Pre              util.ObjInput `ask:"--pre" help:"Pre-state"`
+	Post             util.ObjInput `ask:"--post" help:"Post-state"`
 	// TODO: maybe fork-override, to transition between forks?
 }
 
@@ -104,12 +104,12 @@ func (c *TransitionSubRouterCmd) Cmd(route string) (cmd interface{}, err error) 
 }
 
 type TransitionEpochSubCmd struct {
-	PreFork     string
-	Transition  string
-	Timeout     time.Duration `ask:"--timeout" help:"Timeout, e.g. 100ms"`
-	SpecOptions `ask:"."`
-	Pre         util.ObjInput `ask:"--pre" help:"Pre-state"`
-	Post        util.ObjInput `ask:"--post" help:"Post-state"`
+	PreFork          string
+	Transition       string
+	Timeout          time.Duration `ask:"--timeout" help:"Timeout, e.g. 100ms"`
+	util.SpecOptions `ask:"."`
+	Pre              util.ObjInput `ask:"--pre" help:"Pre-state"`
+	Post             util.ObjInput `ask:"--post" help:"Post-state"`
 }
 
 func (c *TransitionEpochSubCmd) Run(ctx context.Context, args ...string) error {
@@ -118,13 +118,13 @@ func (c *TransitionEpochSubCmd) Run(ctx context.Context, args ...string) error {
 }
 
 type TransitionBlockSubCmd struct {
-	PreFork     string
-	Transition  string
-	Timeout     time.Duration `ask:"--timeout" help:"Timeout, e.g. 100ms"`
-	SpecOptions `ask:"."`
-	Pre         util.ObjInput `ask:"--pre" help:"Pre-state"`
-	Op          util.ObjInput `ask:"<op>" help:"Block operation input"`
-	Post        util.ObjInput `ask:"--post" help:"Post-state"`
+	PreFork          string
+	Transition       string
+	Timeout          time.Duration `ask:"--timeout" help:"Timeout, e.g. 100ms"`
+	util.SpecOptions `ask:"."`
+	Pre              util.ObjInput `ask:"--pre" help:"Pre-state"`
+	Op               util.ObjInput `ask:"<op>" help:"Block operation input"`
+	Post             util.ObjInput `ask:"--post" help:"Post-state"`
 }
 
 func (c *TransitionBlockSubCmd) Run(ctx context.Context, args ...string) error {
@@ -133,12 +133,12 @@ func (c *TransitionBlockSubCmd) Run(ctx context.Context, args ...string) error {
 }
 
 type TransitionBlockOpsSubCmd struct {
-	PreFork     string
-	Transition  string
-	Timeout     time.Duration `ask:"--timeout" help:"Timeout, e.g. 100ms"`
-	SpecOptions `ask:"."`
-	Pre         util.ObjInput `ask:"--pre" help:"Pre-state"`
-	Post        util.ObjInput `ask:"--post" help:"Post-state"`
+	PreFork          string
+	Transition       string
+	Timeout          time.Duration `ask:"--timeout" help:"Timeout, e.g. 100ms"`
+	util.SpecOptions `ask:"."`
+	Pre              util.ObjInput `ask:"--pre" help:"Pre-state"`
+	Post             util.ObjInput `ask:"--post" help:"Post-state"`
 }
 
 func (c *TransitionBlockOpsSubCmd) Run(ctx context.Context, args ...string) error {

@@ -52,12 +52,12 @@ func (c *ProofPhaseCmd) Routes() []string {
 }
 
 type ProofObjCmd struct {
-	PhaseName   string
-	TypeName    string
-	Type        spec_types.SpecType
-	SpecOptions `ask:"."`
-	Input       util.ObjInput     `ask:"<input>" help:"Input, prefix with format, empty path for STDIN"`
-	Gindices    util.GindicesFlag `ask:"--gindices" help:"Gindices of leaf values to put in multi-proof"`
+	PhaseName        string
+	TypeName         string
+	Type             spec_types.SpecType
+	util.SpecOptions `ask:"."`
+	Input            util.ObjInput     `ask:"<input>" help:"Input, prefix with format, empty path for STDIN"`
+	Gindices         util.GindicesFlag `ask:"--gindices" help:"Gindices of leaf values to put in multi-proof"`
 	// TODO: path
 }
 

@@ -35,12 +35,12 @@ func (c *ConvertPhaseCmd) Cmd(route string) (cmd interface{}, err error) {
 }
 
 type ConvertObjCmd struct {
-	PhaseName   string
-	TypeName    string
-	Type        spec_types.SpecType
-	SpecOptions `ask:"."`
-	Input       util.ObjInput  `ask:"<input>" help:"Input path, prefix with format, empty path for STDIN"`
-	Output      util.ObjOutput `ask:"<output>" help:"Output path, prefix with format, empty path for STDOUT"`
+	PhaseName        string
+	TypeName         string
+	Type             spec_types.SpecType
+	util.SpecOptions `ask:"."`
+	Input            util.ObjInput  `ask:"<input>" help:"Input path, prefix with format, empty path for STDIN"`
+	Output           util.ObjOutput `ask:"<output>" help:"Output path, prefix with format, empty path for STDOUT"`
 }
 
 func (c *ConvertObjCmd) Run(ctx context.Context, args ...string) error {

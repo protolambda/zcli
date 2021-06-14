@@ -43,9 +43,9 @@ func (c *MetaPhaseCmd) Cmd(route string) (cmd interface{}, err error) {
 }
 
 type CommitteesCmd struct {
-	Phase       string
-	SpecOptions `ask:"."`
-	State       util.ObjInput `ask:"<state>" help:"BeaconState, prefix with format, empty path for STDIN"`
+	Phase            string
+	util.SpecOptions `ask:"."`
+	State            util.ObjInput `ask:"<state>" help:"BeaconState, prefix with format, empty path for STDIN"`
 }
 
 func (c *CommitteesCmd) Run(ctx context.Context, args ...string) error {
@@ -94,9 +94,9 @@ func (c *CommitteesCmd) Run(ctx context.Context, args ...string) error {
 }
 
 type ProposersCmd struct {
-	Phase       string
-	SpecOptions `ask:"."`
-	State       util.ObjInput `ask:"<state>" help:"BeaconState, prefix with format, empty path for STDIN"`
+	Phase            string
+	util.SpecOptions `ask:"."`
+	State            util.ObjInput `ask:"<state>" help:"BeaconState, prefix with format, empty path for STDIN"`
 }
 
 func (c *ProposersCmd) Run(ctx context.Context, args ...string) error {
@@ -135,9 +135,9 @@ func (c *ProposersCmd) Run(ctx context.Context, args ...string) error {
 }
 
 type SyncCommitteesCmd struct {
-	Phase       string
-	SpecOptions `ask:"."`
-	State       util.ObjInput `ask:"<state>" help:"BeaconState, prefix with format, empty path for STDIN"`
+	Phase            string
+	util.SpecOptions `ask:"."`
+	State            util.ObjInput `ask:"<state>" help:"BeaconState, prefix with format, empty path for STDIN"`
 }
 
 func (c *SyncCommitteesCmd) Run(ctx context.Context, args ...string) error {
