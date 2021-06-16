@@ -129,6 +129,8 @@ github.com/protolambda/zrnt v0.12.4 h1:BJE8HSYx9wJnOOBr/QdYCE0fxUOfJpSKbSCcXGprm
 github.com/protolambda/zrnt v0.12.4/go.mod h1:7G3u3+BgUjmQw75fQ3OYOJucujRrspBmshCx3OdRutc=
 github.com/protolambda/zrnt v0.16.0 h1:qbkWC4+J636aJcyN1rgKN/d8GuCLhvRlfHKWWFXRoJ8=
 github.com/protolambda/zrnt v0.16.0/go.mod h1:7fOYOhf5hndcnevKwUuUI8Ruj5t0dauywgHj4CXlDgA=
+github.com/protolambda/zrnt v0.16.1 h1:8ucycasEEgHjBYeqKWeP7z2Fj36vMT4g+0e66NonRrE=
+github.com/protolambda/zrnt v0.16.1/go.mod h1:7fOYOhf5hndcnevKwUuUI8Ruj5t0dauywgHj4CXlDgA=
 github.com/protolambda/ztyp v0.1.0 h1:sp717X5+vHT8sUo8o9ppi2ixTBL9HvqlcIIQNuzQU7s=
 github.com/protolambda/ztyp v0.1.0/go.mod h1:u9yT4ioIokwlHrOfiZ52ezHfKdza3phxhTJix01vGgU=
 github.com/protolambda/ztyp v0.1.8 h1:G7ViZLK2aEi2EaqNbeP/0v9/OW1denunBKZLESL6Ftc=
