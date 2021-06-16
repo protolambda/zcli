@@ -22,6 +22,10 @@ func (c *DiffCmd) Cmd(route string) (cmd interface{}, err error) {
 	return &DiffPhaseCmd{PhaseName: route, Types: phaseTypes}, nil
 }
 
+func (c *DiffCmd) Routes() []string {
+	return spec_types.Phases
+}
+
 type DiffPhaseCmd struct {
 	PhaseName string
 	Types     map[string]spec_types.SpecType
@@ -33,6 +37,10 @@ func (c *DiffPhaseCmd) Cmd(route string) (cmd interface{}, err error) {
 		return nil, fmt.Errorf("unrecognized spec object type: %s", route)
 	}
 	return &DiffObjCmd{PhaseName: c.PhaseName, TypeName: route, Type: specType}, nil
+}
+
+func (c *DiffPhaseCmd) Routes() []string {
+	return spec_types.TypeNames(c.Types)
 }
 
 type DiffObjCmd struct {

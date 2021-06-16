@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/protolambda/ask"
+	"github.com/protolambda/zcli/spec_types"
 	"github.com/protolambda/zcli/util"
 	"github.com/protolambda/zrnt/eth2/beacon/common"
 )
@@ -22,6 +23,10 @@ func (c *MetaCmd) Cmd(route string) (cmd interface{}, err error) {
 	return nil, ask.UnrecognizedErr
 }
 
+func (c *MetaCmd) Routes() []string {
+	return spec_types.Phases
+}
+
 type MetaPhaseCmd struct {
 	Phase string
 }
@@ -37,15 +42,30 @@ func (c *MetaPhaseCmd) Cmd(route string) (cmd interface{}, err error) {
 	case "proposers":
 		return &ProposersCmd{Phase: route}, nil
 	case "sync_committees", "sync-committees", "synccommittees":
+		if c.Phase != "altair" {
+			return nil, ask.UnrecognizedErr
+		}
 		return &SyncCommitteesCmd{Phase: route}, nil
 	}
 	return nil, ask.UnrecognizedErr
 }
 
+func (c *MetaPhaseCmd) Routes() []string {
+	out := []string{"committees", "proposers"}
+	if c.Phase == "altair" {
+		out = append(out, "sync-committees")
+	}
+	return out
+}
+
 type CommitteesCmd struct {
 	Phase            string
 	util.SpecOptions `ask:"."`
-	State            util.ObjInput `ask:"<state>" help:"BeaconState, prefix with format, empty path for STDIN"`
+	State            util.StateInput `ask:"<state>" help:"BeaconState, prefix with format, empty path for STDIN"`
+}
+
+func (c *CommitteesCmd) Help() string {
+	return fmt.Sprintf("List previous/current/next beacon committees (phase %s)", c.Phase)
 }
 
 func (c *CommitteesCmd) Run(ctx context.Context, args ...string) error {
@@ -53,12 +73,9 @@ func (c *CommitteesCmd) Run(ctx context.Context, args ...string) error {
 	if err != nil {
 		return err
 	}
-	// TODO state
-	var state common.BeaconState
-	switch c.Phase {
-	case "phase0":
-		// TODO
-		//c.State.Read()
+	state, err := c.State.Read(spec, c.Phase)
+	if err != nil {
+		return err
 	}
 	epc, err := common.NewEpochsContext(spec, state)
 	if err != nil {
@@ -96,7 +113,11 @@ func (c *CommitteesCmd) Run(ctx context.Context, args ...string) error {
 type ProposersCmd struct {
 	Phase            string
 	util.SpecOptions `ask:"."`
-	State            util.ObjInput `ask:"<state>" help:"BeaconState, prefix with format, empty path for STDIN"`
+	State            util.StateInput `ask:"<state>" help:"BeaconState, prefix with format, empty path for STDIN"`
+}
+
+func (c *ProposersCmd) Help() string {
+	return fmt.Sprintf("List current beacon propoosers (phase %s)", c.Phase)
 }
 
 func (c *ProposersCmd) Run(ctx context.Context, args ...string) error {
@@ -104,12 +125,9 @@ func (c *ProposersCmd) Run(ctx context.Context, args ...string) error {
 	if err != nil {
 		return err
 	}
-	// TODO state
-	var state common.BeaconState
-	switch c.Phase {
-	case "phase0":
-		// TODO
-		//c.State.Read()
+	state, err := c.State.Read(spec, c.Phase)
+	if err != nil {
+		return err
 	}
 	epc, err := common.NewEpochsContext(spec, state)
 	if err != nil {
@@ -137,10 +155,36 @@ func (c *ProposersCmd) Run(ctx context.Context, args ...string) error {
 type SyncCommitteesCmd struct {
 	Phase            string
 	util.SpecOptions `ask:"."`
-	State            util.ObjInput `ask:"<state>" help:"BeaconState, prefix with format, empty path for STDIN"`
+	State            util.StateInput `ask:"<state>" help:"BeaconState, prefix with format, empty path for STDIN"`
+}
+
+func (c *SyncCommitteesCmd) Help() string {
+	return fmt.Sprintf("List current/next sync-committee members (phase %s)", c.Phase)
 }
 
 func (c *SyncCommitteesCmd) Run(ctx context.Context, args ...string) error {
-	// TODO
+	if c.Phase != "altair" {
+		return fmt.Errorf("only Altair is supported for looking up the sync committee indices, not %q", c.Phase)
+	}
+	spec, err := c.Spec()
+	if err != nil {
+		return err
+	}
+	state, err := c.State.Read(spec, c.Phase)
+	if err != nil {
+		return err
+	}
+	epc, err := common.NewEpochsContext(spec, state)
+	if err != nil {
+		return fmt.Errorf("cannot compute state epochs context: %v", err)
+	}
+	fmt.Println("--- current sync committee ---")
+	for i, vi := range epc.CurrentSyncCommittee.Indices {
+		fmt.Printf("current[%d] => %d: %s\n", i, vi, epc.CurrentSyncCommittee.CachedPubkeys[i].Compressed.String())
+	}
+	fmt.Println("--- next sync committee ---")
+	for i, vi := range epc.NextSyncCommittee.Indices {
+		fmt.Printf("next[%d] => %d: %s\n", i, vi, epc.NextSyncCommittee.CachedPubkeys[i].Compressed.String())
+	}
 	return nil
 }

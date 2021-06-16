@@ -21,6 +21,10 @@ func (c *ConvertCmd) Cmd(route string) (cmd interface{}, err error) {
 	return &ConvertPhaseCmd{PhaseName: route, Types: phaseTypes}, nil
 }
 
+func (c *ConvertCmd) Routes() []string {
+	return spec_types.Phases
+}
+
 type ConvertPhaseCmd struct {
 	PhaseName string
 	Types     map[string]spec_types.SpecType
@@ -32,6 +36,10 @@ func (c *ConvertPhaseCmd) Cmd(route string) (cmd interface{}, err error) {
 		return nil, fmt.Errorf("unrecognized spec object type: %s", route)
 	}
 	return &ConvertObjCmd{PhaseName: c.PhaseName, TypeName: route, Type: specType}, nil
+}
+
+func (c *ConvertPhaseCmd) Routes() []string {
+	return spec_types.TypeNames(c.Types)
 }
 
 type ConvertObjCmd struct {

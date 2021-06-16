@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/protolambda/ask"
+	"github.com/protolambda/zcli/spec_types"
 	"github.com/protolambda/zcli/util"
 	"github.com/protolambda/zrnt/eth2/beacon"
 	"github.com/protolambda/zrnt/eth2/beacon/altair"
@@ -30,6 +31,10 @@ func (c *TransitionCmd) Cmd(route string) (cmd interface{}, err error) {
 	}
 }
 
+func (c *TransitionCmd) Routes() []string {
+	return spec_types.Phases
+}
+
 type TransitionSubCmd struct {
 	PreFork string
 }
@@ -48,6 +53,10 @@ func (c *TransitionSubCmd) Cmd(route string) (cmd interface{}, err error) {
 		return &TransitionSubRouterCmd{PreFork: c.PreFork}, nil
 	}
 	return nil, ask.UnrecognizedErr
+}
+
+func (c *TransitionSubCmd) Routes() []string {
+	return []string{"slots", "blocks", "sub"}
 }
 
 type TransitionSlotsCmd struct {
