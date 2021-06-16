@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/protolambda/ask"
 	"github.com/protolambda/zcli/util"
+	"github.com/protolambda/zrnt/eth2/beacon"
 	"github.com/protolambda/zrnt/eth2/beacon/altair"
 	"github.com/protolambda/zrnt/eth2/beacon/common"
 	"github.com/protolambda/zrnt/eth2/beacon/merge"
@@ -64,9 +65,27 @@ func (c *TransitionSlotsCmd) Help() string {
 }
 
 func (c *TransitionSlotsCmd) Run(ctx context.Context, args ...string) error {
-	// 1 block per arg
-	// TODO
-	return nil
+	spec, err := c.Spec()
+	if err != nil {
+		return err
+	}
+	pre, err := c.Pre.Read(spec, c.PreFork)
+	if err != nil {
+		return err
+	}
+	state := &beacon.StandardUpgradeableBeaconState{BeaconState: pre}
+	epc, err := common.NewEpochsContext(spec, state)
+	if err != nil {
+		return err
+	}
+	slot, err := state.Slot()
+	if err != nil {
+		return err
+	}
+	if err := common.ProcessSlots(ctx, spec, epc, state, slot + common.Slot(c.Slots)); err != nil {
+		return err
+	}
+	return c.Post.Write(spec, state)
 }
 
 type TransitionBlocksCmd struct {
@@ -84,9 +103,51 @@ func (c *TransitionBlocksCmd) Help() string {
 }
 
 func (c *TransitionBlocksCmd) Run(ctx context.Context, args ...string) error {
-	// 1 block per arg
-	// TODO
-	return nil
+	spec, err := c.Spec()
+	if err != nil {
+		return err
+	}
+	pre, err := c.Pre.Read(spec, c.PreFork)
+	if err != nil {
+		return err
+	}
+	state := &beacon.StandardUpgradeableBeaconState{BeaconState: pre}
+	epc, err := common.NewEpochsContext(spec, state)
+	if err != nil {
+		return err
+	}
+	genesisValRoot, err := state.GenesisValidatorsRoot()
+	if err != nil {
+		return err
+	}
+	phase := c.PreFork
+	for i, arg := range args {
+		var obj common.EnvelopeBuilder
+		var digest common.ForkDigest
+		switch phase {
+		case "phase0":
+			obj = new(phase0.SignedBeaconBlock)
+			digest = common.ComputeForkDigest(spec.GENESIS_FORK_VERSION, genesisValRoot)
+		case "altair":
+			obj = new(altair.SignedBeaconBlock)
+			digest = common.ComputeForkDigest(spec.ALTAIR_FORK_VERSION, genesisValRoot)
+		case "merge":
+			obj = new(merge.SignedBeaconBlock)
+			digest = common.ComputeForkDigest(spec.MERGE_FORK_VERSION, genesisValRoot)
+		case "sharding":
+			obj = new(sharding.SignedBeaconBlock)
+			digest = common.ComputeForkDigest(spec.SHARDING_FORK_VERSION, genesisValRoot)
+		}
+		input := util.ObjInput(arg)
+		if err := input.Read(obj); err != nil {
+			return fmt.Errorf("failed to read block %d: %v", i, err)
+		}
+		benv := obj.Envelope(spec, digest)
+		if err := common.StateTransition(ctx, spec, epc, state, benv, c.VerifyStateRoot); err != nil {
+			return fmt.Errorf("failed to process block %d: %v", i, err)
+		}
+	}
+	return c.Post.Write(spec, state)
 }
 
 type TransitionSubRouterCmd struct {
