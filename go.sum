@@ -7,8 +7,6 @@ github.com/protolambda/ask v0.0.6 h1:efjIH61w/63P5hj3Su7QYObS3cEP/MyKCGaknfOr/qM
 github.com/protolambda/ask v0.0.6/go.mod h1:UEXk+8VL3EIkVTfI3j21uFv47fZFxk0Q1PwXV6zfzIw=
 github.com/protolambda/messagediff v1.4.0 h1:fk6gxK7WybJCaeOFK1yuh2Ldplx7qYMLibiMwWFcSZY=
 github.com/protolambda/messagediff v1.4.0/go.mod h1:LboJp0EwIbJsePYpzh5Op/9G1/4mIztMRYzzwR0dR2M=
-github.com/protolambda/zrnt v0.16.3 h1:nqUSlSmQ2FLQWospcER0wBReLyoIqqhTqRZkK0IFLkw=
-github.com/protolambda/zrnt v0.16.3/go.mod h1:7fOYOhf5hndcnevKwUuUI8Ruj5t0dauywgHj4CXlDgA=
 github.com/protolambda/zrnt v0.16.4 h1:iWiGhw/Tb+05hT5BV+gcFEEwzs+UwJrpHUrZMEqb9CI=
 github.com/protolambda/zrnt v0.16.4/go.mod h1:7fOYOhf5hndcnevKwUuUI8Ruj5t0dauywgHj4CXlDgA=
 github.com/protolambda/ztyp v0.1.8 h1:G7ViZLK2aEi2EaqNbeP/0v9/OW1denunBKZLESL6Ftc=
