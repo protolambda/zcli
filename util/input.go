@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/protolambda/zrnt/eth2/beacon/common"
 	"github.com/protolambda/ztyp/codec"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
@@ -29,7 +30,7 @@ func (p *ObjInput) Type() string {
 	return "object input (prefix with 'ssz:', 'json:' or 'yaml:')"
 }
 
-func (p *ObjInput) Read(dest interface{}) error {
+func (p *ObjInput) Read(dest common.SSZObj) error {
 	if p == nil {
 		return fmt.Errorf("no input specified")
 	}

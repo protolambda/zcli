@@ -131,7 +131,10 @@ func (c *TransitionBlocksCmd) Run(ctx context.Context, args ...string) error {
 	}
 	phase := c.PreFork
 	for i, arg := range args {
-		var obj common.EnvelopeBuilder
+		var obj interface {
+			common.EnvelopeBuilder
+			common.SpecObj
+		}
 		var digest common.ForkDigest
 		switch phase {
 		case "phase0":
@@ -148,7 +151,7 @@ func (c *TransitionBlocksCmd) Run(ctx context.Context, args ...string) error {
 			digest = common.ComputeForkDigest(spec.SHARDING_FORK_VERSION, genesisValRoot)
 		}
 		input := util.ObjInput(arg)
-		if err := input.Read(obj); err != nil {
+		if err := input.Read(spec.Wrap(obj)); err != nil {
 			return fmt.Errorf("failed to read block %d: %v", i, err)
 		}
 		benv := obj.Envelope(spec, digest)
@@ -415,13 +418,13 @@ func (c *TransitionBlockSubCmd) Run(ctx context.Context, args ...string) error {
 		switch c.PreFork {
 		case "phase0", "altair", "merge":
 			var attSl phase0.AttesterSlashing
-			if err := c.Op.Read(&attSl); err != nil {
+			if err := c.Op.Read(spec.Wrap(&attSl)); err != nil {
 				return err
 			}
 			return maybeOutput(phase0.ProcessAttesterSlashing(spec, epc, state, &attSl))
 		case "sharding":
 			var attSl sharding.AttesterSlashing
-			if err := c.Op.Read(&attSl); err != nil {
+			if err := c.Op.Read(spec.Wrap(&attSl)); err != nil {
 				return err
 			}
 			return maybeOutput(sharding.ProcessAttesterSlashing(spec, epc, state, &attSl))
@@ -430,19 +433,19 @@ func (c *TransitionBlockSubCmd) Run(ctx context.Context, args ...string) error {
 		switch c.PreFork {
 		case "phase0", "merge":
 			var att phase0.Attestation
-			if err := c.Op.Read(&att); err != nil {
+			if err := c.Op.Read(spec.Wrap(&att)); err != nil {
 				return err
 			}
 			return maybeOutput(phase0.ProcessAttestation(spec, epc, state.(phase0.Phase0PendingAttestationsBeaconState), &att))
 		case "altair":
 			var att phase0.Attestation
-			if err := c.Op.Read(&att); err != nil {
+			if err := c.Op.Read(spec.Wrap(&att)); err != nil {
 				return err
 			}
 			return maybeOutput(altair.ProcessAttestation(spec, epc, state.(*altair.BeaconStateView), &att))
 		case "sharding":
 			var att sharding.Attestation
-			if err := c.Op.Read(&att); err != nil {
+			if err := c.Op.Read(spec.Wrap(&att)); err != nil {
 				return err
 			}
 			return maybeOutput(sharding.ProcessAttestation(spec, epc, state.(*sharding.BeaconStateView), &att))
@@ -464,7 +467,7 @@ func (c *TransitionBlockSubCmd) Run(ctx context.Context, args ...string) error {
 			return fmt.Errorf("fork %s does not have sync_aggregate processing", c.PreFork)
 		}
 		var agg altair.SyncAggregate
-		if err := c.Op.Read(&agg); err != nil {
+		if err := c.Op.Read(spec.Wrap(&agg)); err != nil {
 			return err
 		}
 		return maybeOutput(altair.ProcessSyncAggregate(ctx, spec, epc, state.(*altair.BeaconStateView), &agg))
@@ -474,7 +477,7 @@ func (c *TransitionBlockSubCmd) Run(ctx context.Context, args ...string) error {
 			return fmt.Errorf("fork %s does not have execution_payload processing", c.PreFork)
 		case "merge", "sharding":
 			var payload common.ExecutionPayload
-			if err := c.Op.Read(&payload); err != nil {
+			if err := c.Op.Read(spec.Wrap(&payload)); err != nil {
 				return err
 			}
 			return maybeOutput(merge.ProcessExecutionPayload(ctx, spec, state.(merge.ExecutionTrackingBeaconState),

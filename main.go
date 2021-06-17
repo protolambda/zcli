@@ -17,6 +17,8 @@ func (c *MainCmd) Help() string {
 
 func (c *MainCmd) Cmd(route string) (cmd interface{}, err error) {
 	switch route {
+	case "pretty":
+		cmd = &commands.PrettyCmd{}
 	case "convert":
 		cmd = &commands.ConvertCmd{}
 	case "diff":
@@ -40,7 +42,7 @@ func (c *MainCmd) Cmd(route string) (cmd interface{}, err error) {
 }
 
 func (c *MainCmd) Routes() []string {
-	return []string{"convert", "diff", "meta", "proof", "root", "transition", "tree", "version"}
+	return []string{"pretty", "convert", "diff", "meta", "proof", "root", "transition", "tree", "version"}
 }
 
 func main() {

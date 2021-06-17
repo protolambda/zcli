@@ -35,6 +35,7 @@ Quick overview of all commands (run `zcli <sub command> --help` to get usage opt
 
 ```text
 zcli
+  pretty <phase> <type> <input>                  Pretty-print spec object (output indented JSON)
   convert <phase> <type> <input> <output>        Convert spec object from one format to another
   diff <phase> <type> <a> <b>                    Diff spec data
   meta <phase> <subcmd>                          List metadata of beacon state
