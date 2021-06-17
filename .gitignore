@@ -12,3 +12,4 @@
 *.out
 
 test_files/
+*.ssz

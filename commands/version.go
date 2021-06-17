@@ -15,7 +15,7 @@ func (c *VersionCmd) Help() string {
 	return "Print ZCLI and ZRNT version"
 }
 
-func (c *VersionCmd) Run(ctx context.Context) error {
+func (c *VersionCmd) Run(ctx context.Context, args ...string) error {
 	fmt.Printf(`
 ZCLI version: %s
 ZRNT version: %s

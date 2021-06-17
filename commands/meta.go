@@ -38,14 +38,14 @@ func (c *MetaPhaseCmd) Help() string {
 func (c *MetaPhaseCmd) Cmd(route string) (cmd interface{}, err error) {
 	switch route {
 	case "committees":
-		return &CommitteesCmd{Phase: route}, nil
+		return &CommitteesCmd{Phase: c.Phase}, nil
 	case "proposers":
-		return &ProposersCmd{Phase: route}, nil
+		return &ProposersCmd{Phase: c.Phase}, nil
 	case "sync_committees", "sync-committees", "synccommittees":
 		if c.Phase != "altair" {
 			return nil, ask.UnrecognizedErr
 		}
-		return &SyncCommitteesCmd{Phase: route}, nil
+		return &SyncCommitteesCmd{Phase: c.Phase}, nil
 	}
 	return nil, ask.UnrecognizedErr
 }
@@ -92,7 +92,7 @@ func (c *CommitteesCmd) Run(ctx context.Context, args ...string) error {
 		if err != nil {
 			return err
 		}
-		end, err := spec.EpochStartSlot(epoch)
+		end, err := spec.EpochStartSlot(epoch+1)
 		if err != nil {
 			return err
 		}
@@ -102,7 +102,7 @@ func (c *CommitteesCmd) Run(ctx context.Context, args ...string) error {
 				if err != nil {
 					return fmt.Errorf("cannot get committee for slot %d committee index %d", slot, i)
 				}
-				fmt.Printf(`epoch: %7d    slot: %9d    committee index: %4d (out of %4d)   size: %5d    indices: %v\n`,
+				fmt.Printf("epoch: %7d    slot: %9d    committee index: %4d (out of %2d)   size: %3d    indices: %v\n",
 					spec.SlotToEpoch(slot), slot, i, committeesPerSlot, len(committee), committee)
 			}
 		}
@@ -147,7 +147,7 @@ func (c *ProposersCmd) Run(ctx context.Context, args ...string) error {
 		if err != nil {
 			return fmt.Errorf("cannot compute proposer index for slot %d: %v", slot, err)
 		}
-		fmt.Printf(`epoch: %7d    slot: %9d    proposer index: %4d\n`, spec.SlotToEpoch(slot), slot, proposerIndex)
+		fmt.Printf("epoch: %7d    slot: %9d    proposer index: %4d\n", spec.SlotToEpoch(slot), slot, proposerIndex)
 	}
 	return nil
 }
@@ -180,11 +180,11 @@ func (c *SyncCommitteesCmd) Run(ctx context.Context, args ...string) error {
 	}
 	fmt.Println("--- current sync committee ---")
 	for i, vi := range epc.CurrentSyncCommittee.Indices {
-		fmt.Printf("current[%d] => %d: %s\n", i, vi, epc.CurrentSyncCommittee.CachedPubkeys[i].Compressed.String())
+		fmt.Printf("current[%4d] => %4d: %s\n", i, vi, epc.CurrentSyncCommittee.CachedPubkeys[i].Compressed.String())
 	}
 	fmt.Println("--- next sync committee ---")
 	for i, vi := range epc.NextSyncCommittee.Indices {
-		fmt.Printf("next[%d] => %d: %s\n", i, vi, epc.NextSyncCommittee.CachedPubkeys[i].Compressed.String())
+		fmt.Printf("next[%4d] => %4d: %s\n", i, vi, epc.NextSyncCommittee.CachedPubkeys[i].Compressed.String())
 	}
 	return nil
 }
