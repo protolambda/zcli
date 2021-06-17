@@ -74,6 +74,9 @@ func (c *TransitionSlotsCmd) Help() string {
 }
 
 func (c *TransitionSlotsCmd) Run(ctx context.Context, args ...string) error {
+	if c.Timeout != 0 {
+		ctx, _ = context.WithTimeout(ctx, c.Timeout)
+	}
 	spec, err := c.Spec()
 	if err != nil {
 		return err
@@ -112,6 +115,9 @@ func (c *TransitionBlocksCmd) Help() string {
 }
 
 func (c *TransitionBlocksCmd) Run(ctx context.Context, args ...string) error {
+	if c.Timeout != 0 {
+		ctx, _ = context.WithTimeout(ctx, c.Timeout)
+	}
 	spec, err := c.Spec()
 	if err != nil {
 		return err
@@ -207,6 +213,9 @@ func (c *TransitionEpochSubCmd) Help() string {
 }
 
 func (c *TransitionEpochSubCmd) Run(ctx context.Context, args ...string) error {
+	if c.Timeout != 0 {
+		ctx, _ = context.WithTimeout(ctx, c.Timeout)
+	}
 	spec, err := c.Spec()
 	if err != nil {
 		return err
@@ -363,6 +372,9 @@ func (c *TransitionBlockSubCmd) Help() string {
 }
 
 func (c *TransitionBlockSubCmd) Run(ctx context.Context, args ...string) error {
+	if c.Timeout != 0 {
+		ctx, _ = context.WithTimeout(ctx, c.Timeout)
+	}
 	spec, err := c.Spec()
 	if err != nil {
 		return err
