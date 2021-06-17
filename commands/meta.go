@@ -92,7 +92,7 @@ func (c *CommitteesCmd) Run(ctx context.Context, args ...string) error {
 		if err != nil {
 			return err
 		}
-		end, err := spec.EpochStartSlot(epoch+1)
+		end, err := spec.EpochStartSlot(epoch + 1)
 		if err != nil {
 			return err
 		}

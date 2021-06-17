@@ -167,7 +167,7 @@ func (c *TransitionSubRouterCmd) Help() string {
 	return fmt.Sprintf("Run state-transition sub-process (%s pre-state)", c.PreFork)
 }
 
-func (c *TransitionEpochSubCmd) Routes() []string {
+func (c *TransitionSubRouterCmd) Routes() []string {
 	return append(append([]string{}, epochSubProcessingByPhase[c.PreFork]...), blockOpSubProcessingByPhase[c.PreFork]...)
 }
 
