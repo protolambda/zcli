@@ -9,7 +9,7 @@ import (
 type VersionCmd struct {
 }
 
-const Version = "ZCLI v0.2.2"
+const Version = "v0.2.3"
 
 func (c *VersionCmd) Help() string {
 	return "Print ZCLI and ZRNT version"
