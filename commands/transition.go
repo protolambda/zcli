@@ -91,7 +91,7 @@ func (c *TransitionSlotsCmd) Run(ctx context.Context, args ...string) error {
 	if err != nil {
 		return err
 	}
-	if err := common.ProcessSlots(ctx, spec, epc, state, slot + common.Slot(c.Slots)); err != nil {
+	if err := common.ProcessSlots(ctx, spec, epc, state, slot+common.Slot(c.Slots)); err != nil {
 		return err
 	}
 	return c.Post.Write(spec, state)
