@@ -13,6 +13,7 @@ import (
 	"github.com/protolambda/zrnt/eth2/beacon/merge"
 	"github.com/protolambda/zrnt/eth2/beacon/phase0"
 	"github.com/protolambda/zrnt/eth2/beacon/sharding"
+	"github.com/protolambda/zrnt/eth2/configs"
 	"time"
 )
 
@@ -60,12 +61,12 @@ func (c *TransitionSubCmd) Routes() []string {
 }
 
 type TransitionSlotsCmd struct {
-	PreFork          string
-	Slots            uint64        `ask:"<slots>" help:"Number of slots to process"`
-	Timeout          time.Duration `ask:"--timeout" help:"Timeout, e.g. 100ms"`
-	util.SpecOptions `ask:"."`
-	Pre              util.StateInput  `ask:"--pre" help:"Pre-state"`
-	Post             util.StateOutput `ask:"--post" help:"Post-state"`
+	PreFork             string
+	Slots               uint64        `ask:"<slots>" help:"Number of slots to process"`
+	Timeout             time.Duration `ask:"--timeout" help:"Timeout, e.g. 100ms"`
+	configs.SpecOptions `ask:"."`
+	Pre                 util.StateInput  `ask:"--pre" help:"Pre-state"`
+	Post                util.StateOutput `ask:"--post" help:"Post-state"`
 	// TODO: maybe fork-override, to transition between forks?
 }
 
@@ -101,12 +102,12 @@ func (c *TransitionSlotsCmd) Run(ctx context.Context, args ...string) error {
 }
 
 type TransitionBlocksCmd struct {
-	PreFork          string
-	VerifyStateRoot  bool          `ask:"--verify-state-root" help:"Verify the state root of each block"`
-	Timeout          time.Duration `ask:"--timeout" help:"Timeout, e.g. 100ms"`
-	util.SpecOptions `ask:"."`
-	Pre              util.StateInput  `ask:"--pre" help:"Pre-state"`
-	Post             util.StateOutput `ask:"--post" help:"Post-state"`
+	PreFork             string
+	VerifyStateRoot     bool          `ask:"--verify-state-root" help:"Verify the state root of each block"`
+	Timeout             time.Duration `ask:"--timeout" help:"Timeout, e.g. 100ms"`
+	configs.SpecOptions `ask:"."`
+	Pre                 util.StateInput  `ask:"--pre" help:"Pre-state"`
+	Post                util.StateOutput `ask:"--post" help:"Post-state"`
 	// TODO: maybe fork-override, to transition between forks?
 }
 
@@ -200,12 +201,12 @@ func checkAny(hay []string, needle string) bool {
 }
 
 type TransitionEpochSubCmd struct {
-	PreFork          string
-	Transition       string
-	Timeout          time.Duration `ask:"--timeout" help:"Timeout, e.g. 100ms"`
-	util.SpecOptions `ask:"."`
-	Pre              util.StateInput  `ask:"--pre" help:"Pre-state"`
-	Post             util.StateOutput `ask:"--post" help:"Post-state"`
+	PreFork             string
+	Transition          string
+	Timeout             time.Duration `ask:"--timeout" help:"Timeout, e.g. 100ms"`
+	configs.SpecOptions `ask:"."`
+	Pre                 util.StateInput  `ask:"--pre" help:"Pre-state"`
+	Post                util.StateOutput `ask:"--post" help:"Post-state"`
 }
 
 func (c *TransitionEpochSubCmd) Help() string {
@@ -358,13 +359,13 @@ func (c *TransitionEpochSubCmd) Run(ctx context.Context, args ...string) error {
 }
 
 type TransitionBlockSubCmd struct {
-	PreFork          string
-	Transition       string
-	Timeout          time.Duration `ask:"--timeout" help:"Timeout, e.g. 100ms"`
-	util.SpecOptions `ask:"."`
-	Pre              util.StateInput  `ask:"--pre" help:"Pre-state"`
-	Op               util.ObjInput    `ask:"<op>" help:"Block operation input"`
-	Post             util.StateOutput `ask:"--post" help:"Post-state"`
+	PreFork             string
+	Transition          string
+	Timeout             time.Duration `ask:"--timeout" help:"Timeout, e.g. 100ms"`
+	configs.SpecOptions `ask:"."`
+	Pre                 util.StateInput  `ask:"--pre" help:"Pre-state"`
+	Op                  util.ObjInput    `ask:"<op>" help:"Block operation input"`
+	Post                util.StateOutput `ask:"--post" help:"Post-state"`
 }
 
 func (c *TransitionBlockSubCmd) Help() string {

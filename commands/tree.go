@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/protolambda/zcli/spec_types"
 	"github.com/protolambda/zcli/util"
+	"github.com/protolambda/zrnt/eth2/configs"
 	"github.com/protolambda/ztyp/codec"
 	"github.com/protolambda/ztyp/tree"
 	"github.com/protolambda/ztyp/view"
@@ -54,11 +55,11 @@ func (c *TreePhaseCmd) Routes() []string {
 }
 
 type TreeObjCmd struct {
-	PhaseName        string
-	TypeName         string
-	Type             spec_types.SpecType
-	util.SpecOptions `ask:"."`
-	Input            util.ObjInput `ask:"<input>" help:"Input, prefix with format, empty path for STDIN"`
+	PhaseName           string
+	TypeName            string
+	Type                spec_types.SpecType
+	configs.SpecOptions `ask:"."`
+	Input               util.ObjInput `ask:"<input>" help:"Input, prefix with format, empty path for STDIN"`
 }
 
 func (c *TreeObjCmd) Help() string {

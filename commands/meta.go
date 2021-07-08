@@ -7,6 +7,7 @@ import (
 	"github.com/protolambda/zcli/spec_types"
 	"github.com/protolambda/zcli/util"
 	"github.com/protolambda/zrnt/eth2/beacon/common"
+	"github.com/protolambda/zrnt/eth2/configs"
 )
 
 type MetaCmd struct{}
@@ -59,9 +60,9 @@ func (c *MetaPhaseCmd) Routes() []string {
 }
 
 type CommitteesCmd struct {
-	Phase            string
-	util.SpecOptions `ask:"."`
-	State            util.StateInput `ask:"<state>" help:"BeaconState, prefix with format, empty path for STDIN"`
+	Phase               string
+	configs.SpecOptions `ask:"."`
+	State               util.StateInput `ask:"<state>" help:"BeaconState, prefix with format, empty path for STDIN"`
 }
 
 func (c *CommitteesCmd) Help() string {
@@ -111,9 +112,9 @@ func (c *CommitteesCmd) Run(ctx context.Context, args ...string) error {
 }
 
 type ProposersCmd struct {
-	Phase            string
-	util.SpecOptions `ask:"."`
-	State            util.StateInput `ask:"<state>" help:"BeaconState, prefix with format, empty path for STDIN"`
+	Phase               string
+	configs.SpecOptions `ask:"."`
+	State               util.StateInput `ask:"<state>" help:"BeaconState, prefix with format, empty path for STDIN"`
 }
 
 func (c *ProposersCmd) Help() string {
@@ -153,9 +154,9 @@ func (c *ProposersCmd) Run(ctx context.Context, args ...string) error {
 }
 
 type SyncCommitteesCmd struct {
-	Phase            string
-	util.SpecOptions `ask:"."`
-	State            util.StateInput `ask:"<state>" help:"BeaconState, prefix with format, empty path for STDIN"`
+	Phase               string
+	configs.SpecOptions `ask:"."`
+	State               util.StateInput `ask:"<state>" help:"BeaconState, prefix with format, empty path for STDIN"`
 }
 
 func (c *SyncCommitteesCmd) Help() string {

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/protolambda/zcli/spec_types"
 	"github.com/protolambda/zcli/util"
+	"github.com/protolambda/zrnt/eth2/configs"
 	"github.com/protolambda/ztyp/codec"
 	"github.com/protolambda/ztyp/tree"
 	"github.com/protolambda/ztyp/view"
@@ -52,12 +53,12 @@ func (c *ProofPhaseCmd) Routes() []string {
 }
 
 type ProofObjCmd struct {
-	PhaseName        string
-	TypeName         string
-	Type             spec_types.SpecType
-	util.SpecOptions `ask:"."`
-	Input            util.ObjInput     `ask:"<input>" help:"Input, prefix with format, empty path for STDIN"`
-	Gindices         util.GindicesFlag `ask:"--gindices" help:"Gindices of leaf values to put in multi-proof"`
+	PhaseName           string
+	TypeName            string
+	Type                spec_types.SpecType
+	configs.SpecOptions `ask:"."`
+	Input               util.ObjInput     `ask:"<input>" help:"Input, prefix with format, empty path for STDIN"`
+	Gindices            util.GindicesFlag `ask:"--gindices" help:"Gindices of leaf values to put in multi-proof"`
 	// TODO: path
 }
 

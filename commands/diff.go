@@ -6,6 +6,7 @@ import (
 	"github.com/protolambda/messagediff"
 	"github.com/protolambda/zcli/spec_types"
 	"github.com/protolambda/zcli/util"
+	"github.com/protolambda/zrnt/eth2/configs"
 )
 
 type DiffCmd struct{}
@@ -44,12 +45,12 @@ func (c *DiffPhaseCmd) Routes() []string {
 }
 
 type DiffObjCmd struct {
-	PhaseName        string
-	TypeName         string
-	Type             spec_types.SpecType
-	util.SpecOptions `ask:"."`
-	InputA           util.ObjInput `ask:"<a>" help:"Input A, prefix with format, empty path for STDIN"`
-	InputB           util.ObjInput `ask:"<b>" help:"Input B, prefix with format, empty path for STDIN"`
+	PhaseName           string
+	TypeName            string
+	Type                spec_types.SpecType
+	configs.SpecOptions `ask:"."`
+	InputA              util.ObjInput `ask:"<a>" help:"Input A, prefix with format, empty path for STDIN"`
+	InputB              util.ObjInput `ask:"<b>" help:"Input B, prefix with format, empty path for STDIN"`
 }
 
 func (c *DiffObjCmd) Run(ctx context.Context, args ...string) error {

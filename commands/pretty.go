@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/protolambda/zcli/spec_types"
 	"github.com/protolambda/zcli/util"
+	"github.com/protolambda/zrnt/eth2/configs"
 )
 
 type PrettyCmd struct{}
@@ -43,12 +44,12 @@ func (c *PrettyPhaseCmd) Routes() []string {
 }
 
 type PrettyObjCmd struct {
-	PhaseName        string
-	TypeName         string
-	Type             spec_types.SpecType
-	util.SpecOptions `ask:"."`
-	Input            util.ObjInput `ask:"<input>" help:"Input path, prefix with format, empty path for STDIN"`
-	Output           string        `ask:"[output]" help:"Output path, empty path for STDOUT"`
+	PhaseName           string
+	TypeName            string
+	Type                spec_types.SpecType
+	configs.SpecOptions `ask:"."`
+	Input               util.ObjInput `ask:"<input>" help:"Input path, prefix with format, empty path for STDIN"`
+	Output              string        `ask:"[output]" help:"Output path, empty path for STDOUT"`
 }
 
 func (c *PrettyObjCmd) Run(ctx context.Context, args ...string) error {
