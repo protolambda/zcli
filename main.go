@@ -53,14 +53,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	if cmd, isHelp, err := descr.Execute(context.Background(), os.Args[1:]...); err != nil && err != ask.UnrecognizedErr {
+	if cmd, err := descr.Execute(context.Background(), nil, os.Args[1:]...); err == ask.UnrecognizedErr {
+		_, _ = fmt.Fprintln(os.Stderr, err.Error())
+	} else if err == ask.HelpErr {
+		_, _ = fmt.Fprintln(os.Stderr, cmd.Usage(false))
+	} else if err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(1)
 	} else if cmd == nil {
 		_, _ = fmt.Fprintln(os.Stderr, "failed to load command")
 		os.Exit(1)
-	} else if isHelp || (err == ask.UnrecognizedErr) {
-		_, _ = fmt.Fprintln(os.Stdout, cmd.Usage())
-		os.Exit(0)
 	}
+	os.Exit(0)
 }
