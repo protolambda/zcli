@@ -94,8 +94,16 @@ var AltairSpecTypes = map[string]SpecType{
 	"BLSPubkey":      {func(spec *common.Spec) common.SSZObj { return new(common.BLSPubkey) }, func(spec *common.Spec) view.TypeDef { return common.BLSPubkeyType }},
 	"BLSSignature":   {func(spec *common.Spec) common.SSZObj { return new(common.BLSSignature) }, func(spec *common.Spec) view.TypeDef { return common.BLSSignatureType }},
 
-	"SyncAggregate": {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(altair.SyncAggregate)) }, func(spec *common.Spec) view.TypeDef { return altair.SyncAggregateType(spec) }},
-	"SyncCommittee": {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(common.SyncCommittee)) }, func(spec *common.Spec) view.TypeDef { return common.SyncCommitteeType(spec) }},
+	"LightClientSnapshot": {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(altair.LightClientSnapshot)) }, func(spec *common.Spec) view.TypeDef { return altair.LightClientSnapshotType(spec) }},
+	"LightClientUpdate":   {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(altair.LightClientUpdate)) }, func(spec *common.Spec) view.TypeDef { return altair.LightClientUpdateType(spec) }},
+
+	"SyncAggregate":               {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(altair.SyncAggregate)) }, func(spec *common.Spec) view.TypeDef { return altair.SyncAggregateType(spec) }},
+	"SyncAggregatorSelectionData": {func(spec *common.Spec) common.SSZObj { return new(altair.SyncAggregatorSelectionData) }, func(spec *common.Spec) view.TypeDef { return altair.SyncAggregatorSelectionDataType }},
+	"SyncCommitteeContribution":   {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(altair.SyncCommitteeContribution)) }, func(spec *common.Spec) view.TypeDef { return altair.SyncCommitteeContributionType(spec) }},
+	"ContributionAndProof":        {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(altair.ContributionAndProof)) }, func(spec *common.Spec) view.TypeDef { return altair.ContributionAndProofType(spec) }},
+	"SignedContributionAndProof":  {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(altair.SignedContributionAndProof)) }, func(spec *common.Spec) view.TypeDef { return altair.SignedContributionAndProofType(spec) }},
+	"SyncCommitteeMessage":        {func(spec *common.Spec) common.SSZObj { return new(altair.SyncCommitteeMessage) }, func(spec *common.Spec) view.TypeDef { return altair.SyncCommitteeMessageType }},
+	"SyncCommittee":               {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(common.SyncCommittee)) }, func(spec *common.Spec) view.TypeDef { return common.SyncCommitteeType(spec) }},
 }
 
 var MergeSpecTypes = map[string]SpecType{
@@ -121,7 +129,6 @@ var MergeSpecTypes = map[string]SpecType{
 	"Checkpoint":          {func(spec *common.Spec) common.SSZObj { return new(common.Checkpoint) }, func(spec *common.Spec) view.TypeDef { return common.CheckpointType }},
 	"Validator":           {func(spec *common.Spec) common.SSZObj { return new(phase0.Validator) }, func(spec *common.Spec) view.TypeDef { return phase0.ValidatorType }},
 	"IndexedAttestation":  {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(phase0.IndexedAttestation)) }, func(spec *common.Spec) view.TypeDef { return phase0.IndexedAttestationType(spec) }},
-	"PendingAttestation":  {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(phase0.PendingAttestation)) }, func(spec *common.Spec) view.TypeDef { return phase0.PendingAttestationType(spec) }},
 
 	"SigningData":    {func(spec *common.Spec) common.SSZObj { return new(common.SigningData) }, func(spec *common.Spec) view.TypeDef { return common.SigningDataType }},
 	"Slot":           {func(spec *common.Spec) common.SSZObj { return new(common.Slot) }, func(spec *common.Spec) view.TypeDef { return common.SlotType }},
@@ -138,9 +145,20 @@ var MergeSpecTypes = map[string]SpecType{
 	"BLSPubkey":      {func(spec *common.Spec) common.SSZObj { return new(common.BLSPubkey) }, func(spec *common.Spec) view.TypeDef { return common.BLSPubkeyType }},
 	"BLSSignature":   {func(spec *common.Spec) common.SSZObj { return new(common.BLSSignature) }, func(spec *common.Spec) view.TypeDef { return common.BLSSignatureType }},
 
-	"ExecutionPayload":       {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(common.ExecutionPayload)) }, func(spec *common.Spec) view.TypeDef { return common.ExecutionPayloadType }},
+	"LightClientSnapshot": {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(altair.LightClientSnapshot)) }, func(spec *common.Spec) view.TypeDef { return altair.LightClientSnapshotType(spec) }},
+	"LightClientUpdate":   {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(altair.LightClientUpdate)) }, func(spec *common.Spec) view.TypeDef { return altair.LightClientUpdateType(spec) }},
+
+	"SyncAggregate":               {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(altair.SyncAggregate)) }, func(spec *common.Spec) view.TypeDef { return altair.SyncAggregateType(spec) }},
+	"SyncAggregatorSelectionData": {func(spec *common.Spec) common.SSZObj { return new(altair.SyncAggregatorSelectionData) }, func(spec *common.Spec) view.TypeDef { return altair.SyncAggregatorSelectionDataType }},
+	"SyncCommitteeContribution":   {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(altair.SyncCommitteeContribution)) }, func(spec *common.Spec) view.TypeDef { return altair.SyncCommitteeContributionType(spec) }},
+	"ContributionAndProof":        {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(altair.ContributionAndProof)) }, func(spec *common.Spec) view.TypeDef { return altair.ContributionAndProofType(spec) }},
+	"SignedContributionAndProof":  {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(altair.SignedContributionAndProof)) }, func(spec *common.Spec) view.TypeDef { return altair.SignedContributionAndProofType(spec) }},
+	"SyncCommitteeMessage":        {func(spec *common.Spec) common.SSZObj { return new(altair.SyncCommitteeMessage) }, func(spec *common.Spec) view.TypeDef { return altair.SyncCommitteeMessageType }},
+	"SyncCommittee":               {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(common.SyncCommittee)) }, func(spec *common.Spec) view.TypeDef { return common.SyncCommitteeType(spec) }},
+
+	"ExecutionPayload":       {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(common.ExecutionPayload)) }, func(spec *common.Spec) view.TypeDef { return common.ExecutionPayloadType(spec) }},
 	"ExecutionPayloadHeader": {func(spec *common.Spec) common.SSZObj { return new(common.ExecutionPayloadHeader) }, func(spec *common.Spec) view.TypeDef { return common.ExecutionPayloadHeaderType }},
-	"PayloadTransactions":    {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(common.PayloadTransactions)) }, func(spec *common.Spec) view.TypeDef { return common.PayloadTransactionsType }},
+	"PayloadTransactions":    {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(common.PayloadTransactions)) }, func(spec *common.Spec) view.TypeDef { return common.PayloadTransactionsType(spec) }},
 	"LogsBloom":              {func(spec *common.Spec) common.SSZObj { return new(common.LogsBloom) }, func(spec *common.Spec) view.TypeDef { return common.LogsBloomType }},
 }
 
@@ -152,9 +170,10 @@ var ShardingSpecTypes = map[string]SpecType{
 	"SignedBeaconBlockHeader": {func(spec *common.Spec) common.SSZObj { return new(common.SignedBeaconBlockHeader) }, func(spec *common.Spec) view.TypeDef { return common.SignedBeaconBlockHeaderType }},
 	"BeaconBlockBody":         {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(sharding.BeaconBlockBody)) }, func(spec *common.Spec) view.TypeDef { return sharding.BeaconBlockBodyType(spec) }},
 
-	"AttestationData":     {func(spec *common.Spec) common.SSZObj { return new(sharding.AttestationData) }, func(spec *common.Spec) view.TypeDef { return sharding.AttestationDataType }},
-	"Attestation":         {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(sharding.Attestation)) }, func(spec *common.Spec) view.TypeDef { return sharding.AttestationType(spec) }},
-	"AttesterSlashing":    {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(sharding.AttesterSlashing)) }, func(spec *common.Spec) view.TypeDef { return sharding.AttesterSlashingType(spec) }},
+	"AttestationData":  {func(spec *common.Spec) common.SSZObj { return new(sharding.AttestationData) }, func(spec *common.Spec) view.TypeDef { return sharding.AttestationDataType }},
+	"Attestation":      {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(sharding.Attestation)) }, func(spec *common.Spec) view.TypeDef { return sharding.AttestationType(spec) }},
+	"AttesterSlashing": {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(sharding.AttesterSlashing)) }, func(spec *common.Spec) view.TypeDef { return sharding.AttesterSlashingType(spec) }},
+
 	"ProposerSlashing":    {func(spec *common.Spec) common.SSZObj { return new(phase0.ProposerSlashing) }, func(spec *common.Spec) view.TypeDef { return phase0.ProposerSlashingType }},
 	"Deposit":             {func(spec *common.Spec) common.SSZObj { return new(common.Deposit) }, func(spec *common.Spec) view.TypeDef { return common.DepositType }},
 	"DepositData":         {func(spec *common.Spec) common.SSZObj { return new(common.DepositData) }, func(spec *common.Spec) view.TypeDef { return common.DepositDataType }},
@@ -166,15 +185,7 @@ var ShardingSpecTypes = map[string]SpecType{
 	"Fork":                {func(spec *common.Spec) common.SSZObj { return new(common.Fork) }, func(spec *common.Spec) view.TypeDef { return common.ForkType }},
 	"Checkpoint":          {func(spec *common.Spec) common.SSZObj { return new(common.Checkpoint) }, func(spec *common.Spec) view.TypeDef { return common.CheckpointType }},
 	"Validator":           {func(spec *common.Spec) common.SSZObj { return new(phase0.Validator) }, func(spec *common.Spec) view.TypeDef { return phase0.ValidatorType }},
-	"IndexedAttestation":  {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(sharding.IndexedAttestation)) }, func(spec *common.Spec) view.TypeDef { return sharding.IndexedAttestationType(spec) }},
-	"PendingAttestation":  {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(sharding.PendingAttestation)) }, func(spec *common.Spec) view.TypeDef { return sharding.PendingAttestationType(spec) }},
-
-	"ExecutionPayload":       {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(common.ExecutionPayload)) }, func(spec *common.Spec) view.TypeDef { return common.ExecutionPayloadType }},
-	"ExecutionPayloadHeader": {func(spec *common.Spec) common.SSZObj { return new(common.ExecutionPayloadHeader) }, func(spec *common.Spec) view.TypeDef { return common.ExecutionPayloadHeaderType }},
-	"PayloadTransactions":    {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(common.PayloadTransactions)) }, func(spec *common.Spec) view.TypeDef { return common.PayloadTransactionsType }},
-	"LogsBloom":              {func(spec *common.Spec) common.SSZObj { return new(common.LogsBloom) }, func(spec *common.Spec) view.TypeDef { return common.LogsBloomType }},
-
-	"Shard": {func(spec *common.Spec) common.SSZObj { return new(common.Shard) }, func(spec *common.Spec) view.TypeDef { return common.ShardType }},
+	"IndexedAttestation":  {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(phase0.IndexedAttestation)) }, func(spec *common.Spec) view.TypeDef { return phase0.IndexedAttestationType(spec) }},
 
 	"SigningData":    {func(spec *common.Spec) common.SSZObj { return new(common.SigningData) }, func(spec *common.Spec) view.TypeDef { return common.SigningDataType }},
 	"Slot":           {func(spec *common.Spec) common.SSZObj { return new(common.Slot) }, func(spec *common.Spec) view.TypeDef { return common.SlotType }},
@@ -191,8 +202,29 @@ var ShardingSpecTypes = map[string]SpecType{
 	"BLSPubkey":      {func(spec *common.Spec) common.SSZObj { return new(common.BLSPubkey) }, func(spec *common.Spec) view.TypeDef { return common.BLSPubkeyType }},
 	"BLSSignature":   {func(spec *common.Spec) common.SSZObj { return new(common.BLSSignature) }, func(spec *common.Spec) view.TypeDef { return common.BLSSignatureType }},
 
+	"LightClientSnapshot": {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(altair.LightClientSnapshot)) }, func(spec *common.Spec) view.TypeDef { return altair.LightClientSnapshotType(spec) }},
+	"LightClientUpdate":   {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(altair.LightClientUpdate)) }, func(spec *common.Spec) view.TypeDef { return altair.LightClientUpdateType(spec) }},
+
+	"SyncAggregate":               {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(altair.SyncAggregate)) }, func(spec *common.Spec) view.TypeDef { return altair.SyncAggregateType(spec) }},
+	"SyncAggregatorSelectionData": {func(spec *common.Spec) common.SSZObj { return new(altair.SyncAggregatorSelectionData) }, func(spec *common.Spec) view.TypeDef { return altair.SyncAggregatorSelectionDataType }},
+	"SyncCommitteeContribution":   {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(altair.SyncCommitteeContribution)) }, func(spec *common.Spec) view.TypeDef { return altair.SyncCommitteeContributionType(spec) }},
+	"ContributionAndProof":        {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(altair.ContributionAndProof)) }, func(spec *common.Spec) view.TypeDef { return altair.ContributionAndProofType(spec) }},
+	"SignedContributionAndProof":  {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(altair.SignedContributionAndProof)) }, func(spec *common.Spec) view.TypeDef { return altair.SignedContributionAndProofType(spec) }},
+	"SyncCommitteeMessage":        {func(spec *common.Spec) common.SSZObj { return new(altair.SyncCommitteeMessage) }, func(spec *common.Spec) view.TypeDef { return altair.SyncCommitteeMessageType }},
+	"SyncCommittee":               {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(common.SyncCommittee)) }, func(spec *common.Spec) view.TypeDef { return common.SyncCommitteeType(spec) }},
+
+	"ExecutionPayload":       {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(common.ExecutionPayload)) }, func(spec *common.Spec) view.TypeDef { return common.ExecutionPayloadType(spec) }},
+	"ExecutionPayloadHeader": {func(spec *common.Spec) common.SSZObj { return new(common.ExecutionPayloadHeader) }, func(spec *common.Spec) view.TypeDef { return common.ExecutionPayloadHeaderType }},
+	"PayloadTransactions":    {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(common.PayloadTransactions)) }, func(spec *common.Spec) view.TypeDef { return common.PayloadTransactionsType(spec) }},
+	"LogsBloom":              {func(spec *common.Spec) common.SSZObj { return new(common.LogsBloom) }, func(spec *common.Spec) view.TypeDef { return common.LogsBloomType }},
+
+	"Shard":        {func(spec *common.Spec) common.SSZObj { return new(common.Shard) }, func(spec *common.Spec) view.TypeDef { return common.ShardType }},
+	"BuilderIndex": {func(spec *common.Spec) common.SSZObj { return new(common.BuilderIndex) }, func(spec *common.Spec) view.TypeDef { return common.BuilderIndexType }},
+	"Builder":      {func(spec *common.Spec) common.SSZObj { return new(sharding.Builder) }, func(spec *common.Spec) view.TypeDef { return sharding.BuilderType }},
+
 	"BLSPoint":                 {func(spec *common.Spec) common.SSZObj { return new(common.BLSPoint) }, func(spec *common.Spec) view.TypeDef { return common.BLSPointType }},
 	"DataCommitment":           {func(spec *common.Spec) common.SSZObj { return new(sharding.DataCommitment) }, func(spec *common.Spec) view.TypeDef { return sharding.DataCommitmentType }},
+	"AttestedDataCommitment":   {func(spec *common.Spec) common.SSZObj { return new(sharding.AttestedDataCommitment) }, func(spec *common.Spec) view.TypeDef { return sharding.AttestedDataCommitmentType }},
 	"ShardData":                {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(sharding.ShardData)) }, func(spec *common.Spec) view.TypeDef { return sharding.ShardDataType(spec) }},
 	"ShardBlobBody":            {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(sharding.ShardBlobBody)) }, func(spec *common.Spec) view.TypeDef { return sharding.ShardBlobBodyType(spec) }},
 	"ShardBlobBodySummary":     {func(spec *common.Spec) common.SSZObj { return new(sharding.ShardBlobBodySummary) }, func(spec *common.Spec) view.TypeDef { return sharding.ShardBlobBodySummaryType }},

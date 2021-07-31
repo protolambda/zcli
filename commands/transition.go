@@ -249,11 +249,6 @@ func (c *TransitionEpochSubCmd) Run(ctx context.Context, args ...string) error {
 			return errors.New("process_pending_shard_confirmations is only in Sharding")
 		}
 		return maybeOutput(sharding.ProcessPendingShardConfirmations(ctx, spec, state.(*sharding.BeaconStateView)))
-	case "charge_confirmed_shard_fees":
-		if c.PreFork != "sharding" {
-			return errors.New("charge_confirmed_shard_fees is only in Sharding")
-		}
-		return maybeOutput(sharding.ChargeConfirmedShardFees(ctx, spec, epc, state.(*sharding.BeaconStateView)))
 	case "reset_pending_shard_work":
 		if c.PreFork != "sharding" {
 			return errors.New("reset_pending_shard_work is only in Sharding")
@@ -261,7 +256,7 @@ func (c *TransitionEpochSubCmd) Run(ctx context.Context, args ...string) error {
 		return maybeOutput(sharding.ResetPendingShardWork(ctx, spec, epc, state.(*sharding.BeaconStateView)))
 	case "justification_and_finalization", "inactivity_updates", "rewards_and_penalties":
 		switch c.PreFork {
-		case "phase0", "merge", "sharding":
+		case "phase0":
 			attesterData, err := phase0.ComputeEpochAttesterData(ctx, spec, epc, flats, state.(phase0.Phase0PendingAttestationsBeaconState))
 			if err != nil {
 				return err
@@ -278,10 +273,10 @@ func (c *TransitionEpochSubCmd) Run(ctx context.Context, args ...string) error {
 			case "inactivity_updates":
 				return errors.New("inactivity_updates only runs in Altair")
 			case "rewards_and_penalties":
-				return maybeOutput(phase0.ProcessEpochRewardsAndPenalties(ctx, spec, epc, attesterData, state.(phase0.BalancesBeaconState)))
+				return maybeOutput(phase0.ProcessEpochRewardsAndPenalties(ctx, spec, epc, attesterData, state.(common.BeaconState)))
 			}
-		case "altair":
-			attesterData, err := altair.ComputeEpochAttesterData(ctx, spec, epc, flats, state.(*altair.BeaconStateView))
+		case "altair", "merge", "sharding":
+			attesterData, err := altair.ComputeEpochAttesterData(ctx, spec, epc, flats, state.(altair.AltairLikeBeaconState))
 			if err != nil {
 				return err
 			}
@@ -295,9 +290,9 @@ func (c *TransitionEpochSubCmd) Run(ctx context.Context, args ...string) error {
 				}
 				return maybeOutput(phase0.ProcessEpochJustification(ctx, spec, &just, state))
 			case "inactivity_updates":
-				return maybeOutput(altair.ProcessInactivityUpdates(ctx, spec, attesterData, state.(*altair.BeaconStateView)))
+				return maybeOutput(altair.ProcessInactivityUpdates(ctx, spec, attesterData, state.(altair.AltairLikeBeaconState)))
 			case "rewards_and_penalties":
-				return maybeOutput(altair.ProcessEpochRewardsAndPenalties(ctx, spec, epc, attesterData, state.(*altair.BeaconStateView)))
+				return maybeOutput(altair.ProcessEpochRewardsAndPenalties(ctx, spec, epc, attesterData, state.(altair.AltairLikeBeaconState)))
 			}
 		}
 	case "registry_updates":
@@ -335,25 +330,20 @@ func (c *TransitionEpochSubCmd) Run(ctx context.Context, args ...string) error {
 	case "historical_roots_update":
 		return maybeOutput(phase0.ProcessHistoricalRootsUpdate(ctx, spec, epc, state))
 	case "participation_record_updates":
-		if c.PreFork == "altair" {
-			return errors.New("participation_record_updates was removed in Altair")
+		if c.PreFork != "phase0" {
+			return errors.New("participation_record_updates was removed after Phase0")
 		}
 		return maybeOutput(phase0.ProcessParticipationRecordUpdates(ctx, spec, epc, state.(phase0.Phase0PendingAttestationsBeaconState)))
 	case "participation_flag_updates":
-		if c.PreFork != "altair" {
-			return errors.New("participation_flag_updates is only in Altair")
+		if c.PreFork == "phase0" {
+			return errors.New("participation_flag_updates was introduced after Phase0")
 		}
 		return maybeOutput(altair.ProcessParticipationFlagUpdates(ctx, spec, state.(*altair.BeaconStateView)))
 	case "sync_committee_updates":
-		if c.PreFork != "altair" {
-			return errors.New("sync_committee_updates is only in Altair")
+		if c.PreFork == "phase0" {
+			return errors.New("sync_committee_updates is only after Phase0")
 		}
 		return maybeOutput(altair.ProcessSyncCommitteeUpdates(ctx, spec, epc, state.(*altair.BeaconStateView)))
-	case "shard_epoch_increment":
-		if c.PreFork != "sharding" {
-			return errors.New("process_shard_epoch_increment is only in Sharding")
-		}
-		return maybeOutput(sharding.ProcessShardEpochIncrement(ctx, spec, epc, state.(*sharding.BeaconStateView)))
 	}
 	return ask.UnrecognizedErr
 }
@@ -444,13 +434,13 @@ func (c *TransitionBlockSubCmd) Run(ctx context.Context, args ...string) error {
 		}
 	case "attestation":
 		switch c.PreFork {
-		case "phase0", "merge":
+		case "phase0":
 			var att phase0.Attestation
 			if err := c.Op.Read(spec.Wrap(&att)); err != nil {
 				return err
 			}
 			return maybeOutput(phase0.ProcessAttestation(spec, epc, state.(phase0.Phase0PendingAttestationsBeaconState), &att))
-		case "altair":
+		case "altair", "merge":
 			var att phase0.Attestation
 			if err := c.Op.Read(spec.Wrap(&att)); err != nil {
 				return err
@@ -476,7 +466,7 @@ func (c *TransitionBlockSubCmd) Run(ctx context.Context, args ...string) error {
 		}
 		return maybeOutput(phase0.ProcessVoluntaryExit(spec, epc, state, &exit))
 	case "sync_aggregate":
-		if c.PreFork != "altair" {
+		if c.PreFork == "phase0" {
 			return fmt.Errorf("fork %s does not have sync_aggregate processing", c.PreFork)
 		}
 		var agg altair.SyncAggregate
@@ -567,7 +557,6 @@ var epochSubProcessingByPhase = map[string][]string{
 	},
 	"sharding": {
 		"pending_shard_confirmations",
-		"charge_confirmed_shard_fees",
 		"reset_pending_shard_work",
 		"justification_and_finalization",
 		"rewards_and_penalties",
@@ -579,7 +568,6 @@ var epochSubProcessingByPhase = map[string][]string{
 		"randao_mixes_reset",
 		"historical_roots_update",
 		"participation_record_updates",
-		"shard_epoch_increment",
 	},
 }
 
