@@ -87,7 +87,7 @@ func (c *TransitionSlotsCmd) Run(ctx context.Context, args ...string) error {
 		return err
 	}
 	state := &beacon.StandardUpgradeableBeaconState{BeaconState: pre}
-	epc, err := common.NewEpochsContext(spec, state)
+	epc, err := common.NewEpochsContext(spec, pre)
 	if err != nil {
 		return err
 	}
@@ -128,7 +128,7 @@ func (c *TransitionBlocksCmd) Run(ctx context.Context, args ...string) error {
 		return err
 	}
 	state := &beacon.StandardUpgradeableBeaconState{BeaconState: pre}
-	epc, err := common.NewEpochsContext(spec, state)
+	epc, err := common.NewEpochsContext(spec, pre)
 	if err != nil {
 		return err
 	}

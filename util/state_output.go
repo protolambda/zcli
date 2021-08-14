@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/protolambda/zrnt/eth2/beacon"
 	"github.com/protolambda/zrnt/eth2/beacon/altair"
 	"github.com/protolambda/zrnt/eth2/beacon/common"
 	"github.com/protolambda/zrnt/eth2/beacon/merge"
@@ -78,6 +79,9 @@ func (p *StateOutput) Write(spec *common.Spec, obj common.BeaconState) error {
 			return err
 		}
 		var flat common.SpecObj
+		if up, ok := obj.(*beacon.StandardUpgradeableBeaconState); ok {
+			obj = up.BeaconState
+		}
 		switch obj.(type) {
 		case *phase0.BeaconStateView:
 			flat = new(phase0.BeaconState)
@@ -87,6 +91,8 @@ func (p *StateOutput) Write(spec *common.Spec, obj common.BeaconState) error {
 			flat = new(merge.BeaconState)
 		case *sharding.BeaconStateView:
 			flat = new(sharding.BeaconState)
+		default:
+			return fmt.Errorf("failed to detect state type for output: %T", obj)
 		}
 		data := tmp.Bytes()
 		if err := flat.Deserialize(spec, codec.NewDecodingReader(bytes.NewReader(data), uint64(len(data)))); err != nil {
