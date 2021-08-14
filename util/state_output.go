@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/golang/snappy"
 	"github.com/protolambda/zrnt/eth2/beacon"
 	"github.com/protolambda/zrnt/eth2/beacon/altair"
 	"github.com/protolambda/zrnt/eth2/beacon/common"
@@ -33,7 +34,7 @@ func (p *StateOutput) Set(v string) error {
 }
 
 func (p *StateOutput) Type() string {
-	return "BeaconState output (prefix with 'ssz:', 'json:', 'pretty:' or 'yaml:')"
+	return "BeaconState output (prefix with 'ssz:', 'ssz_snappy:', 'json:', 'pretty:' or 'yaml:')"
 }
 
 func (p *StateOutput) Write(spec *common.Spec, obj common.BeaconState) error {
@@ -69,6 +70,15 @@ func (p *StateOutput) Write(spec *common.Spec, obj common.BeaconState) error {
 	}
 
 	switch typ {
+	case "ssz_snappy", "ssz-snappy":
+		var buf bytes.Buffer
+		enc := codec.NewEncodingWriter(&buf)
+		if err := obj.Serialize(enc); err != nil {
+			return err
+		}
+		compressed := snappy.Encode(nil, buf.Bytes())
+		_, err := io.Copy(out, bytes.NewReader(compressed))
+		return err
 	case "ssz":
 		enc := codec.NewEncodingWriter(out)
 		return obj.Serialize(enc)

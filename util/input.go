@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/golang/snappy"
 	"github.com/protolambda/zrnt/eth2/beacon/common"
 	"github.com/protolambda/ztyp/codec"
 	"gopkg.in/yaml.v3"
@@ -27,7 +28,7 @@ func (p *ObjInput) Set(v string) error {
 }
 
 func (p *ObjInput) Type() string {
-	return "object input (prefix with 'ssz:', 'json:' or 'yaml:')"
+	return "object input (prefix with 'ssz:', 'ssz_snappy:', 'json:' or 'yaml:')"
 }
 
 func (p *ObjInput) Read(dest common.SSZObj) error {
@@ -63,6 +64,18 @@ func (p *ObjInput) Read(dest common.SSZObj) error {
 	}
 
 	switch typ {
+	case "ssz_snappy", "ssz-snappy":
+		uncompressed, err := snappy.Decode(nil, data)
+		if err != nil {
+			return fmt.Errorf("failed to uncompress ssz_snappy input: %v", err)
+		}
+		data = uncompressed
+		dec := codec.NewDecodingReader(bytes.NewReader(data), uint64(len(data)))
+		sszDest, ok := dest.(codec.Deserializable)
+		if !ok {
+			return fmt.Errorf("cannot decode SSZ-snappy input into destination type %T", dest)
+		}
+		return sszDest.Deserialize(dec)
 	case "ssz":
 		dec := codec.NewDecodingReader(bytes.NewReader(data), uint64(len(data)))
 		sszDest, ok := dest.(codec.Deserializable)

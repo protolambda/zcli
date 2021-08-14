@@ -2,8 +2,10 @@ package util
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/golang/snappy"
 	"github.com/protolambda/ztyp/codec"
 	"gopkg.in/yaml.v3"
 	"io"
@@ -26,7 +28,7 @@ func (p *ObjOutput) Set(v string) error {
 }
 
 func (p *ObjOutput) Type() string {
-	return "object output (prefix with 'ssz:', 'json:', 'pretty:' or 'yaml:')"
+	return "object output (prefix with 'ssz:', 'ssz_snappy:', 'json:', 'pretty:' or 'yaml:')"
 }
 
 func (p *ObjOutput) Write(obj interface{}) error {
@@ -62,6 +64,19 @@ func (p *ObjOutput) Write(obj interface{}) error {
 	}
 
 	switch typ {
+	case "ssz_snappy", "ssz-snappy":
+		var buf bytes.Buffer
+		enc := codec.NewEncodingWriter(&buf)
+		sszObj, ok := obj.(codec.Serializable)
+		if !ok {
+			return fmt.Errorf("cannot encode SSZ object type %T to output", obj)
+		}
+		if err := sszObj.Serialize(enc); err != nil {
+			return err
+		}
+		compressed := snappy.Encode(nil, buf.Bytes())
+		_, err := io.Copy(out, bytes.NewReader(compressed))
+		return err
 	case "ssz":
 		enc := codec.NewEncodingWriter(out)
 		sszObj, ok := obj.(codec.Serializable)

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/golang/snappy"
 	"github.com/protolambda/zrnt/eth2/beacon/altair"
 	"github.com/protolambda/zrnt/eth2/beacon/common"
 	"github.com/protolambda/zrnt/eth2/beacon/merge"
@@ -31,7 +32,7 @@ func (p *StateInput) Set(v string) error {
 }
 
 func (p *StateInput) Type() string {
-	return "BeaconState input (prefix with 'ssz:', 'json:' or 'yaml:')"
+	return "BeaconState input (prefix with 'ssz:', 'ssz_snappy', 'json:' or 'yaml:')"
 }
 
 func (p *StateInput) Read(spec *common.Spec, phase string) (common.BeaconState, error) {
@@ -67,6 +68,12 @@ func (p *StateInput) Read(spec *common.Spec, phase string) (common.BeaconState, 
 	}
 
 	switch typ {
+	case "ssz_snappy", "ssz-snappy":
+		uncompressed, err := snappy.Decode(nil, data)
+		if err != nil {
+			return nil, fmt.Errorf("failed to uncompress ssz_snappy input: %v", err)
+		}
+		data = uncompressed
 	case "ssz":
 		// nothing to do, already ssz bytes
 		break
