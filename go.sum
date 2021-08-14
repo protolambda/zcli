@@ -10,8 +10,8 @@ github.com/protolambda/bls12-381-util v0.0.0-20210720105258-a772f2aac13e h1:ugvw
 github.com/protolambda/bls12-381-util v0.0.0-20210720105258-a772f2aac13e/go.mod h1:MPZvj2Pr0N8/dXyTPS5REeg2sdLG7t8DRzC1rLv925w=
 github.com/protolambda/messagediff v1.4.0 h1:fk6gxK7WybJCaeOFK1yuh2Ldplx7qYMLibiMwWFcSZY=
 github.com/protolambda/messagediff v1.4.0/go.mod h1:LboJp0EwIbJsePYpzh5Op/9G1/4mIztMRYzzwR0dR2M=
-github.com/protolambda/zrnt v0.18.1 h1:dv9WScm18cCS3D8o8bG0HJMeKQ7ZXZXMppRjXmpcYDQ=
-github.com/protolambda/zrnt v0.18.1/go.mod h1:rVf0RX8t7xrbSdzbVtw9ZuRqtCoFWnACT7OCHl6DiFk=
+github.com/protolambda/zrnt v0.19.0 h1:WpyYviELfRuKX/10a7U5IG70BjXnl4QsUFxbeoHeDuY=
+github.com/protolambda/zrnt v0.19.0/go.mod h1:rVf0RX8t7xrbSdzbVtw9ZuRqtCoFWnACT7OCHl6DiFk=
 github.com/protolambda/ztyp v0.1.8 h1:G7ViZLK2aEi2EaqNbeP/0v9/OW1denunBKZLESL6Ftc=
 github.com/protolambda/ztyp v0.1.8/go.mod h1:u9yT4ioIokwlHrOfiZ52ezHfKdza3phxhTJix01vGgU=
 golang.org/x/sys v0.0.0-20201101102859-da207088b7d1 h1:a/mKvvZr9Jcc8oKfcmgzyp7OwF73JPWsQLvH1z2Kxck=
