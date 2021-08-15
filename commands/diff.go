@@ -69,7 +69,7 @@ func (c *DiffObjCmd) Run(ctx context.Context, args ...string) error {
 	if diff, equal := messagediff.PrettyDiff(objA, objB, messagediff.SliceWeakEmptyOption{}); equal {
 		fmt.Errorf("%s (%s) objects A and B are equal\n", c.TypeName, c.PhaseName)
 	} else {
-		fmt.Errorf("%s (%s) objects A and B are different:\n%s\n", c.TypeName, c.PhaseName, diff)
+		fmt.Printf("%s (%s) objects A and B are different:\n%s\n", c.TypeName, c.PhaseName, diff)
 	}
 	return nil
 }
