@@ -53,7 +53,7 @@ E.g. `--config=local_testnet.yaml`
 
 Inputs/outputs can:
 - be specified as empty `""`, to read from STDIN/STDOUT
-- be specified with a prefix `json:`, `yaml:` or `ssz:` to read/write that format. Writing can also use `pretty:` (indented JSON).
+- be specified with a prefix `json:`, `yaml:`, `ssz_snappy:` or `ssz:` to read/write that format. Writing can also use `pretty:` (indented JSON).
 
 ## License
 
