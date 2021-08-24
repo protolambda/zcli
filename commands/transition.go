@@ -48,6 +48,8 @@ func (c *TransitionSubCmd) Cmd(route string) (cmd interface{}, err error) {
 	switch route {
 	case "slots":
 		return &TransitionSlotsCmd{PreFork: c.PreFork}, nil
+	case "epoch":
+		return &TransitionEpochCmd{PreFork: c.PreFork}, nil
 	case "blocks":
 		return &TransitionBlocksCmd{PreFork: c.PreFork}, nil
 	case "sub":
@@ -57,7 +59,42 @@ func (c *TransitionSubCmd) Cmd(route string) (cmd interface{}, err error) {
 }
 
 func (c *TransitionSubCmd) Routes() []string {
-	return []string{"slots", "blocks", "sub"}
+	return []string{"slots", "epoch", "blocks", "sub"}
+}
+
+type TransitionEpochCmd struct {
+	PreFork             string
+	Timeout             time.Duration `ask:"--timeout" help:"Timeout, e.g. 100ms"`
+	configs.SpecOptions `ask:"."`
+	Pre                 util.StateInput  `ask:"--pre" help:"Pre-state"`
+	Post                util.StateOutput `ask:"--post" help:"Post-state"`
+}
+
+func (c *TransitionEpochCmd) Help() string {
+	return fmt.Sprintf("Process the epoch transition (%s pre-state), without any slot processing", c.PreFork)
+}
+
+func (c *TransitionEpochCmd) Run(ctx context.Context, args ...string) error {
+	if c.Timeout != 0 {
+		ctx, _ = context.WithTimeout(ctx, c.Timeout)
+	}
+	spec, err := c.Spec()
+	if err != nil {
+		return err
+	}
+	pre, err := c.Pre.Read(spec, c.PreFork)
+	if err != nil {
+		return err
+	}
+	state := &beacon.StandardUpgradeableBeaconState{BeaconState: pre}
+	epc, err := common.NewEpochsContext(spec, pre)
+	if err != nil {
+		return err
+	}
+	if err := state.ProcessEpoch(ctx, spec, epc); err != nil {
+		return err
+	}
+	return c.Post.Write(spec, state)
 }
 
 type TransitionSlotsCmd struct {
