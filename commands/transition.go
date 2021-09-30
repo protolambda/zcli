@@ -547,7 +547,7 @@ func (c *TransitionBlockSubCmd) Run(ctx context.Context, args ...string) error {
 
 type NoOpExecutionEngine struct{}
 
-func (m *NoOpExecutionEngine) NewBlock(ctx context.Context, executionPayload *common.ExecutionPayload) (success bool, err error) {
+func (m *NoOpExecutionEngine) ExecutePayload(ctx context.Context, executionPayload *common.ExecutionPayload) (valid bool, err error) {
 	return true, nil
 }
 
