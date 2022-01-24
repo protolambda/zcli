@@ -2,8 +2,8 @@ package spec_types
 
 import (
 	"github.com/protolambda/zrnt/eth2/beacon/altair"
+	"github.com/protolambda/zrnt/eth2/beacon/bellatrix"
 	"github.com/protolambda/zrnt/eth2/beacon/common"
-	"github.com/protolambda/zrnt/eth2/beacon/merge"
 	"github.com/protolambda/zrnt/eth2/beacon/phase0"
 	"github.com/protolambda/zrnt/eth2/beacon/sharding"
 	"github.com/protolambda/ztyp/view"
@@ -106,13 +106,13 @@ var AltairSpecTypes = map[string]SpecType{
 	"SyncCommittee":               {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(common.SyncCommittee)) }, func(spec *common.Spec) view.TypeDef { return common.SyncCommitteeType(spec) }},
 }
 
-var MergeSpecTypes = map[string]SpecType{
-	"BeaconState":             {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(merge.BeaconState)) }, func(spec *common.Spec) view.TypeDef { return merge.BeaconStateType(spec) }},
-	"BeaconBlock":             {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(merge.BeaconBlock)) }, func(spec *common.Spec) view.TypeDef { return merge.BeaconBlockType(spec) }},
+var bellatrixSpecTypes = map[string]SpecType{
+	"BeaconState":             {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(bellatrix.BeaconState)) }, func(spec *common.Spec) view.TypeDef { return bellatrix.BeaconStateType(spec) }},
+	"BeaconBlock":             {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(bellatrix.BeaconBlock)) }, func(spec *common.Spec) view.TypeDef { return bellatrix.BeaconBlockType(spec) }},
 	"BeaconBlockHeader":       {func(spec *common.Spec) common.SSZObj { return new(common.BeaconBlockHeader) }, func(spec *common.Spec) view.TypeDef { return common.BeaconBlockHeaderType }},
-	"SignedBeaconBlock":       {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(merge.SignedBeaconBlock)) }, func(spec *common.Spec) view.TypeDef { return merge.SignedBeaconBlockType(spec) }},
+	"SignedBeaconBlock":       {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(bellatrix.SignedBeaconBlock)) }, func(spec *common.Spec) view.TypeDef { return bellatrix.SignedBeaconBlockType(spec) }},
 	"SignedBeaconBlockHeader": {func(spec *common.Spec) common.SSZObj { return new(common.SignedBeaconBlockHeader) }, func(spec *common.Spec) view.TypeDef { return common.SignedBeaconBlockHeaderType }},
-	"BeaconBlockBody":         {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(merge.BeaconBlockBody)) }, func(spec *common.Spec) view.TypeDef { return merge.BeaconBlockBodyType(spec) }},
+	"BeaconBlockBody":         {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(bellatrix.BeaconBlockBody)) }, func(spec *common.Spec) view.TypeDef { return bellatrix.BeaconBlockBodyType(spec) }},
 
 	"AttestationData":     {func(spec *common.Spec) common.SSZObj { return new(phase0.AttestationData) }, func(spec *common.Spec) view.TypeDef { return phase0.AttestationDataType }},
 	"Attestation":         {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(phase0.Attestation)) }, func(spec *common.Spec) view.TypeDef { return phase0.AttestationType(spec) }},
@@ -240,13 +240,13 @@ var ShardingSpecTypes = map[string]SpecType{
 }
 
 var TypesByPhase = map[string]map[string]SpecType{
-	"phase0":   Phase0SpecTypes,
-	"altair":   AltairSpecTypes,
-	"merge":    MergeSpecTypes,
-	"sharding": ShardingSpecTypes,
+	"phase0":    Phase0SpecTypes,
+	"altair":    AltairSpecTypes,
+	"bellatrix": bellatrixSpecTypes,
+	"sharding":  ShardingSpecTypes,
 }
 
-var Phases = []string{"phase0", "altair", "merge", "sharding"}
+var Phases = []string{"phase0", "altair", "bellatrix", "sharding"}
 
 func TypeNames(types map[string]SpecType) []string {
 	out := make([]string, 0, len(types))

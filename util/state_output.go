@@ -8,8 +8,8 @@ import (
 	"github.com/golang/snappy"
 	"github.com/protolambda/zrnt/eth2/beacon"
 	"github.com/protolambda/zrnt/eth2/beacon/altair"
+	"github.com/protolambda/zrnt/eth2/beacon/bellatrix"
 	"github.com/protolambda/zrnt/eth2/beacon/common"
-	"github.com/protolambda/zrnt/eth2/beacon/merge"
 	"github.com/protolambda/zrnt/eth2/beacon/phase0"
 	"github.com/protolambda/zrnt/eth2/beacon/sharding"
 	"github.com/protolambda/ztyp/codec"
@@ -97,8 +97,8 @@ func (p *StateOutput) Write(spec *common.Spec, obj common.BeaconState) error {
 			flat = new(phase0.BeaconState)
 		case *altair.BeaconStateView:
 			flat = new(altair.BeaconState)
-		case *merge.BeaconStateView:
-			flat = new(merge.BeaconState)
+		case *bellatrix.BeaconStateView:
+			flat = new(bellatrix.BeaconState)
 		case *sharding.BeaconStateView:
 			flat = new(sharding.BeaconState)
 		default:

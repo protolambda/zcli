@@ -9,8 +9,8 @@ import (
 	"github.com/protolambda/zcli/util"
 	"github.com/protolambda/zrnt/eth2/beacon"
 	"github.com/protolambda/zrnt/eth2/beacon/altair"
+	"github.com/protolambda/zrnt/eth2/beacon/bellatrix"
 	"github.com/protolambda/zrnt/eth2/beacon/common"
-	"github.com/protolambda/zrnt/eth2/beacon/merge"
 	"github.com/protolambda/zrnt/eth2/beacon/phase0"
 	"github.com/protolambda/zrnt/eth2/beacon/sharding"
 	"github.com/protolambda/zrnt/eth2/configs"
@@ -25,7 +25,7 @@ func (c *TransitionCmd) Help() string {
 
 func (c *TransitionCmd) Cmd(route string) (cmd interface{}, err error) {
 	switch route {
-	case "phase0", "altair", "merge", "sharding":
+	case "phase0", "altair", "bellatrix", "sharding":
 		return &TransitionSubCmd{PreFork: route}, nil
 	default:
 		return nil, ask.UnrecognizedErr
@@ -187,9 +187,9 @@ func (c *TransitionBlocksCmd) Run(ctx context.Context, args ...string) error {
 		case "altair":
 			obj = new(altair.SignedBeaconBlock)
 			digest = common.ComputeForkDigest(spec.ALTAIR_FORK_VERSION, genesisValRoot)
-		case "merge":
-			obj = new(merge.SignedBeaconBlock)
-			digest = common.ComputeForkDigest(spec.MERGE_FORK_VERSION, genesisValRoot)
+		case "bellatrix":
+			obj = new(bellatrix.SignedBeaconBlock)
+			digest = common.ComputeForkDigest(spec.BELLATRIX_FORK_VERSION, genesisValRoot)
 		case "sharding":
 			obj = new(sharding.SignedBeaconBlock)
 			digest = common.ComputeForkDigest(spec.SHARDING_FORK_VERSION, genesisValRoot)
@@ -312,7 +312,7 @@ func (c *TransitionEpochSubCmd) Run(ctx context.Context, args ...string) error {
 			case "rewards_and_penalties":
 				return maybeOutput(phase0.ProcessEpochRewardsAndPenalties(ctx, spec, epc, attesterData, state.(common.BeaconState)))
 			}
-		case "altair", "merge", "sharding":
+		case "altair", "bellatrix", "sharding":
 			attesterData, err := altair.ComputeEpochAttesterData(ctx, spec, epc, flats, state.(altair.AltairLikeBeaconState))
 			if err != nil {
 				return err
@@ -456,7 +456,7 @@ func (c *TransitionBlockSubCmd) Run(ctx context.Context, args ...string) error {
 		return maybeOutput(phase0.ProcessProposerSlashing(spec, epc, state, &propSl))
 	case "attester_slashing":
 		switch c.PreFork {
-		case "phase0", "altair", "merge":
+		case "phase0", "altair", "bellatrix":
 			var attSl phase0.AttesterSlashing
 			if err := c.Op.Read(spec.Wrap(&attSl)); err != nil {
 				return err
@@ -477,7 +477,7 @@ func (c *TransitionBlockSubCmd) Run(ctx context.Context, args ...string) error {
 				return err
 			}
 			return maybeOutput(phase0.ProcessAttestation(spec, epc, state.(phase0.Phase0PendingAttestationsBeaconState), &att))
-		case "altair", "merge":
+		case "altair", "bellatrix":
 			var att phase0.Attestation
 			if err := c.Op.Read(spec.Wrap(&att)); err != nil {
 				return err
@@ -515,12 +515,12 @@ func (c *TransitionBlockSubCmd) Run(ctx context.Context, args ...string) error {
 		switch c.PreFork {
 		case "phase0", "altair":
 			return fmt.Errorf("fork %s does not have execution_payload processing", c.PreFork)
-		case "merge", "sharding":
+		case "bellatrix", "sharding":
 			var payload common.ExecutionPayload
 			if err := c.Op.Read(spec.Wrap(&payload)); err != nil {
 				return err
 			}
-			return maybeOutput(merge.ProcessExecutionPayload(ctx, spec, state.(merge.ExecutionTrackingBeaconState),
+			return maybeOutput(bellatrix.ProcessExecutionPayload(ctx, spec, state.(bellatrix.ExecutionTrackingBeaconState),
 				&payload, new(NoOpExecutionEngine)))
 		}
 	case "shard_proposer_slashing":
@@ -580,7 +580,7 @@ var epochSubProcessingByPhase = map[string][]string{
 		"participation_flag_updates",
 		"sync_committee_updates",
 	},
-	"merge": {
+	"bellatrix": {
 		"justification_and_finalization",
 		"rewards_and_penalties",
 		"registry_updates",
@@ -630,7 +630,7 @@ var blockOpSubProcessingByPhase = map[string][]string{
 		"voluntary_exit",
 		"sync_aggregate",
 	},
-	"merge": {
+	"bellatrix": {
 		"block_header",
 		"randao",
 		"eth1_data",

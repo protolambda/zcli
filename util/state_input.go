@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"github.com/golang/snappy"
 	"github.com/protolambda/zrnt/eth2/beacon/altair"
+	"github.com/protolambda/zrnt/eth2/beacon/bellatrix"
 	"github.com/protolambda/zrnt/eth2/beacon/common"
-	"github.com/protolambda/zrnt/eth2/beacon/merge"
 	"github.com/protolambda/zrnt/eth2/beacon/phase0"
 	"github.com/protolambda/zrnt/eth2/beacon/sharding"
 	"github.com/protolambda/ztyp/codec"
@@ -85,8 +85,8 @@ func (p *StateInput) Read(spec *common.Spec, phase string) (common.BeaconState, 
 			flat = new(phase0.BeaconState)
 		case "altair":
 			flat = new(altair.BeaconState)
-		case "merge":
-			flat = new(merge.BeaconState)
+		case "bellatrix":
+			flat = new(bellatrix.BeaconState)
 		case "sharding":
 			flat = new(sharding.BeaconState)
 		default:
@@ -116,8 +116,8 @@ func (p *StateInput) Read(spec *common.Spec, phase string) (common.BeaconState, 
 		return phase0.AsBeaconStateView(phase0.BeaconStateType(spec).Deserialize(dec))
 	case "altair":
 		return altair.AsBeaconStateView(altair.BeaconStateType(spec).Deserialize(dec))
-	case "merge":
-		return merge.AsBeaconStateView(merge.BeaconStateType(spec).Deserialize(dec))
+	case "bellatrix":
+		return bellatrix.AsBeaconStateView(bellatrix.BeaconStateType(spec).Deserialize(dec))
 	case "sharding":
 		return sharding.AsBeaconStateView(sharding.BeaconStateType(spec).Deserialize(dec))
 	default:
