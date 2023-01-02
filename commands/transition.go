@@ -10,9 +10,9 @@ import (
 	"github.com/protolambda/zrnt/eth2/beacon"
 	"github.com/protolambda/zrnt/eth2/beacon/altair"
 	"github.com/protolambda/zrnt/eth2/beacon/bellatrix"
+	"github.com/protolambda/zrnt/eth2/beacon/capella"
 	"github.com/protolambda/zrnt/eth2/beacon/common"
 	"github.com/protolambda/zrnt/eth2/beacon/phase0"
-	"github.com/protolambda/zrnt/eth2/beacon/sharding"
 	"github.com/protolambda/zrnt/eth2/configs"
 	"time"
 )
@@ -25,7 +25,7 @@ func (c *TransitionCmd) Help() string {
 
 func (c *TransitionCmd) Cmd(route string) (cmd interface{}, err error) {
 	switch route {
-	case "phase0", "altair", "bellatrix", "sharding":
+	case "phase0", "altair", "bellatrix", "capella":
 		return &TransitionSubCmd{PreFork: route}, nil
 	default:
 		return nil, ask.UnrecognizedErr
@@ -190,9 +190,9 @@ func (c *TransitionBlocksCmd) Run(ctx context.Context, args ...string) error {
 		case "bellatrix":
 			obj = new(bellatrix.SignedBeaconBlock)
 			digest = common.ComputeForkDigest(spec.BELLATRIX_FORK_VERSION, genesisValRoot)
-		case "sharding":
-			obj = new(sharding.SignedBeaconBlock)
-			digest = common.ComputeForkDigest(spec.SHARDING_FORK_VERSION, genesisValRoot)
+		case "capella":
+			obj = new(capella.SignedBeaconBlock)
+			digest = common.ComputeForkDigest(spec.CAPELLA_FORK_VERSION, genesisValRoot)
 		}
 		input := util.ObjInput(arg)
 		if err := input.Read(spec.Wrap(obj)); err != nil {
@@ -281,16 +281,6 @@ func (c *TransitionEpochSubCmd) Run(ctx context.Context, args ...string) error {
 		return c.Post.Write(spec, state)
 	}
 	switch c.Transition {
-	case "pending_shard_confirmations":
-		if c.PreFork != "sharding" {
-			return errors.New("process_pending_shard_confirmations is only in Sharding")
-		}
-		return maybeOutput(sharding.ProcessPendingShardConfirmations(ctx, spec, state.(*sharding.BeaconStateView)))
-	case "reset_pending_shard_work":
-		if c.PreFork != "sharding" {
-			return errors.New("reset_pending_shard_work is only in Sharding")
-		}
-		return maybeOutput(sharding.ResetPendingShardWork(ctx, spec, epc, state.(*sharding.BeaconStateView)))
 	case "justification_and_finalization", "inactivity_updates", "rewards_and_penalties":
 		switch c.PreFork {
 		case "phase0":
@@ -312,7 +302,7 @@ func (c *TransitionEpochSubCmd) Run(ctx context.Context, args ...string) error {
 			case "rewards_and_penalties":
 				return maybeOutput(phase0.ProcessEpochRewardsAndPenalties(ctx, spec, epc, attesterData, state.(common.BeaconState)))
 			}
-		case "altair", "bellatrix", "sharding":
+		case "altair", "bellatrix", "capella":
 			attesterData, err := altair.ComputeEpochAttesterData(ctx, spec, epc, flats, state.(altair.AltairLikeBeaconState))
 			if err != nil {
 				return err
@@ -455,20 +445,11 @@ func (c *TransitionBlockSubCmd) Run(ctx context.Context, args ...string) error {
 		}
 		return maybeOutput(phase0.ProcessProposerSlashing(spec, epc, state, &propSl))
 	case "attester_slashing":
-		switch c.PreFork {
-		case "phase0", "altair", "bellatrix":
-			var attSl phase0.AttesterSlashing
-			if err := c.Op.Read(spec.Wrap(&attSl)); err != nil {
-				return err
-			}
-			return maybeOutput(phase0.ProcessAttesterSlashing(spec, epc, state, &attSl))
-		case "sharding":
-			var attSl sharding.AttesterSlashing
-			if err := c.Op.Read(spec.Wrap(&attSl)); err != nil {
-				return err
-			}
-			return maybeOutput(sharding.ProcessAttesterSlashing(spec, epc, state, &attSl))
+		var attSl phase0.AttesterSlashing
+		if err := c.Op.Read(spec.Wrap(&attSl)); err != nil {
+			return err
 		}
+		return maybeOutput(phase0.ProcessAttesterSlashing(spec, epc, state, &attSl))
 	case "attestation":
 		switch c.PreFork {
 		case "phase0":
@@ -477,18 +458,12 @@ func (c *TransitionBlockSubCmd) Run(ctx context.Context, args ...string) error {
 				return err
 			}
 			return maybeOutput(phase0.ProcessAttestation(spec, epc, state.(phase0.Phase0PendingAttestationsBeaconState), &att))
-		case "altair", "bellatrix":
+		case "altair", "bellatrix", "capella":
 			var att phase0.Attestation
 			if err := c.Op.Read(spec.Wrap(&att)); err != nil {
 				return err
 			}
 			return maybeOutput(altair.ProcessAttestation(spec, epc, state.(*altair.BeaconStateView), &att))
-		case "sharding":
-			var att sharding.Attestation
-			if err := c.Op.Read(spec.Wrap(&att)); err != nil {
-				return err
-			}
-			return maybeOutput(sharding.ProcessAttestation(spec, epc, state.(*sharding.BeaconStateView), &att))
 		}
 	case "deposit":
 		var dep common.Deposit
@@ -515,39 +490,39 @@ func (c *TransitionBlockSubCmd) Run(ctx context.Context, args ...string) error {
 		switch c.PreFork {
 		case "phase0", "altair":
 			return fmt.Errorf("fork %s does not have execution_payload processing", c.PreFork)
-		case "bellatrix", "sharding":
+		case "bellatrix":
 			var payload common.ExecutionPayload
 			if err := c.Op.Read(spec.Wrap(&payload)); err != nil {
 				return err
 			}
 			return maybeOutput(bellatrix.ProcessExecutionPayload(ctx, spec, state.(bellatrix.ExecutionTrackingBeaconState),
 				&payload, new(NoOpExecutionEngine)))
+		case "capella":
+			var payload capella.ExecutionPayload
+			if err := c.Op.Read(spec.Wrap(&payload)); err != nil {
+				return err
+			}
+			return maybeOutput(capella.ProcessExecutionPayload(ctx, spec, state.(capella.ExecutionTrackingBeaconState),
+				&payload, new(NoOpExecutionEngine)))
 		}
-	case "shard_proposer_slashing":
-		if c.PreFork != "sharding" {
-			return fmt.Errorf("fork %s does not have shard_proposer_slashing processing", c.PreFork)
+	case "withdrawals":
+		switch c.PreFork {
+		case "phase0", "altair", "bellatrix":
+			return fmt.Errorf("fork %s does not have withdrawals processing", c.PreFork)
+		case "capella":
+			var payload capella.ExecutionPayload
+			if err := c.Op.Read(spec.Wrap(&payload)); err != nil {
+				return err
+			}
+			return maybeOutput(capella.ProcessWithdrawals(ctx, spec, state.(*capella.BeaconStateView), &payload))
 		}
-		var sl sharding.ShardProposerSlashing
-		if err := c.Op.Read(&sl); err != nil {
-			return err
-		}
-		return maybeOutput(sharding.ProcessShardProposerSlashing(spec, epc, state, &sl))
-	case "shard_header":
-		if c.PreFork != "sharding" {
-			return fmt.Errorf("fork %s does not have shard_header processing", c.PreFork)
-		}
-		var h sharding.SignedShardBlobHeader
-		if err := c.Op.Read(&h); err != nil {
-			return err
-		}
-		return maybeOutput(sharding.ProcessShardHeader(spec, epc, state.(*sharding.BeaconStateView), &h))
 	}
 	return ask.UnrecognizedErr
 }
 
 type NoOpExecutionEngine struct{}
 
-func (m *NoOpExecutionEngine) ExecutePayload(ctx context.Context, executionPayload *common.ExecutionPayload) (valid bool, err error) {
+func (m *NoOpExecutionEngine) ExecutePayload(ctx context.Context, executionPayload interface{}) (valid bool, err error) {
 	return true, nil
 }
 
@@ -592,9 +567,7 @@ var epochSubProcessingByPhase = map[string][]string{
 		"historical_roots_update",
 		"participation_record_updates",
 	},
-	"sharding": {
-		"pending_shard_confirmations",
-		"reset_pending_shard_work",
+	"capella": {
 		"justification_and_finalization",
 		"rewards_and_penalties",
 		"registry_updates",
@@ -641,16 +614,16 @@ var blockOpSubProcessingByPhase = map[string][]string{
 		"voluntary_exit",
 		"execution_payload",
 	},
-	"sharding": {
+	"capella": {
 		"block_header",
 		"randao",
 		"eth1_data",
 		"proposer_slashing",
 		"attester_slashing",
-		"shard_proposer_slashing",
-		"shard_header",
 		"attestation",
 		"deposit",
 		"voluntary_exit",
+		"execution_payload",
+		"withdrawals",
 	},
 }

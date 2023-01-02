@@ -3,9 +3,9 @@ package spec_types
 import (
 	"github.com/protolambda/zrnt/eth2/beacon/altair"
 	"github.com/protolambda/zrnt/eth2/beacon/bellatrix"
+	"github.com/protolambda/zrnt/eth2/beacon/capella"
 	"github.com/protolambda/zrnt/eth2/beacon/common"
 	"github.com/protolambda/zrnt/eth2/beacon/phase0"
-	"github.com/protolambda/zrnt/eth2/beacon/sharding"
 	"github.com/protolambda/ztyp/view"
 )
 
@@ -162,18 +162,17 @@ var bellatrixSpecTypes = map[string]SpecType{
 	"LogsBloom":              {func(spec *common.Spec) common.SSZObj { return new(common.LogsBloom) }, func(spec *common.Spec) view.TypeDef { return common.LogsBloomType }},
 }
 
-var ShardingSpecTypes = map[string]SpecType{
-	"BeaconState":             {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(sharding.BeaconState)) }, func(spec *common.Spec) view.TypeDef { return sharding.BeaconStateType(spec) }},
-	"BeaconBlock":             {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(sharding.BeaconBlock)) }, func(spec *common.Spec) view.TypeDef { return sharding.BeaconBlockType(spec) }},
+var capellaSpecTypes = map[string]SpecType{
+	"BeaconState":             {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(capella.BeaconState)) }, func(spec *common.Spec) view.TypeDef { return capella.BeaconStateType(spec) }},
+	"BeaconBlock":             {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(capella.BeaconBlock)) }, func(spec *common.Spec) view.TypeDef { return capella.BeaconBlockType(spec) }},
 	"BeaconBlockHeader":       {func(spec *common.Spec) common.SSZObj { return new(common.BeaconBlockHeader) }, func(spec *common.Spec) view.TypeDef { return common.BeaconBlockHeaderType }},
-	"SignedBeaconBlock":       {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(sharding.SignedBeaconBlock)) }, func(spec *common.Spec) view.TypeDef { return sharding.SignedBeaconBlockType(spec) }},
+	"SignedBeaconBlock":       {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(capella.SignedBeaconBlock)) }, func(spec *common.Spec) view.TypeDef { return capella.SignedBeaconBlockType(spec) }},
 	"SignedBeaconBlockHeader": {func(spec *common.Spec) common.SSZObj { return new(common.SignedBeaconBlockHeader) }, func(spec *common.Spec) view.TypeDef { return common.SignedBeaconBlockHeaderType }},
-	"BeaconBlockBody":         {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(sharding.BeaconBlockBody)) }, func(spec *common.Spec) view.TypeDef { return sharding.BeaconBlockBodyType(spec) }},
+	"BeaconBlockBody":         {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(capella.BeaconBlockBody)) }, func(spec *common.Spec) view.TypeDef { return capella.BeaconBlockBodyType(spec) }},
 
-	"AttestationData":  {func(spec *common.Spec) common.SSZObj { return new(sharding.AttestationData) }, func(spec *common.Spec) view.TypeDef { return sharding.AttestationDataType }},
-	"Attestation":      {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(sharding.Attestation)) }, func(spec *common.Spec) view.TypeDef { return sharding.AttestationType(spec) }},
-	"AttesterSlashing": {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(sharding.AttesterSlashing)) }, func(spec *common.Spec) view.TypeDef { return sharding.AttesterSlashingType(spec) }},
-
+	"AttestationData":     {func(spec *common.Spec) common.SSZObj { return new(phase0.AttestationData) }, func(spec *common.Spec) view.TypeDef { return phase0.AttestationDataType }},
+	"Attestation":         {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(phase0.Attestation)) }, func(spec *common.Spec) view.TypeDef { return phase0.AttestationType(spec) }},
+	"AttesterSlashing":    {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(phase0.AttesterSlashing)) }, func(spec *common.Spec) view.TypeDef { return phase0.AttesterSlashingType(spec) }},
 	"ProposerSlashing":    {func(spec *common.Spec) common.SSZObj { return new(phase0.ProposerSlashing) }, func(spec *common.Spec) view.TypeDef { return phase0.ProposerSlashingType }},
 	"Deposit":             {func(spec *common.Spec) common.SSZObj { return new(common.Deposit) }, func(spec *common.Spec) view.TypeDef { return common.DepositType }},
 	"DepositData":         {func(spec *common.Spec) common.SSZObj { return new(common.DepositData) }, func(spec *common.Spec) view.TypeDef { return common.DepositDataType }},
@@ -213,40 +212,24 @@ var ShardingSpecTypes = map[string]SpecType{
 	"SyncCommitteeMessage":        {func(spec *common.Spec) common.SSZObj { return new(altair.SyncCommitteeMessage) }, func(spec *common.Spec) view.TypeDef { return altair.SyncCommitteeMessageType }},
 	"SyncCommittee":               {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(common.SyncCommittee)) }, func(spec *common.Spec) view.TypeDef { return common.SyncCommitteeType(spec) }},
 
-	"ExecutionPayload":       {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(common.ExecutionPayload)) }, func(spec *common.Spec) view.TypeDef { return common.ExecutionPayloadType(spec) }},
-	"ExecutionPayloadHeader": {func(spec *common.Spec) common.SSZObj { return new(common.ExecutionPayloadHeader) }, func(spec *common.Spec) view.TypeDef { return common.ExecutionPayloadHeaderType }},
+	"ExecutionPayload":       {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(capella.ExecutionPayload)) }, func(spec *common.Spec) view.TypeDef { return capella.ExecutionPayloadType(spec) }},
+	"ExecutionPayloadHeader": {func(spec *common.Spec) common.SSZObj { return new(capella.ExecutionPayloadHeader) }, func(spec *common.Spec) view.TypeDef { return capella.ExecutionPayloadHeaderType }},
 	"PayloadTransactions":    {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(common.PayloadTransactions)) }, func(spec *common.Spec) view.TypeDef { return common.PayloadTransactionsType(spec) }},
 	"LogsBloom":              {func(spec *common.Spec) common.SSZObj { return new(common.LogsBloom) }, func(spec *common.Spec) view.TypeDef { return common.LogsBloomType }},
 
-	"Shard":        {func(spec *common.Spec) common.SSZObj { return new(common.Shard) }, func(spec *common.Spec) view.TypeDef { return common.ShardType }},
-	"BuilderIndex": {func(spec *common.Spec) common.SSZObj { return new(common.BuilderIndex) }, func(spec *common.Spec) view.TypeDef { return common.BuilderIndexType }},
-	"Builder":      {func(spec *common.Spec) common.SSZObj { return new(sharding.Builder) }, func(spec *common.Spec) view.TypeDef { return sharding.BuilderType }},
-
-	"BLSPoint":                 {func(spec *common.Spec) common.SSZObj { return new(common.BLSPoint) }, func(spec *common.Spec) view.TypeDef { return common.BLSPointType }},
-	"DataCommitment":           {func(spec *common.Spec) common.SSZObj { return new(sharding.DataCommitment) }, func(spec *common.Spec) view.TypeDef { return sharding.DataCommitmentType }},
-	"AttestedDataCommitment":   {func(spec *common.Spec) common.SSZObj { return new(sharding.AttestedDataCommitment) }, func(spec *common.Spec) view.TypeDef { return sharding.AttestedDataCommitmentType }},
-	"ShardData":                {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(sharding.ShardData)) }, func(spec *common.Spec) view.TypeDef { return sharding.ShardDataType(spec) }},
-	"ShardBlobBody":            {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(sharding.ShardBlobBody)) }, func(spec *common.Spec) view.TypeDef { return sharding.ShardBlobBodyType(spec) }},
-	"ShardBlobBodySummary":     {func(spec *common.Spec) common.SSZObj { return new(sharding.ShardBlobBodySummary) }, func(spec *common.Spec) view.TypeDef { return sharding.ShardBlobBodySummaryType }},
-	"ShardBlobHeader":          {func(spec *common.Spec) common.SSZObj { return new(sharding.ShardBlobHeader) }, func(spec *common.Spec) view.TypeDef { return sharding.ShardBlobHeaderType }},
-	"SignedShardBlobHeader":    {func(spec *common.Spec) common.SSZObj { return new(sharding.SignedShardBlobHeader) }, func(spec *common.Spec) view.TypeDef { return sharding.SignedShardBlobHeaderType }},
-	"ShardBlob":                {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(sharding.ShardBlob)) }, func(spec *common.Spec) view.TypeDef { return sharding.ShardBlobType(spec) }},
-	"SignedShardBlob":          {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(sharding.SignedShardBlob)) }, func(spec *common.Spec) view.TypeDef { return sharding.SignedShardBlobType(spec) }},
-	"PendingShardHeader":       {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(sharding.PendingShardHeader)) }, func(spec *common.Spec) view.TypeDef { return sharding.PendingShardHeaderType(spec) }},
-	"ShardBlobReference":       {func(spec *common.Spec) common.SSZObj { return new(sharding.ShardBlobReference) }, func(spec *common.Spec) view.TypeDef { return sharding.ShardBlobReferenceType }},
-	"SignedShardBlobReference": {func(spec *common.Spec) common.SSZObj { return new(sharding.SignedShardBlobReference) }, func(spec *common.Spec) view.TypeDef { return sharding.SignedShardBlobReferenceType }},
-	"ShardProposerSlashing":    {func(spec *common.Spec) common.SSZObj { return new(sharding.ShardProposerSlashing) }, func(spec *common.Spec) view.TypeDef { return sharding.ShardProposerSlashingType }},
-	"ShardWork":                {func(spec *common.Spec) common.SSZObj { return spec.Wrap(new(sharding.ShardWork)) }, func(spec *common.Spec) view.TypeDef { return sharding.ShardWorkType(spec) }},
+	"Withdrawal":                 {func(spec *common.Spec) common.SSZObj { return new(common.Withdrawal) }, func(spec *common.Spec) view.TypeDef { return common.WithdrawalType }},
+	"BLSToExecutionChange":       {func(spec *common.Spec) common.SSZObj { return new(common.BLSToExecutionChange) }, func(spec *common.Spec) view.TypeDef { return common.BLSToExecutionChangeType }},
+	"SignedBLSToExecutionChange": {func(spec *common.Spec) common.SSZObj { return new(common.SignedBLSToExecutionChange) }, func(spec *common.Spec) view.TypeDef { return common.SignedBLSToExecutionChangeType }},
 }
 
 var TypesByPhase = map[string]map[string]SpecType{
 	"phase0":    Phase0SpecTypes,
 	"altair":    AltairSpecTypes,
 	"bellatrix": bellatrixSpecTypes,
-	"sharding":  ShardingSpecTypes,
+	"capella":   capellaSpecTypes,
 }
 
-var Phases = []string{"phase0", "altair", "bellatrix", "sharding"}
+var Phases = []string{"phase0", "altair", "bellatrix", "capella"}
 
 func TypeNames(types map[string]SpecType) []string {
 	out := make([]string, 0, len(types))

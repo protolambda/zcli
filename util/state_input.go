@@ -7,9 +7,9 @@ import (
 	"github.com/golang/snappy"
 	"github.com/protolambda/zrnt/eth2/beacon/altair"
 	"github.com/protolambda/zrnt/eth2/beacon/bellatrix"
+	"github.com/protolambda/zrnt/eth2/beacon/capella"
 	"github.com/protolambda/zrnt/eth2/beacon/common"
 	"github.com/protolambda/zrnt/eth2/beacon/phase0"
-	"github.com/protolambda/zrnt/eth2/beacon/sharding"
 	"github.com/protolambda/ztyp/codec"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
@@ -87,8 +87,8 @@ func (p *StateInput) Read(spec *common.Spec, phase string) (common.BeaconState, 
 			flat = new(altair.BeaconState)
 		case "bellatrix":
 			flat = new(bellatrix.BeaconState)
-		case "sharding":
-			flat = new(sharding.BeaconState)
+		case "capella":
+			flat = new(capella.BeaconState)
 		default:
 			return nil, fmt.Errorf("unrecognized phase: %s", phase)
 		}
@@ -118,8 +118,8 @@ func (p *StateInput) Read(spec *common.Spec, phase string) (common.BeaconState, 
 		return altair.AsBeaconStateView(altair.BeaconStateType(spec).Deserialize(dec))
 	case "bellatrix":
 		return bellatrix.AsBeaconStateView(bellatrix.BeaconStateType(spec).Deserialize(dec))
-	case "sharding":
-		return sharding.AsBeaconStateView(sharding.BeaconStateType(spec).Deserialize(dec))
+	case "capella":
+		return capella.AsBeaconStateView(capella.BeaconStateType(spec).Deserialize(dec))
 	default:
 		return nil, fmt.Errorf("unrecognized phase: %s", phase)
 	}

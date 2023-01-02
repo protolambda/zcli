@@ -9,9 +9,9 @@ import (
 	"github.com/protolambda/zrnt/eth2/beacon"
 	"github.com/protolambda/zrnt/eth2/beacon/altair"
 	"github.com/protolambda/zrnt/eth2/beacon/bellatrix"
+	"github.com/protolambda/zrnt/eth2/beacon/capella"
 	"github.com/protolambda/zrnt/eth2/beacon/common"
 	"github.com/protolambda/zrnt/eth2/beacon/phase0"
-	"github.com/protolambda/zrnt/eth2/beacon/sharding"
 	"github.com/protolambda/ztyp/codec"
 	"gopkg.in/yaml.v3"
 	"io"
@@ -99,8 +99,8 @@ func (p *StateOutput) Write(spec *common.Spec, obj common.BeaconState) error {
 			flat = new(altair.BeaconState)
 		case *bellatrix.BeaconStateView:
 			flat = new(bellatrix.BeaconState)
-		case *sharding.BeaconStateView:
-			flat = new(sharding.BeaconState)
+		case *capella.BeaconStateView:
+			flat = new(capella.BeaconState)
 		default:
 			return fmt.Errorf("failed to detect state type for output: %T", obj)
 		}

@@ -18,7 +18,7 @@ func (c *MetaCmd) Help() string {
 
 func (c *MetaCmd) Cmd(route string) (cmd interface{}, err error) {
 	switch route {
-	case "phase0", "altair", "bellatrix", "sharding":
+	case "phase0", "altair", "bellatrix", "capella":
 		return &MetaPhaseCmd{Phase: route}, nil
 	}
 	return nil, ask.UnrecognizedErr
