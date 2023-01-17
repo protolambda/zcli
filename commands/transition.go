@@ -4,17 +4,20 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/protolambda/ask"
-	"github.com/protolambda/zcli/spec_types"
-	"github.com/protolambda/zcli/util"
 	"github.com/protolambda/zrnt/eth2/beacon"
 	"github.com/protolambda/zrnt/eth2/beacon/altair"
 	"github.com/protolambda/zrnt/eth2/beacon/bellatrix"
 	"github.com/protolambda/zrnt/eth2/beacon/capella"
 	"github.com/protolambda/zrnt/eth2/beacon/common"
+	"github.com/protolambda/zrnt/eth2/beacon/deneb"
 	"github.com/protolambda/zrnt/eth2/beacon/phase0"
 	"github.com/protolambda/zrnt/eth2/configs"
-	"time"
+
+	"github.com/protolambda/zcli/spec_types"
+	"github.com/protolambda/zcli/util"
 )
 
 type TransitionCmd struct{}
@@ -25,7 +28,7 @@ func (c *TransitionCmd) Help() string {
 
 func (c *TransitionCmd) Cmd(route string) (cmd interface{}, err error) {
 	switch route {
-	case "phase0", "altair", "bellatrix", "capella":
+	case "phase0", "altair", "bellatrix", "capella", "deneb":
 		return &TransitionSubCmd{PreFork: route}, nil
 	default:
 		return nil, ask.UnrecognizedErr
@@ -193,6 +196,9 @@ func (c *TransitionBlocksCmd) Run(ctx context.Context, args ...string) error {
 		case "capella":
 			obj = new(capella.SignedBeaconBlock)
 			digest = common.ComputeForkDigest(spec.CAPELLA_FORK_VERSION, genesisValRoot)
+		case "deneb":
+			obj = new(deneb.SignedBeaconBlock)
+			digest = common.ComputeForkDigest(spec.DENEB_FORK_VERSION, genesisValRoot)
 		}
 		input := util.ObjInput(arg)
 		if err := input.Read(spec.Wrap(obj)); err != nil {
@@ -355,7 +361,12 @@ func (c *TransitionEpochSubCmd) Run(ctx context.Context, args ...string) error {
 	case "randao_mixes_reset":
 		return maybeOutput(phase0.ProcessRandaoMixesReset(ctx, spec, epc, state))
 	case "historical_roots_update":
-		return maybeOutput(phase0.ProcessHistoricalRootsUpdate(ctx, spec, epc, state))
+		switch c.PreFork {
+		case "phase0", "altair", "bellatrix":
+			return maybeOutput(phase0.ProcessHistoricalRootsUpdate(ctx, spec, epc, state))
+		default:
+			return errors.New("historical_roots_update is only available before Capella")
+		}
 	case "participation_record_updates":
 		if c.PreFork != "phase0" {
 			return errors.New("participation_record_updates was removed after Phase0")
@@ -368,9 +379,16 @@ func (c *TransitionEpochSubCmd) Run(ctx context.Context, args ...string) error {
 		return maybeOutput(altair.ProcessParticipationFlagUpdates(ctx, spec, state.(*altair.BeaconStateView)))
 	case "sync_committee_updates":
 		if c.PreFork == "phase0" {
-			return errors.New("sync_committee_updates is only after Phase0")
+			return errors.New("sync_committee_updates is only available after Phase0")
 		}
 		return maybeOutput(altair.ProcessSyncCommitteeUpdates(ctx, spec, epc, state.(*altair.BeaconStateView)))
+	case "historical_summaries_update":
+		switch c.PreFork {
+		case "phase0", "altair", "bellatrix":
+			return errors.New("historical_summaries_update is only available after Bellatrix")
+		default:
+			return maybeOutput(capella.ProcessHistoricalSummariesUpdate(ctx, spec, epc, state.(capella.HistoricalSummariesBeaconState)))
+		}
 	}
 	return ask.UnrecognizedErr
 }
@@ -477,6 +495,17 @@ func (c *TransitionBlockSubCmd) Run(ctx context.Context, args ...string) error {
 			return err
 		}
 		return maybeOutput(phase0.ProcessVoluntaryExit(spec, epc, state, &exit))
+	case "bls_to_execution_change":
+		switch c.PreFork {
+		case "phase0", "altair", "bellatrix":
+			return fmt.Errorf("fork %s does not have bls_to_execution_change processing", c.PreFork)
+		case "capella", "deneb":
+			var change common.SignedBLSToExecutionChange
+			if err := c.Op.Read(&change); err != nil {
+				return err
+			}
+			return maybeOutput(capella.ProcessBLSToExecutionChange(ctx, spec, nil, state, &change))
+		}
 	case "sync_aggregate":
 		if c.PreFork == "phase0" {
 			return fmt.Errorf("fork %s does not have sync_aggregate processing", c.PreFork)
@@ -491,7 +520,7 @@ func (c *TransitionBlockSubCmd) Run(ctx context.Context, args ...string) error {
 		case "phase0", "altair":
 			return fmt.Errorf("fork %s does not have execution_payload processing", c.PreFork)
 		case "bellatrix":
-			var payload common.ExecutionPayload
+			var payload bellatrix.ExecutionPayload
 			if err := c.Op.Read(spec.Wrap(&payload)); err != nil {
 				return err
 			}
@@ -504,6 +533,13 @@ func (c *TransitionBlockSubCmd) Run(ctx context.Context, args ...string) error {
 			}
 			return maybeOutput(capella.ProcessExecutionPayload(ctx, spec, state.(capella.ExecutionTrackingBeaconState),
 				&payload, new(NoOpExecutionEngine)))
+		case "deneb":
+			var payload deneb.ExecutionPayload
+			if err := c.Op.Read(spec.Wrap(&payload)); err != nil {
+				return err
+			}
+			return maybeOutput(deneb.ProcessExecutionPayload(ctx, spec, state.(deneb.ExecutionTrackingBeaconState),
+				&payload, new(NoOpExecutionEngine)))
 		}
 	case "withdrawals":
 		switch c.PreFork {
@@ -514,7 +550,13 @@ func (c *TransitionBlockSubCmd) Run(ctx context.Context, args ...string) error {
 			if err := c.Op.Read(spec.Wrap(&payload)); err != nil {
 				return err
 			}
-			return maybeOutput(capella.ProcessWithdrawals(ctx, spec, state.(*capella.BeaconStateView), &payload))
+			return maybeOutput(capella.ProcessWithdrawals(ctx, spec, state.(capella.BeaconStateWithWithdrawals), &payload))
+		case "deneb":
+			var payload deneb.ExecutionPayload
+			if err := c.Op.Read(spec.Wrap(&payload)); err != nil {
+				return err
+			}
+			return maybeOutput(capella.ProcessWithdrawals(ctx, spec, state.(capella.BeaconStateWithWithdrawals), &payload))
 		}
 	}
 	return ask.UnrecognizedErr
@@ -566,6 +608,7 @@ var epochSubProcessingByPhase = map[string][]string{
 		"randao_mixes_reset",
 		"historical_roots_update",
 		"participation_record_updates",
+		"sync_committee_updates",
 	},
 	"capella": {
 		"justification_and_finalization",
@@ -576,8 +619,22 @@ var epochSubProcessingByPhase = map[string][]string{
 		"effective_balance_updates",
 		"slashings_reset",
 		"randao_mixes_reset",
-		"historical_roots_update",
+		"historical_summaries_update",
 		"participation_record_updates",
+		"sync_committee_updates",
+	},
+	"deneb": {
+		"justification_and_finalization",
+		"rewards_and_penalties",
+		"registry_updates",
+		"slashings",
+		"eth1_data_reset",
+		"effective_balance_updates",
+		"slashings_reset",
+		"randao_mixes_reset",
+		"historical_summaries_update",
+		"participation_record_updates",
+		"sync_committee_updates",
 	},
 }
 
@@ -612,6 +669,7 @@ var blockOpSubProcessingByPhase = map[string][]string{
 		"attestation",
 		"deposit",
 		"voluntary_exit",
+		"sync_aggregate",
 		"execution_payload",
 	},
 	"capella": {
@@ -623,6 +681,22 @@ var blockOpSubProcessingByPhase = map[string][]string{
 		"attestation",
 		"deposit",
 		"voluntary_exit",
+		"bls_to_execution_change",
+		"sync_aggregate",
+		"execution_payload",
+		"withdrawals",
+	},
+	"deneb": {
+		"block_header",
+		"randao",
+		"eth1_data",
+		"proposer_slashing",
+		"attester_slashing",
+		"attestation",
+		"deposit",
+		"voluntary_exit",
+		"bls_to_execution_change",
+		"sync_aggregate",
 		"execution_payload",
 		"withdrawals",
 	},

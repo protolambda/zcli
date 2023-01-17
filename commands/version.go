@@ -3,13 +3,14 @@ package commands
 import (
 	"context"
 	"fmt"
+
 	"github.com/protolambda/zrnt/eth2"
 )
 
 type VersionCmd struct {
 }
 
-const Version = "v0.5.0"
+const Version = "v0.6.0"
 
 func (c *VersionCmd) Help() string {
 	return "Print ZCLI and ZRNT version"
