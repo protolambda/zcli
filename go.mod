@@ -6,7 +6,7 @@ require (
 	github.com/golang/snappy v0.0.3
 	github.com/protolambda/ask v0.1.2
 	github.com/protolambda/messagediff v1.4.0
-	github.com/protolambda/zrnt v0.32.2
+	github.com/protolambda/zrnt v0.32.3
 	github.com/protolambda/ztyp v0.2.2
 	gopkg.in/yaml.v3 v3.0.0
 )
