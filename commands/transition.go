@@ -15,6 +15,7 @@ import (
 	"github.com/protolambda/zrnt/eth2/beacon/deneb"
 	"github.com/protolambda/zrnt/eth2/beacon/phase0"
 	"github.com/protolambda/zrnt/eth2/configs"
+	"github.com/protolambda/zrnt/eth2/execution"
 
 	"github.com/protolambda/zcli/spec_types"
 	"github.com/protolambda/zcli/util"
@@ -163,6 +164,7 @@ func (c *TransitionBlocksCmd) Run(ctx context.Context, args ...string) error {
 	if err != nil {
 		return err
 	}
+	spec.ExecutionEngine = new(execution.NoOpExecutionEngine)
 	pre, err := c.Pre.Read(spec, c.PreFork)
 	if err != nil {
 		return err
@@ -520,26 +522,26 @@ func (c *TransitionBlockSubCmd) Run(ctx context.Context, args ...string) error {
 		case "phase0", "altair":
 			return fmt.Errorf("fork %s does not have execution_payload processing", c.PreFork)
 		case "bellatrix":
-			var payload bellatrix.ExecutionPayload
-			if err := c.Op.Read(spec.Wrap(&payload)); err != nil {
+			var body bellatrix.BeaconBlockBody
+			if err := c.Op.Read(spec.Wrap(&body)); err != nil {
 				return err
 			}
 			return maybeOutput(bellatrix.ProcessExecutionPayload(ctx, spec, state.(bellatrix.ExecutionTrackingBeaconState),
-				&payload, new(NoOpExecutionEngine)))
+				&body.ExecutionPayload, new(execution.NoOpExecutionEngine)))
 		case "capella":
-			var payload capella.ExecutionPayload
-			if err := c.Op.Read(spec.Wrap(&payload)); err != nil {
+			var body capella.BeaconBlockBody
+			if err := c.Op.Read(spec.Wrap(&body)); err != nil {
 				return err
 			}
 			return maybeOutput(capella.ProcessExecutionPayload(ctx, spec, state.(capella.ExecutionTrackingBeaconState),
-				&payload, new(NoOpExecutionEngine)))
+				&body.ExecutionPayload, new(execution.NoOpExecutionEngine)))
 		case "deneb":
-			var payload deneb.ExecutionPayload
-			if err := c.Op.Read(spec.Wrap(&payload)); err != nil {
+			var body deneb.BeaconBlockBody
+			if err := c.Op.Read(spec.Wrap(&body)); err != nil {
 				return err
 			}
 			return maybeOutput(deneb.ProcessExecutionPayload(ctx, spec, state.(deneb.ExecutionTrackingBeaconState),
-				&payload, new(NoOpExecutionEngine)))
+				&body, new(execution.NoOpExecutionEngine)))
 		}
 	case "withdrawals":
 		switch c.PreFork {
@@ -561,14 +563,6 @@ func (c *TransitionBlockSubCmd) Run(ctx context.Context, args ...string) error {
 	}
 	return ask.UnrecognizedErr
 }
-
-type NoOpExecutionEngine struct{}
-
-func (m *NoOpExecutionEngine) ExecutePayload(ctx context.Context, executionPayload interface{}) (valid bool, err error) {
-	return true, nil
-}
-
-var _ common.ExecutionEngine = (*NoOpExecutionEngine)(nil)
 
 var epochSubProcessingByPhase = map[string][]string{
 	"phase0": {
