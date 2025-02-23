@@ -11,6 +11,8 @@ import (
 	"github.com/protolambda/zrnt/eth2/beacon/bellatrix"
 	"github.com/protolambda/zrnt/eth2/beacon/capella"
 	"github.com/protolambda/zrnt/eth2/beacon/common"
+	"github.com/protolambda/zrnt/eth2/beacon/deneb"
+	"github.com/protolambda/zrnt/eth2/beacon/electra"
 	"github.com/protolambda/zrnt/eth2/beacon/phase0"
 	"github.com/protolambda/ztyp/codec"
 	"gopkg.in/yaml.v3"
@@ -101,6 +103,10 @@ func (p *StateOutput) Write(spec *common.Spec, obj common.BeaconState) error {
 			flat = new(bellatrix.BeaconState)
 		case *capella.BeaconStateView:
 			flat = new(capella.BeaconState)
+		case *deneb.BeaconStateView:
+			flat = new(deneb.BeaconState)
+		case *electra.BeaconStateView:
+			flat = new(electra.BeaconState)
 		default:
 			return fmt.Errorf("failed to detect state type for output: %T", obj)
 		}

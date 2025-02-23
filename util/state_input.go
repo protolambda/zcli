@@ -9,6 +9,8 @@ import (
 	"github.com/protolambda/zrnt/eth2/beacon/bellatrix"
 	"github.com/protolambda/zrnt/eth2/beacon/capella"
 	"github.com/protolambda/zrnt/eth2/beacon/common"
+	"github.com/protolambda/zrnt/eth2/beacon/deneb"
+	"github.com/protolambda/zrnt/eth2/beacon/electra"
 	"github.com/protolambda/zrnt/eth2/beacon/phase0"
 	"github.com/protolambda/ztyp/codec"
 	"gopkg.in/yaml.v3"
@@ -89,6 +91,10 @@ func (p *StateInput) Read(spec *common.Spec, phase string) (common.BeaconState, 
 			flat = new(bellatrix.BeaconState)
 		case "capella":
 			flat = new(capella.BeaconState)
+		case "deneb":
+			flat = new(deneb.BeaconState)
+		case "electra":
+			flat = new(electra.BeaconState)
 		default:
 			return nil, fmt.Errorf("unrecognized phase: %s", phase)
 		}
@@ -120,6 +126,10 @@ func (p *StateInput) Read(spec *common.Spec, phase string) (common.BeaconState, 
 		return bellatrix.AsBeaconStateView(bellatrix.BeaconStateType(spec).Deserialize(dec))
 	case "capella":
 		return capella.AsBeaconStateView(capella.BeaconStateType(spec).Deserialize(dec))
+	case "deneb":
+		return deneb.AsBeaconStateView(deneb.BeaconStateType(spec).Deserialize(dec))
+	case "electra":
+		return electra.AsBeaconStateView(electra.BeaconStateType(spec).Deserialize(dec))
 	default:
 		return nil, fmt.Errorf("unrecognized phase: %s", phase)
 	}
